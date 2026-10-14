@@ -1,0 +1,860 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script>try{var t=localStorage.getItem("mkt101_theme");if(t)document.documentElement.dataset.theme=JSON.parse(t)}catch(e){}</script>
+<title>MKT101 Case Lab</title>
+<style>
+:root{
+  --bg:#f6f4ef;--card:#ffffff;--ink:#1c2328;--mute:#5a6670;--line:#e2ddd2;--soft:#eef2f1;
+  --acc:#2b6a8a;--acc-soft:#e3eef4;--on-acc:#ffffff;
+  --good:#2e7a4d;--good-soft:#e2f2e8;--warn:#9a5c10;--warn-soft:#fbefdc;--bad:#b0393a;--bad-soft:#f8e4e3;
+  --paper:#fffdf6;--radius:12px;color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+  --bg:#12171a;--card:#1a2126;--ink:#e8eef1;--mute:#9cabb4;--line:#2b353c;--soft:#1f2a30;
+  --acc:#7cb6d6;--acc-soft:#1d3240;--on-acc:#0d1418;
+  --good:#6fcf97;--good-soft:#173527;--warn:#f0b35e;--warn-soft:#3a2a12;--bad:#ff8f86;--bad-soft:#3d1c1b;
+  --paper:#1d2329;color-scheme:dark}}
+:root[data-theme=dark]{
+  --bg:#12171a;--card:#1a2126;--ink:#e8eef1;--mute:#9cabb4;--line:#2b353c;--soft:#1f2a30;
+  --acc:#7cb6d6;--acc-soft:#1d3240;--on-acc:#0d1418;
+  --good:#6fcf97;--good-soft:#173527;--warn:#f0b35e;--warn-soft:#3a2a12;--bad:#ff8f86;--bad-soft:#3d1c1b;
+  --paper:#1d2329;color-scheme:dark}
+body[data-case=sto]{--acc:#1f5ea8;--acc-soft:#e2ebf7}
+body[data-case=soneva]{--acc:#2a7a68;--acc-soft:#e0f1ec}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) body[data-case=sto]{--acc:#7fb2ee;--acc-soft:#1b2c42}
+ :root:not([data-theme=light]) body[data-case=soneva]{--acc:#69c9b2;--acc-soft:#173630}}
+:root[data-theme=dark] body[data-case=sto]{--acc:#7fb2ee;--acc-soft:#1b2c42}
+:root[data-theme=dark] body[data-case=soneva]{--acc:#69c9b2;--acc-soft:#173630}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button{font:inherit;color:inherit}
+a{color:var(--acc)}
+.wrap{max-width:960px;margin:0 auto;padding:0 16px}
+
+/* top bar */
+.bar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;align-items:center;gap:10px;height:56px}
+.brand{font-weight:700;text-decoration:none;color:var(--ink);white-space:nowrap}
+.brand small{font-weight:500;color:var(--mute)}
+#sw{display:flex;gap:4px;margin-left:auto;overflow-x:auto}
+#sw a,#theme{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 12px;font-size:.88rem;text-decoration:none;color:var(--ink);white-space:nowrap;cursor:pointer}
+#sw a[aria-current=page]{background:var(--acc);border-color:var(--acc);color:var(--on-acc)}
+@media (max-width:560px){.brand small{display:none}#sw a,#theme{padding:6px 10px;font-size:.84rem}}
+@media (max-width:440px){.brand .full{display:none}.bar .wrap{gap:6px}}
+@media (min-width:441px){.brand .short{display:none}}
+
+/* landing */
+.hero{padding:40px 0 10px}
+.kick{font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--acc)}
+h1{font-size:clamp(1.7rem,4.5vw,2.5rem);line-height:1.15;margin:.35rem 0 .5rem;letter-spacing:-.01em}
+.lead{color:var(--mute);font-size:1.05rem;max-width:62ch;margin:0}
+.cases{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin:28px 0}
+.ccard{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;text-decoration:none;color:var(--ink);transition:transform .15s ease,box-shadow .15s ease}
+.ccard:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.ccard .logo{height:140px;border-radius:0;border:0;border-bottom:1px solid var(--line)}
+.ccard .body{padding:18px}
+.ccard h2{font-size:1.2rem;margin:0 0 .3rem;line-height:1.3}
+.ccard p{margin:0 0 .8rem;color:var(--mute);font-size:.95rem}
+.ccard .go{margin-top:auto;padding:0 18px 18px;font-weight:600;color:var(--acc)}
+.c-sto{--acc:#1f5ea8;--acc-soft:#e2ebf7}
+.c-soneva{--acc:#2a7a68;--acc-soft:#e0f1ec}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .c-sto{--acc:#7fb2ee;--acc-soft:#1b2c42}:root:not([data-theme=light]) .c-soneva{--acc:#69c9b2;--acc-soft:#173630}}
+:root[data-theme=dark] .c-sto{--acc:#7fb2ee;--acc-soft:#1b2c42}
+:root[data-theme=dark] .c-soneva{--acc:#69c9b2;--acc-soft:#173630}
+.logo{display:flex;align-items:center;justify-content:center;background:var(--acc-soft);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.logo img{max-width:70%;max-height:70%;object-fit:contain}
+.logo .wm{font-weight:800;font-size:1.9rem;letter-spacing:.02em;color:var(--acc);text-align:center;line-height:1.1;padding:0 12px}
+.logo .wm small{display:block;font-size:.8rem;font-weight:600;letter-spacing:.04em;color:var(--mute);margin-top:4px}
+.logo.has .wm{display:none}
+.steps{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:8px 0 40px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+.step b{display:block;margin-bottom:2px}
+.step span{color:var(--mute);font-size:.92rem}
+.foot{color:var(--mute);font-size:.85rem;border-top:1px solid var(--line);padding:18px 0 40px}
+
+/* case head */
+.chead{display:grid;grid-template-columns:96px 1fr;gap:18px;align-items:center;padding:28px 0 6px}
+.chead .logo{width:96px;height:96px}
+.chead .logo .wm{font-size:1.15rem}
+.chead .logo .wm small{display:none}
+.chead h1{font-size:clamp(1.4rem,3.6vw,2rem);margin:.2rem 0 .4rem}
+@media (max-width:560px){.chead{grid-template-columns:1fr}.chead .logo{width:72px;height:72px}}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:.78rem;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--acc-soft);color:var(--acc)}
+.chip.n{background:var(--soft);color:var(--mute)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:18px 0 0;overflow-x:auto}
+.tabs a{padding:10px 14px;text-decoration:none;color:var(--mute);font-weight:600;border-bottom:3px solid transparent;white-space:nowrap;font-size:.95rem}
+.tabs a[aria-current=page]{color:var(--acc);border-bottom-color:var(--acc)}
+@media (max-width:560px){.tabs{gap:0}.tabs a{flex:1;text-align:center;white-space:normal;padding:10px 4px;font-size:.84rem;line-height:1.25}}
+#tab{padding:22px 0 60px}
+
+/* reading */
+.note{font-size:.88rem;color:var(--mute);background:var(--card);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:8px;padding:10px 14px;margin-bottom:18px}
+.readbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:8px;color:var(--mute);font-size:.9rem}
+.reading{max-width:68ch}
+.reading h2{font-size:1.15rem;margin:28px 0 6px;color:var(--acc)}
+.reading p{margin:0 0 14px}
+.exhibit{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin:18px 0 22px}
+.exhibit h3{margin:0 0 8px;font-size:1rem}
+.exhibit small{display:block;color:var(--mute);margin-top:8px;font-size:.82rem}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mute);font-weight:600;font-size:.82rem;text-transform:uppercase;letter-spacing:.04em}
+td.num{font-variant-numeric:tabular-nums;font-weight:700}
+
+/* terms */
+.terms{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.term{min-height:120px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:6px}
+.term b{font-size:1rem}
+.term span{color:var(--mute);font-size:.82rem}
+.term[aria-pressed=true]{background:var(--acc-soft);border-color:var(--acc)}
+.term[aria-pressed=true] span{color:var(--ink);font-size:.92rem}
+
+/* activities */
+.anav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.anav a{min-width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);text-decoration:none;color:var(--ink);font-weight:700}
+.anav a[aria-current=page]{background:var(--acc);border-color:var(--acc);color:var(--on-acc)}
+.anav a .tick{color:var(--good);font-size:.85rem}
+.anav a[aria-current=page] .tick{color:var(--on-acc)}
+.ahead h2{margin:.15rem 0 .4rem;font-size:1.35rem}
+.qbox{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin:16px 0}
+.qbox .ql{font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.qbox p{margin:.3rem 0 .2rem;font-size:1.02rem}
+.qbox .mk{font-size:.82rem;color:var(--mute)}
+.part{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:14px 0}
+.part h3{margin:0 0 4px;font-size:1.05rem}
+.intro{color:var(--mute);margin:0 0 14px;font-size:.93rem}
+.item{border-top:1px solid var(--line);padding:14px 0}
+.item:first-of-type{border-top:0;padding-top:4px}
+.it{margin:0 0 8px;font-weight:500}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 12px;cursor:pointer;font-size:.9rem;text-align:left;line-height:1.35;transition:background .12s ease,border-color .12s ease}
+.opt:hover{border-color:var(--acc)}
+.opt[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--on-acc)}
+.opts.col{flex-direction:column}
+.opts.col .opt{width:100%}
+.fbk{margin:8px 0 0;font-size:.9rem;padding:8px 12px;border-radius:8px}
+.fbk.good{background:var(--good-soft);color:var(--good)}
+.fbk.bad{background:var(--bad-soft);color:var(--bad)}
+.fbk.warn{background:var(--warn-soft);color:var(--warn)}
+.fbk.info{background:var(--soft);color:var(--mute)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:9px 16px;cursor:pointer;font-weight:600;font-size:.92rem}
+.btn.primary{background:var(--acc);border-color:var(--acc);color:var(--on-acc)}
+.btn:disabled{opacity:.5;cursor:default}
+.score{font-weight:700;color:var(--acc)}
+.bars{display:grid;gap:4px;margin:6px 0 10px;max-width:420px}
+.barr{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:center;font-size:.82rem;color:var(--mute)}
+.barr i{display:block;height:8px;background:var(--soft);border-radius:4px;overflow:hidden}
+.barr i b{display:block;height:100%;background:var(--acc);border-radius:4px;transition:width .25s ease}
+@media (max-width:420px){.barr{grid-template-columns:110px 1fr}}
+
+/* channel builder */
+.rtabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:14px;background:var(--soft);border-radius:10px;min-height:64px}
+.node{padding:8px 12px;border-radius:8px;background:var(--card);border:1px solid var(--line);font-weight:600;font-size:.9rem;text-align:center;line-height:1.25}
+.node.end{background:var(--acc);border-color:var(--acc);color:var(--on-acc)}
+.node.mid{cursor:pointer;border-style:dashed}
+.node small{display:block;font-weight:700;font-size:.78rem;opacity:.85}
+.arrow{color:var(--mute)}
+.lvl{display:inline-block;margin-top:10px;font-weight:700;color:var(--acc)}
+
+/* atmosphere */
+.ctrl{display:grid;grid-template-columns:120px 1fr;gap:10px;align-items:start;padding:10px 0;border-top:1px solid var(--line)}
+.ctrl:first-of-type{border-top:0}
+.ctrl .lab{font-weight:600;font-size:.92rem}
+.ctrl .lab small{display:block;font-weight:500;color:var(--mute);font-size:.78rem}
+@media (max-width:520px){.ctrl{grid-template-columns:1fr}}
+.meter{height:14px;border-radius:7px;background:linear-gradient(90deg,var(--soft),var(--acc-soft));position:relative;margin:8px 0 4px;border:1px solid var(--line)}
+.meter i{position:absolute;top:-5px;width:4px;height:22px;border-radius:2px;background:var(--acc);transition:left .25s ease;transform:translateX(-50%)}
+.mlab{display:flex;justify-content:space-between;font-size:.78rem;color:var(--mute)}
+
+/* order */
+.orow{display:grid;grid-template-columns:32px 1fr auto;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;background:var(--bg)}
+.orow .pos{font-weight:800;color:var(--acc);text-align:center}
+.orow .mv{display:flex;flex-direction:column;gap:4px}
+.orow .mv button{border:1px solid var(--line);background:var(--card);border-radius:6px;width:36px;height:30px;cursor:pointer}
+.orow.ok{border-color:var(--good);background:var(--good-soft)}
+.orow.no{border-color:var(--bad);background:var(--bad-soft)}
+.orow .sn{display:block;font-size:.8rem;font-weight:700;color:var(--good);margin-bottom:2px}
+.orow .tr{display:block;font-size:.84rem;color:var(--warn);margin-top:4px}
+
+/* grid */
+.tray{display:flex;flex-wrap:wrap;gap:6px;min-height:44px;margin-bottom:12px}
+.gwrap{display:grid;grid-template-columns:28px 1fr;gap:6px}
+.yax{writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;font-size:.78rem;color:var(--mute)}
+.board{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.quad{min-height:130px;border:2px dashed var(--line);border-radius:10px;padding:8px;background:var(--bg);cursor:pointer;display:flex;flex-direction:column;gap:6px;text-align:left}
+.quad:hover{border-color:var(--acc)}
+.quad b{font-size:.92rem}
+.quad small{color:var(--mute);font-size:.76rem;line-height:1.3}
+.xax{grid-column:2;text-align:center;font-size:.78rem;color:var(--mute)}
+.pchip{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:6px 10px;font-size:.85rem;cursor:pointer;text-align:left;line-height:1.3}
+.pchip[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--on-acc)}
+.pchip.ok{border-color:var(--good);background:var(--good-soft);color:var(--good)}
+.pchip.no{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+
+/* claims */
+.claim{border-top:1px solid var(--line);padding:14px 0}
+.claim:first-of-type{border-top:0;padding-top:4px}
+.who{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mute)}
+.ct{margin:2px 0 8px;font-weight:600;font-size:1.02rem}
+.crit{display:flex;flex-wrap:wrap;gap:6px}
+.crit .opt{font-size:.84rem;padding:6px 10px}
+.crit .opt::before{content:"☐ ";}
+.crit .opt[aria-pressed=true]::before{content:"☑ ";}
+.gauge{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:.88rem;font-weight:700}
+.gauge .seg{display:flex;gap:3px}
+.gauge .seg i{width:22px;height:10px;border-radius:3px;background:var(--soft);border:1px solid var(--line)}
+.gauge .seg i.on{background:var(--acc);border-color:var(--acc)}
+.sugg{font-size:.86rem;color:var(--mute);margin-top:6px}
+
+/* builder card */
+.plan{background:var(--paper);border:1px dashed var(--acc);border-radius:10px;padding:14px 16px;margin-top:14px}
+.plan h4{margin:0 0 6px;font-size:.95rem;color:var(--acc)}
+.plan p{margin:4px 0;font-size:.92rem}
+.plan p b{color:var(--mute);font-weight:600}
+.tests{display:grid;gap:8px;margin-top:10px}
+.sec{padding:12px 0;border-top:1px solid var(--line)}
+.sec:first-of-type{border-top:0;padding-top:0}
+.sec h4{margin:0 0 8px;font-size:.95rem}
+
+/* paper + think */
+.paper{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin:18px 0 12px;background-image:repeating-linear-gradient(transparent 0 27px,color-mix(in srgb,var(--acc) 12%,transparent) 27px 28px)}
+.paper h3{margin:0 0 6px;font-size:1rem}
+.paper ol{margin:0;padding-left:20px}
+.paper li{margin:3px 0}
+details.think{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:4px 18px}
+details.think summary{cursor:pointer;font-weight:700;padding:12px 0;color:var(--acc)}
+details.think ul{margin:0 0 10px;padding-left:20px}
+details.think li{margin:5px 0}
+.anext{display:flex;justify-content:space-between;gap:8px;margin-top:22px;flex-wrap:wrap}
+.done[aria-pressed=true]{background:var(--good);border-color:var(--good);color:#fff}
+
+/* tips */
+.tips{display:grid;gap:14px}
+.tips .part ul{margin:6px 0 0;padding-left:20px}
+.verb{display:grid;grid-template-columns:120px 1fr;gap:6px 12px;font-size:.93rem}
+.verb b{color:var(--acc)}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{
+  .bar,.tabs,.chead .chips,.readbar button,.note,.foot{display:none!important}
+  body{background:#fff;color:#000}
+  .exhibit{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<header class="bar"><div class="wrap">
+  <a class="brand" href="#/"><span class="full">MKT101 Case Lab</span><span class="short">MKT101</span> <small>· Introduction to Marketing</small></a>
+  <nav id="sw" aria-label="Choose a case"></nav>
+  <button id="theme" type="button" aria-label="Switch light or dark mode">Dark</button>
+</div></header>
+<main class="wrap" id="app"></main>
+
+<script>
+/* ---------- helpers ---------- */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const S={get(k,d){try{const v=localStorage.getItem('mkt101_'+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem('mkt101_'+k,JSON.stringify(v))}catch(e){}}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const words=t=>t.trim().split(/\s+/).length;
+
+/* ---------- case data ---------- */
+const CASES={
+sto:{
+ id:'sto',short:'STO',org:'State Trading Organisation',
+ title:'STO Retail: Reaching Every Island',
+ blurb:'How a national supplier gets rice, appliances and premium goods to customers across 20 atolls, and what changes when it goes online.',
+ topics:['Topic 10 · Marketing Channels','Topic 11 · Retailing and Wholesaling'],
+ los:['LO1','LO3'],
+ note:'Teaching case based on publicly available information about the State Trading Organisation. Some figures, quotes and situations are simplified or created for classroom use. Not endorsed by STO.',
+ sections:[
+  {h:'A national supplier',ps:[
+   `The State Trading Organisation (STO) is one of the most recognised organisations in the Maldives. Founded in 1964, STO was originally set up to ensure that essential goods such as food, fuel, medicine, and building materials reached every corner of the country. Today, STO operates a wide network of retail stores, wholesale supply points, and specialised business units. It serves both individual consumers and businesses across all 20 atolls. STO is majority government-owned, which means it carries a public responsibility alongside its commercial goals.`,
+   `STO plays two roles at the same time. As a wholesaler, it imports goods in very large quantities and sells them in bulk to island shops, resorts, cafés and other businesses. As a retailer, it sells directly to households through its own stores. Many Maldivians meet STO in both roles without noticing: the shop on their island may buy its rice from STO in bulk, while the family also shops at an STO store when they visit Malé.`]},
+  {h:'Inside STO People’s Choice',ps:[
+   `STO’s retail arm, STO People’s Choice, operates large supermarket-style stores in Malé and on several major islands. These stores carry a wide range of products across many categories: groceries, household items, electronics, stationery, and clothing. The stores are designed to feel accessible and practical. Wide aisles, clear signage in Dhivehi and English, and well-lit shelving are intentional choices. STO’s management believes that how a store feels to walk into matters as much as what is sold inside. A customer who finds the store easy to navigate is more likely to return and to spend more time browsing.`,
+   `STO runs different store formats for different needs. The large stores in Malé and Hulhumalé offer the widest range, trolleys and several checkout counters. On some larger islands, smaller community stores focus on everyday essentials such as rice, flour, sugar, cooking oil, tinned fish and cleaning products. A store manager in Hulhumalé explains: “Our customers are busy parents, students and workers. They want to find what they need quickly, at a fair price, without feeling lost.”`]},
+  {h:'Getting goods to the atolls',ex:0,ps:[
+   `For outer atolls, STO supplies goods through a network of island-level distributors and smaller stockists who purchase in bulk and resell to local shops and residents. This system has worked for decades. However, STO’s leadership team has identified a growing problem. Each step between STO’s warehouse in Malé and the final customer in a remote atoll adds cost. Prices increase at every stage, and product availability can be inconsistent. A bag of rice that costs MVR 28 in Malé can reach MVR 45 by the time it arrives on a southern island. Fuel costs, storage fees, and intermediary margins all contribute to this price gap. For lower-income households on outer islands, this difference is significant.`,
+   `A typical journey for a bag of rice looks like this. The rice leaves STO’s central warehouse in Malé on a cargo vessel. An atoll distributor receives it, stores it and sells it in smaller lots to island stockists. Each stockist supplies the small shops on its island, and the shops sell to households. Every business along the way does useful work: it stores goods, breaks large shipments into smaller amounts, gives credit to small shops and knows its local customers well. But each one also adds its own margin (see Exhibit 1).`,
+   `Price is not the only problem. During the southwest monsoon, rough seas can delay boats for several days. Shops on some southern islands then run short of essentials, and customers either wait or pay more at whichever shop still has stock.`]},
+  {h:'STO Online',ex:1,ps:[
+   `In 2023, STO launched STO Online, a digital ordering platform for consumers. Through the app, customers in Malé and Hulhumalé can place orders and receive home delivery within hours. The platform also allows island-based businesses to order in bulk directly from STO’s central warehouse and receive shipments by cargo dhoni. Early data shows that 34% of STO Online’s registered users are from outer atolls. This suggests that demand for direct access to STO’s products exists well beyond the capital. STO sees this as an opportunity to reduce reliance on intermediaries and pass some of the cost savings on to customers.`,
+   `Not everyone welcomed the app. Some island stockists complained that STO was now “selling around them” to the same shops and families they had served for years. At the same time, two large distributors in the north began cutting prices to win the same island shops away from each other. Some older customers on outer islands also said they prefer to pay cash to a shopkeeper they know, and internet connections on a few islands are still unreliable.`]},
+  {h:'STO Select and specialist products',ps:[
+   `STO has also recently begun stocking a new premium product line called STO Select. This is a curated range of imported food products, specialty coffee, organic skincare, and kitchen items. It is positioned for higher-income households in urban areas. Management is still deciding how widely to distribute STO Select. Some argue it should be available in all STO stores to maximise sales volume. Others believe it should be offered only in selected high-footfall locations to protect the premium feel of the range. Stocking it in every outlet, including smaller island stores, could weaken the image STO is trying to build for this line.`,
+   `The stores most often mentioned for STO Select are the Malé flagship and the Hulhumalé store, where many young professionals and higher-income families shop. One idea is to give the range its own corner inside these stores, away from the bulk rice and cleaning products.`,
+   `STO also sells products that need very different handling. Through its specialised business units, it sells household appliances such as fridges and washing machines, and marine engines for fishing and passenger boats. Engines are expensive, and buyers need trained technicians, spare parts and after-sales service close by. Appliances fall in between: customers like to compare a few models before buying, but they do not need a specialist on every island.`]},
+  {h:'Looking ahead',ps:[
+   `As STO moves into 2024, its leadership must balance three priorities: keeping essential goods affordable and available across all atolls, growing its digital channel, and managing the positioning of its new premium range. These decisions will shape how STO is seen by different customer groups. The organisation must think of itself not just as a supplier, but as a retailer that understands what different Maldivian customers need, and that is willing to adapt its channels and formats to serve them better.`]}
+ ],
+ exhibits:[
+  {t:'Exhibit 1: How the price of one bag of rice builds up',n:'Illustrative figures for teaching, built around the MVR 28 and MVR 45 prices in the case.',
+   html:`<table><tr><th>Stage</th><th>Price (MVR)</th><th>What is added here</th></tr>
+   <tr><td>STO central warehouse, Malé</td><td class="num">28</td><td>Starting price</td></tr>
+   <tr><td>Atoll distributor</td><td class="num">33</td><td>Boat freight, storage, distributor margin</td></tr>
+   <tr><td>Island stockist</td><td class="num">39</td><td>Storage, credit to small shops, stockist margin</td></tr>
+   <tr><td>Island shop, southern island</td><td class="num">45</td><td>Shop costs and margin</td></tr></table>`},
+  {t:'Exhibit 2: STO’s routes to customers',n:'Simplified for teaching.',
+   html:`<table><tr><th>Route</th><th>Who buys</th><th>How the goods travel</th></tr>
+   <tr><td>People’s Choice stores</td><td>Households in Malé, Hulhumalé and larger islands</td><td>STO’s own store → customer</td></tr>
+   <tr><td>STO Online home delivery</td><td>Households in Malé and Hulhumalé</td><td>STO warehouse → customer’s door, within hours</td></tr>
+   <tr><td>STO Online bulk orders</td><td>Island shops and businesses</td><td>STO warehouse → cargo dhoni → island shop → customer</td></tr>
+   <tr><td>Traditional atoll supply</td><td>Island shops and residents</td><td>STO → atoll distributor → island stockist → island shop → customer</td></tr></table>`}
+ ],
+ terms:[
+  ['Marketing channel','A set of businesses that work together to make a product available to the final customer.'],
+  ['Channel level','Each layer of intermediaries between the seller and the final customer.'],
+  ['Direct (zero-level) channel','The company sells straight to the consumer with no intermediaries.'],
+  ['Indirect channel','Goods pass through one or more intermediaries before reaching the consumer.'],
+  ['Intermediary','A business between the seller and the final customer, such as a distributor, stockist or shop.'],
+  ['Multichannel distribution','Using two or more channels at the same time to reach customers.'],
+  ['Disintermediation','Cutting out intermediaries, often by opening a new online channel.'],
+  ['Channel conflict','Disagreement between channel members over goals, roles and rewards.'],
+  ['Vertical conflict','Conflict between different levels of the same channel.'],
+  ['Horizontal conflict','Conflict between businesses at the same level of a channel.'],
+  ['Intensive distribution','Stocking the product in as many outlets as possible.'],
+  ['Selective distribution','Using a limited number of chosen outlets.'],
+  ['Exclusive distribution','Giving a very small number of dealers the right to sell the product.'],
+  ['Store atmosphere','The designed physical setting (lighting, sound, scent, layout, service) that shapes how shoppers feel and behave.'],
+  ['Retailing','Selling goods and services directly to final consumers for their personal use.'],
+  ['Wholesaling','Selling goods to businesses for resale or for business use.'],
+  ['Merchant wholesaler','An independent business that takes ownership of the goods it sells.'],
+  ['Agent or broker','Brings buyers and sellers together for a fee or commission, without owning the goods.']
+ ],
+ acts:[
+  {title:'Build the channel',topic:'Topic 10 · Marketing channels',bloom:'Understand → Apply',
+   q:'STO Online delivers groceries from STO’s central warehouse straight to homes in Malé and Hulhumalé. Identify the channel level STO uses for this route. Explain why this channel suits customers in Malé and Hulhumalé, but would be harder to use for every household in the outer atolls.',
+   parts:[{type:'channel',intro:'Build each of STO’s four routes. Tap a business to add it to the chain in order. Tap it in the chain to remove it. Watch the channel level change, then check your route against the case.',
+    palette:['Atoll distributor','Island stockist','Island shop'],
+    prices:{'STO':28,'Atoll distributor':33,'Island stockist':39,'Island shop':45},
+    routes:[
+     {name:'People’s Choice store',who:'Households shopping in an STO store in Malé',expect:[],note:'STO owns the store, so it sells straight to the customer. This is a direct (zero-level) channel.'},
+     {name:'STO Online home delivery',who:'Households in Malé and Hulhumalé',expect:[],note:'Goods go from STO’s warehouse to the customer’s door with no business in between. This is a direct (zero-level) channel.'},
+     {name:'STO Online bulk order',who:'Island shops ordering through the app',expect:['Island shop'],note:'STO sells to the island shop, and the shop sells to households. One intermediary makes this a one-level channel.'},
+     {name:'Traditional atoll supply',who:'Households on a southern island',expect:['Atoll distributor','Island stockist','Island shop'],note:'Three intermediaries make this a three-level indirect channel. Each level adds a margin, which is how MVR 28 becomes MVR 45.',showPrice:true}]}],
+   paper:['Identify: name the channel level of the STO Online home-delivery route.','Define: say what that channel level means in one sentence.','Case evidence: use at least two facts (delivery within hours, Malé and Hulhumalé, the 34% of users in outer atolls, Exhibit 1).','Explain: why it suits Malé and Hulhumalé, and what makes it harder for every outer-atoll household.'],
+   think:['STO Online home delivery is a direct (zero-level) channel: STO sells straight to the household with no intermediaries.','It suits Malé and Hulhumalé because customers live close to the warehouse, orders arrive within hours, and many orders in a small area keep delivery costs low.','With no intermediaries, no distributor, stockist or shop adds a margin, so prices can stay lower.','In the outer atolls, distance, boat schedules, small orders and weak internet make direct delivery to every household costly. Intermediaries store goods, break bulk and know local customers (Exhibit 1).','A strong answer compares the direct route with the three-level atoll route in Exhibit 2.']},
+
+  {title:'Spot the channel conflict',topic:'Topic 10 · Marketing channels',bloom:'Analyse',
+   q:'After STO Online launched, some island stockists said STO was “selling around them”, and two distributors in the north started cutting prices to win the same island shops. Analyse the types of channel conflict in STO’s system. Suggest how STO could manage ONE of them.',
+   parts:[
+    {type:'classify',title:'1. Sort the situations',intro:'Decide what kind of relationship each situation shows.',cats:['Vertical conflict','Horizontal conflict','Cooperation'],items:[
+     {t:'Island stockists complain that STO Online now sells straight to families they have served for years.',ok:['Vertical conflict'],why:'STO and the stockists sit at different levels of the same channel.'},
+     {t:'Two large distributors in the north cut prices to win the same island shops.',ok:['Horizontal conflict'],why:'Both distributors are at the same level of the channel.'},
+     {t:'An island shop owner says the stockist delivers late and wants to order straight from STO instead.',ok:['Vertical conflict'],why:'The shop and the stockist are at different levels.'},
+     {t:'Two shops on the same island argue over who gets the last delivery before the monsoon.',ok:['Horizontal conflict'],why:'Both shops are at the same level.'},
+     {t:'STO and an atoll distributor agree to share monsoon boat schedules.',ok:['Cooperation'],why:'Channel members working together towards the same goal.'},
+     {t:'A stockist refuses to carry STO Select because the margin is too small.',ok:['Vertical conflict'],why:'A disagreement over rewards between STO and a member at a lower level.'}]},
+    {type:'builder',title:'2. Choose how to manage it',intro:'Pick one response for each conflict, then check your choices.',cardTitle:'Your conflict plan',sections:[
+     {k:'v',label:'Vertical conflict with island stockists',opts:[
+      {t:'Make stockists local pick-up and delivery points for STO Online, paid a fee per order',q:'good',fb:'Turns a competitor into a partner. Stockists keep earning and STO keeps its reach.'},
+      {t:'Agree clear roles: STO Online handles bulk business orders, stockists keep household sales on their islands',q:'good',fb:'Clear roles reduce overlap, which is the main cause of the conflict.'},
+      {t:'Ignore the complaints, because the app is the future',q:'weak',fb:'Stockists may stop cooperating or push other suppliers’ goods, which hurts availability.'},
+      {t:'Cut app prices further to win more of the stockists’ customers',q:'weak',fb:'This makes the conflict worse, and STO still depends on stockists in many atolls.'}]},
+     {k:'h',label:'Horizontal conflict between northern distributors',opts:[
+      {t:'Give each distributor a clear group of islands to serve',q:'good',fb:'Clear territories stop two distributors chasing the same shops.'},
+      {t:'Meet both distributors to agree service standards and fair pricing guidelines',q:'good',fb:'Communication and shared rules can calm price competition without harming shops.'},
+      {t:'Let them compete until one leaves the market',q:'weak',fb:'Island shops may lose a supplier, and availability could suffer.'}]}]}],
+   paper:['Define channel conflict and name the two types (vertical and horizontal).','Give one case example of each type.','Analyse the effects on STO, the intermediaries and island customers.','Recommend one way STO could manage one conflict, and say why it would work.'],
+   think:['Channel conflict is disagreement between channel members over goals, roles and rewards.','Vertical conflict is between different levels, for example STO and the island stockists after STO Online began selling directly.','Horizontal conflict is between members at the same level, for example the two northern distributors cutting prices against each other.','Effects: stockists may stop cooperating or push other suppliers’ goods, price wars squeeze margins and service, and island customers may face gaps in supply.','Management: clear roles or territories, bringing stockists into the online channel (pick-up points), regular communication and fair rewards.']},
+
+  {title:'Design the STO Select corner',topic:'Topic 11 · Retailing',bloom:'Analyse',
+   q:'STO plans to give STO Select its own corner inside the Hulhumalé People’s Choice store. Analyse how STO could use store atmosphere to make this corner feel premium. Explain why the corner should feel different from the rest of the store, and what should stay the same.',
+   parts:[{type:'atmos',intro:'Set each atmosphere cue for the STO Select corner. The meter shows what your corner says to shoppers. The table compares it with the main store.',
+    controls:[
+     {k:'Lighting',sense:'Sight',opts:[{t:'Bright, even lighting across the area',s:0},{t:'Warm spotlights on the products',s:2}]},
+     {k:'Sound',sense:'Sound',opts:[{t:'Store announcements, no music',s:0},{t:'Soft background music',s:2}]},
+     {k:'Layout',sense:'Space',opts:[{t:'Long aisles with tall shelves',s:0},{t:'Open tables with room to browse',s:2}]},
+     {k:'Display',sense:'Sight',opts:[{t:'Many units stacked high',s:0},{t:'A few items, neatly arranged',s:2}]},
+     {k:'Signage',sense:'Sight',opts:[{t:'Large bilingual price signs',s:0},{t:'Bilingual signs with short product stories',s:2}]},
+     {k:'Scent',sense:'Smell',opts:[{t:'No particular scent',s:0},{t:'Fresh coffee from a tasting counter',s:2}]},
+     {k:'Service',sense:'People',opts:[{t:'Self-service only',s:0},{t:'A staff member who can explain products',s:2}]}]}],
+   paper:['Define store atmosphere in your own words.','Choose two or three cues for the STO Select corner and link each to a feeling (premium, curated, relaxed).','Explain why the corner should differ from the main store: a different target customer and positioning.','Say what should stay the same so it still feels like STO (for example bilingual signs, easy movement).'],
+   think:['Store atmosphere means designing lighting, sound, scent, layout, display and service to influence how customers feel and what they buy.','Premium cues: warm spotlights, soft music, open browsing tables, fewer items neatly displayed, product stories, coffee tasting, knowledgeable staff.','A different atmosphere signals a different position: curated and premium for higher-income urban shoppers, while the main store stays practical and accessible.','Some things should stay: bilingual signage and easy movement keep the corner welcoming and true to STO’s identity.','Mixed signals, such as stacked shelves under spotlights, weaken the premium message.']},
+
+  {title:'How widely should each product go?',topic:'Topic 10 · Marketing channels',bloom:'Evaluate',
+   q:'STO sells rice and cooking oil, mid-range household appliances, and marine engines that need trained service staff. Evaluate which level of distribution intensity suits each product. Justify each choice with evidence from the case.',
+   parts:[{type:'intensity',intro:'Choose a level for each product. The bars show the trade-off, and the note tells you how strong your choice is.',
+    levels:{Intensive:[['Reach',5],['Control over service and image',1],['Cost to serve',5]],Selective:[['Reach',3],['Control over service and image',3],['Cost to serve',3]],Exclusive:[['Reach',1],['Control over service and image',5],['Cost to serve',1]]},
+    items:[
+     {t:'Rice and cooking oil',d:'Essentials bought every week by almost every household. STO has a public duty to keep them available on all islands.',fb:{Intensive:['strong','Essentials need to be in as many outlets as possible on every inhabited island. This matches STO’s public responsibility.'],Selective:['weak','Families would have to travel to find rice. That conflicts with STO’s duty to keep essentials available.'],Exclusive:['weak','One outlet per area would leave most islands without essentials.']}},
+     {t:'Mid-range household appliances',d:'Fridges and washing machines. Customers compare a few models before buying and need some after-sales help.',fb:{Intensive:['weak','Small island shops cannot hold stock, show models or give after-sales help. Costs would be high.'],Selective:['strong','A few larger stores on hub islands can display models and support customers, without the cost of every outlet.'],Exclusive:['possible','Possible, but customers would travel far to compare models. Selective gives better reach.']}},
+     {t:'Marine engines',d:'Expensive engines for fishing and passenger boats. Buyers need trained technicians, spare parts and service nearby.',fb:{Intensive:['weak','Most outlets cannot provide trained technicians or spare parts. Poor service would damage trust.'],Selective:['possible','Workable if every chosen outlet has trained technicians and spare parts.'],Exclusive:['strong','A small number of authorised dealers with trained staff gives the control over service these buyers need.']}}]}],
+   paper:['Define distribution intensity and the three levels.','Recommend a level for each product.','Justify each choice with case evidence: how often people buy, price, need for service, STO’s public duty.','Evaluate one trade-off, for example reach versus control.'],
+   think:['Intensive: as many outlets as possible. Selective: a limited number of chosen outlets. Exclusive: very few, often authorised dealers.','Rice and cooking oil → intensive. Low-cost essentials bought often, and STO must keep them available across all atolls.','Appliances → selective. Customers compare models and need some support, so a few larger stores on hub islands work best.','Marine engines → exclusive (or tightly selective). Expensive, and they need trained technicians, spare parts and service.','Good evaluation weighs reach against control, image and cost.']},
+
+  {title:'Plan for the monsoon',topic:'Topics 10 and 11',bloom:'Create',
+   q:'During the southwest monsoon, rough seas delay boats and shops on some southern islands run out of essentials for several days. Design a plan for STO to keep shelves stocked during the monsoon. Your plan must include: (a) a channel or wholesaling change, (b) one retailing or distribution tool, and (c) one challenge STO must manage, and how.',
+   parts:[{type:'builder',intro:'Build your plan one part at a time. Then check it and run the stress tests to see how it holds up.',cardTitle:'Your monsoon plan',sections:[
+     {k:'a',label:'(a) Channel or wholesaling change',opts:[
+      {t:'Build up stock at STO-run hub stores on larger islands before the monsoon starts',q:'good',fb:'Moves stock closer to customers before boats are delayed. Shops can restock from a nearby hub.'},
+      {t:'Let island shops pre-order monsoon stock early through STO Online, at a bulk price',q:'good',fb:'Uses the existing app to move stock to the islands before the rough season.'},
+      {t:'Remove all distributors and stockists straight away',q:'weak',fb:'STO does not have the boats, storage or local staff to replace them overnight, and conflict would rise.'},
+      {t:'Keep the current system unchanged',q:'weak',fb:'This does not answer the question. The monsoon gaps would continue.'}]},
+     {k:'b',label:'(b) Retailing or distribution tool',opts:[
+      {t:'A shared stock dashboard so STO, distributors and shops can see stock levels',q:'good',fb:'Shows which islands are running low before the shelves are empty.'},
+      {t:'Pre-packed monsoon essentials bundles (rice, flour, oil, tinned fish) for island shops',q:'good',fb:'Simple to order, ship and store, and covers the most important items.'},
+      {t:'Priority loading for essentials on cargo dhonis during the monsoon',q:'good',fb:'Makes sure the most important goods are on the first boat that can sail.'},
+      {t:'A new TV advert about the STO brand',q:'weak',fb:'Promotion does not move stock. This does not solve availability.'}]},
+     {k:'c',label:'(c) Challenge and how STO manages it',opts:[
+      {t:'Storage space and cost at hub islands → rent extra space only for the monsoon months',q:'good',fb:'A realistic challenge with a practical response.'},
+      {t:'Distributors fear losing business → let them run the hub stock for a handling fee',q:'good',fb:'Reduces conflict by keeping intermediaries involved.'},
+      {t:'Weak internet on some islands → accept phone orders through the island shop',q:'good',fb:'Makes sure the plan still works where the app does not.'},
+      {t:'No challenges expected',q:'weak',fb:'Every plan has challenges. Examiners expect one realistic challenge.'}]}],
+    tests:[
+     {n:'Boats are delayed for five days',pass:s=>s.a===0||s.a===1,ok:'Stock was moved closer before the delay, so shelves hold out longer.',fail:'Nothing in your plan moves stock before the boats stop. Shelves still run empty.'},
+     {n:'The internet is down for a week on two islands',pass:s=>s.a===0||s.b===2||s.c===2,ok:'Your plan still works without the app.',fail:'Your plan leans on the app or dashboard. Think about islands with weak internet.'},
+     {n:'A distributor refuses to cooperate',pass:s=>s.c===1,ok:'You planned for this: distributors are paid to take part.',fail:'Your plan does not say how STO keeps distributors on side. Think about channel conflict.'}]}],
+   paper:['(a) State your channel or wholesaling change and link it to the monsoon problem in the case.','(b) Name one tool and explain how it keeps shelves stocked.','(c) Name one realistic challenge for YOUR plan and how STO would manage it.','Keep every part specific to the case. Roughly 2 marks each.'],
+   think:['(a) A specific change, such as STO-run hub stock on larger islands before the monsoon, or early bulk pre-orders by island shops through STO Online.','(b) A practical tool, such as a shared stock dashboard, pre-packed essentials bundles, or priority loading of essentials on cargo dhonis.','(c) A challenge linked to your plan (storage cost, conflict with distributors and stockists, weak internet, boat capacity) with a sensible response.','The strongest plans keep intermediaries involved, because STO depends on their storage and local knowledge.']},
+
+  {title:'Who’s who in STO’s world',topic:'Topic 11 · Retailing and wholesaling',bloom:'Remember → Understand',mk:'Short-answer practice',
+   q:'STO works with many kinds of businesses. Classify each one as a type of retailer or wholesaler, and give one feature from the case that proves it.',
+   parts:[{type:'classify',intro:'Choose the best label for each business.',cats:['Supermarket','Convenience store','Online (non-store) retailer','Merchant wholesaler','Agent or broker'],items:[
+    {t:'STO People’s Choice in Malé, with a wide range of groceries and household goods',ok:['Supermarket'],why:'A large self-service store with a wide range of food and household products.'},
+    {t:'A small shop on an island selling daily essentials close to people’s homes',ok:['Convenience store'],why:'Small, close to home, with a limited range of everyday items.'},
+    {t:'STO Online delivering groceries to homes in Hulhumalé',ok:['Online (non-store) retailer'],why:'Sells to consumers without a store visit.'},
+    {t:'An atoll distributor that buys rice from STO, stores it and resells it to stockists',ok:['Merchant wholesaler'],why:'Takes ownership of the goods and resells them to other businesses.'},
+    {t:'STO selling rice in bulk to resorts and cafés',ok:['Merchant wholesaler'],why:'Here STO acts as a wholesaler: it owns the goods and sells in bulk to businesses.'},
+    {t:'A shipping agent who arranges cargo space for island shops for a fee but never owns the goods',ok:['Agent or broker'],why:'Brings buyers and sellers together for a fee, without owning the goods.'}]}],
+   paper:['Define retailing (selling to final consumers) and wholesaling (selling to businesses).','For each business, name the type and give one feature from the case that proves it.'],
+   think:['Retailers sell to final consumers; wholesalers sell to businesses for resale or business use.','STO is both: a retailer through People’s Choice and STO Online, and a wholesaler when it sells in bulk to island shops, resorts and cafés.','Merchant wholesalers take ownership of the goods; agents and brokers do not.']}
+ ]
+},
+
+soneva:{
+ id:'soneva',short:'Soneva',org:'Soneva Fushi',
+ title:'Selling the Dream, Protecting the Reef: Soneva Fushi and Sustainable Luxury',
+ blurb:'How a luxury resort sells through relationships rather than adverts, and how it makes sustainability part of what guests buy.',
+ topics:['Topic 13 · Personal Selling and Sales Promotion','Topic 14 · Sustainable Marketing'],
+ los:['LO1','LO3','LO7'],
+ note:'Teaching case based on publicly available information about Soneva Fushi. Some details, people and situations, including Lena’s booking and the new family package, are simplified or created for classroom use. Not endorsed by Soneva.',
+ sections:[
+  {h:'The resort',ps:[
+   `Soneva Fushi is a luxury resort located in the Baa Atoll, a UNESCO Biosphere Reserve in the Maldives. The resort is known for its private overwater and beach villas, fine dining, and a philosophy summed up in the phrase: No News, No Shoes. Guests are encouraged to disconnect from their daily routines and connect with the natural environment around them. A stay at Soneva Fushi costs between USD 2,000 and USD 6,000 per night, depending on the villa type and season.`,
+   `Most guests stay for a week or more and plan their trip months in advance. Many are families, honeymooning couples or guests celebrating a special occasion, and a large share come back for a second or third visit. For most of them, the decision to book involves several people, a large budget and a lot of questions.`]},
+  {h:'Selling through people, not adverts',ps:[
+   `Soneva does not rely on mass advertising to fill its villas. Instead, the resort builds its business through direct relationships. A dedicated sales team works closely with luxury travel agents, private travel designers, and repeat guests around the world. Each member of the sales team is trained to understand the needs, preferences, and travel history of each client. Before a sales call or meeting, the team reviews the client's past stays, preferred villa type, dietary needs, and any special occasions such as anniversaries or birthdays. This level of preparation allows the sales team to offer personalised recommendations rather than a standard package.`]},
+  {h:'Building trust, step by step',ps:[
+   `For new clients, the team focuses on building trust. They do not push for an immediate booking. Instead, they invite potential guests to experience the resort through hosted visits, curated content, and personal conversations. The goal is to help the client imagine themselves at Soneva before they commit to a booking. For returning guests, the team maintains regular contact throughout the year, not only at booking time.`,
+   `Consider a recent new client. Lena, a private travel designer in Munich, was planning a holiday for a family of four celebrating the parents’ twentieth wedding anniversary. Soneva’s sales manager for Germany had first met Lena at a luxury travel fair and noted that her clients matched Soneva’s typical guests. Before their first video call, the manager read about the family’s past holidays and learned that the children loved snorkelling. On the call, she asked what the family wanted to feel on this holiday before mentioning any villas. A week later she sent a tailored proposal: a two-bedroom beach villa, a private snorkelling trip with a marine biologist and an anniversary dinner on a sandbank.`,
+   `Lena replied that the price was higher than another resort she was considering. The manager did not offer a discount. Instead, she explained what was included and offered to hold the villa for 48 hours while the family decided. They booked. After the stay, the manager called Lena to ask how the trip went and sent the family a photo of the coral fragment the children had planted.`]},
+  {h:'Promotions without discounts',ps:[
+   `Soneva rarely cuts its prices, because heavy discounts could make a luxury brand look ordinary. Instead, it uses carefully chosen promotions. In the quieter rainy months, guests who stay seven nights may pay for only six. Returning guests are often welcomed with a complimentary experience, such as an evening at the resort’s observatory. For travel agents and travel designers, Soneva hosts familiarisation trips so they can experience the resort for themselves, and offers extra commission to agents who book a set number of low-season nights. The sales team also meets agents at luxury travel trade fairs in Europe and Asia.`]},
+  {h:'Sustainability in practice',ex:0,ps:[
+   `Soneva is also one of the most recognised names in sustainable hospitality. The resort operates a Zero Waste to Landfill program. All food waste is composted on the island. Glass bottles are recycled in Soneva's own glass studio, where artisans turn waste glass into handmade products sold in the resort's shop. Solar panels provide a significant share of the resort's energy needs. Soneva also runs a coral restoration program in partnership with marine biologists, and guests can take part in reef surveys during their stay.`]},
+  {h:'Sustainability as part of the sale',ps:[
+   `These sustainability efforts are not hidden behind the scenes. They are part of what Soneva sells. The sales team is trained to talk about sustainability as a feature of the guest experience, not just a background policy. When speaking with a potential guest, a sales team member might mention the glass studio, invite the guest to join a coral planting session, or explain how their stay contributes to the Soneva GIVE fund, which directs a portion of revenue to education and community projects across the Maldives.`]},
+  {h:'The sceptics',ps:[
+   `However, Soneva faces a challenge that many luxury brands with sustainability claims must deal with. Some guests are sceptical. They wonder whether sustainability in a resort that charges thousands of dollars per night is genuine, or whether it is simply a story told to justify a high price. The sales team must be prepared to address this doubt honestly and clearly. Soneva's leadership believes that the answer lies in being specific: sharing real numbers, real programs, and real outcomes rather than making broad promises about caring for the planet.`,
+   `One online review asked: “How green can a holiday be when I flew halfway around the world to get here?” Meanwhile, some other resorts in the region describe themselves as “eco-chic” or a “planet-friendly paradise” without explaining what they actually do. Soneva’s leadership worries that guests may lump all these claims together.`]},
+  {h:'What comes next',ps:[
+   `Soneva is now preparing a new family package called the Glass and Sun Escape. Children join a workshop in the glass studio and make their own piece from recycled bottles, the family takes a guided tour of the solar and waste systems, and everyone joins a beach clean-up with the resort’s sustainability team. The sales team must now decide how to present this package to parents who have never stayed at Soneva before.`]}
+ ],
+ exhibits:[
+  {t:'Exhibit 1: Soneva Fushi’s sustainability programmes at a glance',n:'The last column gives examples of evidence a guest could ask for. These are not reported figures.',
+   html:`<table><tr><th>Programme</th><th>What happens</th><th>How it could be checked</th></tr>
+   <tr><td>Zero Waste to Landfill</td><td>Food waste is composted on the island; other waste is sorted and reused</td><td>Weight of waste composted or reused each month</td></tr>
+   <tr><td>Glass studio</td><td>Waste glass bottles become handmade products sold in the resort shop</td><td>Number of bottles reused; items made</td></tr>
+   <tr><td>Solar energy</td><td>Solar panels supply a significant share of the resort’s energy</td><td>Share of energy from solar each year</td></tr>
+   <tr><td>Coral restoration</td><td>Marine biologists restore reef; guests join reef surveys</td><td>Area of reef restored; coral survival rate</td></tr>
+   <tr><td>Soneva GIVE fund</td><td>A portion of revenue goes to education and community projects</td><td>Amount given; projects funded</td></tr></table>`}
+ ],
+ terms:[
+  ['Personal selling','One-to-one communication by a salesperson to make sales and build customer relationships.'],
+  ['Relationship selling','Selling focused on long-term trust and loyalty, not only the next sale.'],
+  ['Transactional selling','Selling focused on closing a single sale quickly.'],
+  ['Selling process','Prospecting and qualifying, pre-approach, approach, presentation, handling objections, closing, follow-up.'],
+  ['Sales promotion','Short-term incentives to encourage buying or selling a product.'],
+  ['Consumer promotion','Sales promotion aimed at final customers, such as price packs, premiums or loyalty rewards.'],
+  ['Trade promotion','Sales promotion aimed at intermediaries, such as incentives or familiarisation trips.'],
+  ['Business promotion','Promotion used to generate business leads, such as trade fairs.'],
+  ['Sustainable marketing','Meeting today’s customer needs while protecting the ability of future generations to meet theirs.'],
+  ['Consumer-oriented marketing','Organising marketing activities around the customer’s point of view.'],
+  ['Customer-value marketing','Putting most resources into activities that build real value for customers.'],
+  ['Innovative marketing','Continually looking for real product and marketing improvements.'],
+  ['Sense-of-mission marketing','Defining the company’s purpose in broad social terms, not narrow product terms.'],
+  ['Societal marketing','Balancing customer wants, company needs and the long-run interests of society.'],
+  ['Desirable products','Products that give high satisfaction now and long-run benefits.'],
+  ['Greenwashing','Making sustainability claims that are vague, exaggerated or not backed by real action.']
+ ],
+ acts:[
+  {title:'Which tool for which offer?',topic:'Topic 13 · Personal selling',bloom:'Understand → Apply',
+   q:'Soneva sells villa stays through its sales team, but it also sells glass items in its resort shop and runs promotions. Explain why personal selling suits a villa stay but is not the best tool for everything Soneva sells. Use TWO of Soneva’s offers to support your answer.',
+   parts:[{type:'classify',intro:'Each offer shows four features (longer bar = higher). Choose the promotion tool that fits best.',cats:['Personal selling','Advertising','Sales promotion','Public relations','In-store display'],items:[
+    {t:'A one-week stay in a two-bedroom villa for a new family',bars:[['Price',5],['Complexity of choice',5],['Need to personalise',5],['Number of buyers',1]],ok:['Personal selling'],why:'High price, complex choices and few buyers. A salesperson can answer questions and tailor the offer.'},
+    {t:'A handmade glass vase in the resort shop, for guests already on the island',bars:[['Price',2],['Complexity of choice',1],['Need to personalise',1],['Number of buyers',3]],ok:['In-store display'],why:'Guests see and touch it in the shop. A good display and a friendly word are enough; a full sales process is not needed.'},
+    {t:'“Stay seven nights, pay for six” in the rainy months',bars:[['Price',4],['Complexity of choice',2],['Need to personalise',2],['Number of buyers',3]],ok:['Sales promotion'],why:'A short-term incentive to book in a quiet season.'},
+    {t:'Telling the wider public about Soneva’s coral restoration work',bars:[['Price',1],['Complexity of choice',3],['Need to personalise',1],['Number of buyers',5]],ok:['Public relations'],why:'Builds reputation and goodwill through stories and media, not a direct sale.'}]}],
+   paper:['Define personal selling.','Use the villa stay to explain when personal selling fits (price, complexity, personalisation, few buyers).','Use a second offer to show when another tool works better, and why.','Conclude: Soneva uses a mix of tools, with personal selling where the stakes are highest.'],
+   think:['Personal selling is one-to-one communication by a salesperson to make a sale and build a relationship.','It suits villa stays: thousands of dollars per night, many choices, several decision makers and a need for trust.','For a glass vase, the guest is already in the shop and the price is low, so a display and a short conversation are enough.','Low-season offers are sales promotion; telling the public about coral work is public relations.','Mass advertising reaches many people cheaply but cannot answer personal questions or tailor the offer, which is why Soneva relies on it less.']},
+
+  {title:'Follow Lena’s booking',topic:'Topic 13 · Personal selling',bloom:'Analyse',
+   q:'Using Lena’s booking in the case, analyse how Soneva’s sales manager follows the steps of the personal selling process. Explain how TWO of the steps help build a long-term relationship rather than a one-off sale.',
+   parts:[{type:'order',intro:'Put the moments from Lena’s booking in the right order using the arrows. Then check. Turn on the comparison to see what a transactional seller would do instead.',
+    start:[3,0,5,2,6,1,4],
+    steps:[
+     {n:'Prospecting and qualifying',m:'Met Lena at a travel fair and noted that her clients match Soneva’s typical guests.',tr:'Calls every agent on a list, whether or not their clients fit.'},
+     {n:'Pre-approach',m:'Read about the family’s past holidays and learned the children love snorkelling.',tr:'Does no research before the call.'},
+     {n:'Approach',m:'Opened the video call by asking what the family wanted to feel on holiday.',tr:'Opens with the price list.'},
+     {n:'Presentation',m:'Sent a tailored proposal: beach villa, snorkelling with a marine biologist, sandbank anniversary dinner.',tr:'Sends the standard brochure.'},
+     {n:'Handling objections',m:'When Lena said the price was higher, explained what was included instead of discounting.',tr:'Cuts the price straight away.'},
+     {n:'Closing',m:'Offered to hold the villa for 48 hours while the family decided.',tr:'Pushes: “Book today or lose it.”'},
+     {n:'Follow-up',m:'Called Lena after the stay and sent the family a photo of their coral.',tr:'No contact after payment.'}]}],
+   paper:['Define relationship selling and contrast it with transactional selling.','Name the steps of the selling process you can see in Lena’s booking.','Choose TWO steps and show, with case evidence, how each builds trust and loyalty.','Conclude on why this matters for a luxury resort with many repeat guests.'],
+   think:['The steps are prospecting and qualifying, pre-approach, approach, presentation, handling objections, closing and follow-up.','Relationship selling aims for long-term loyalty; transactional selling focuses on closing quickly.','Pre-approach research and a tailored presentation show the family they are known and valued.','Handling the price objection by explaining value, not discounting, protects trust and the brand.','Follow-up after the stay, such as the coral photo, keeps the relationship alive and encourages return visits and referrals.']},
+
+  {title:'Match the principles',topic:'Topic 14 · Sustainable marketing',bloom:'Analyse',
+   q:'Match Soneva’s practices to the principles of sustainable marketing. Then analyse which ONE principle best explains why Soneva makes sustainability part of what it sells.',
+   parts:[
+    {type:'classify',title:'1. Match each practice to a principle',intro:'Some practices fit more than one principle. Pick the best fit; the check shows every accepted answer.',cats:['Consumer-oriented','Customer-value','Innovative','Sense-of-mission','Societal'],items:[
+     {t:'The sales team learns each guest’s preferences before every call.',ok:['Consumer-oriented'],why:'Activities are organised around what the customer wants.'},
+     {t:'Guests join reef surveys and coral planting during their stay.',ok:['Customer-value','Societal'],why:'Adds real value to the guest’s experience while helping the reef.'},
+     {t:'Waste glass bottles become handmade products in the glass studio.',ok:['Innovative','Societal'],why:'A new, creative way to turn waste into a product.'},
+     {t:'The Soneva GIVE fund supports education and community projects.',ok:['Sense-of-mission','Societal'],why:'Expresses a social purpose beyond selling stays.'},
+     {t:'Solar panels supply a significant share of the resort’s energy.',ok:['Societal','Innovative'],why:'Considers long-term environmental welfare, not just today’s guests.'},
+     {t:'The “No News, No Shoes” philosophy reconnects guests with nature.',ok:['Sense-of-mission','Customer-value'],why:'Defines the resort’s purpose in broad terms and shapes the experience guests value.'}]},
+    {type:'grid',title:'2. Build the societal product grid',intro:'Tap a product, then tap the box where it belongs. Across: how satisfying it is right now. Up: how good it is for people and the planet in the long run.',
+     quads:[{n:'Salutary',d:'Less appealing now, good in the long run'},{n:'Desirable',d:'Appealing now and good in the long run'},{n:'Deficient',d:'Not appealing and no long-run benefit'},{n:'Pleasing',d:'Appealing now, harmful in the long run'}],
+     items:[{t:'A coral planting session',q:'Desirable'},{t:'Imported water in single-use plastic bottles',q:'Pleasing'},{t:'A reef-safety briefing before snorkelling',q:'Salutary'},{t:'A cheap plastic souvenir that breaks in a day',q:'Deficient'},{t:'A glass vase made from recycled bottles',q:'Desirable'}]}],
+   paper:['Define sustainable marketing.','Name at least one principle (for example societal marketing) and explain it in your own words.','Link it to two or more Soneva practices.','Analyse which principle best explains why Soneva sells sustainability as part of the experience.'],
+   think:['Sustainable marketing meets today’s customer needs while protecting the ability of future generations to meet theirs.','The five principles are consumer-oriented, customer-value, innovative, sense-of-mission and societal marketing.','Soneva shows them: the glass studio (innovative), the GIVE fund (sense-of-mission), reef activities (customer-value), solar and composting (societal).','Societal marketing aims for desirable products, satisfying now and good in the long run, such as coral planting.','A strong answer explains that Soneva turns sustainability into part of the guest’s value, not just a background policy.']},
+
+  {title:'Test the claims',topic:'Topic 14 · Sustainable marketing',bloom:'Evaluate',
+   q:'Soneva is not the only resort that talks about sustainability. Using the claims below, evaluate which are credible and which risk being greenwashing. Then judge whether Soneva’s approach, as described in the case, is more credible than the rival resorts mentioned.',
+   parts:[{type:'claims',intro:'For each claim, tick the tests it passes. The gauge shows how credible it is. Then compare with the suggested ticks.',
+    crit:['Specific: names a real action','Measurable: could be counted','Checkable: a guest or outsider could verify it','Honest: does not overclaim'],
+    claims:[
+     {who:'Soneva',t:'All food waste is composted on the island.',s:[1,1,1,1],why:'A named action that can be weighed and checked.'},
+     {who:'Soneva',t:'Waste glass bottles are turned into handmade products in our glass studio.',s:[1,1,1,1],why:'Guests can visit the studio and see it happen.'},
+     {who:'Soneva',t:'Guests can join reef surveys with marine biologists.',s:[1,1,1,1],why:'A real activity guests take part in themselves.'},
+     {who:'Rival resort',t:'An eco-chic island escape.',s:[0,0,0,0],why:'Vague wording with no action behind it.'},
+     {who:'Rival resort',t:'A planet-friendly paradise.',s:[0,0,0,0],why:'A broad promise that cannot be measured or checked.'},
+     {who:'Imagined sales line',t:'Your holiday has zero impact on the planet.',s:[0,1,0,0],why:'An overclaim: long-haul flights alone have an impact, as the guest review in the case points out.'}]}],
+   paper:['Define greenwashing.','Use at least two claims as evidence: one credible, one that risks greenwashing, and say why.','Weigh the counter-argument (for example long-haul flights or high prices).','Make a clear final judgement about Soneva, supported by the case.'],
+   think:['Greenwashing means sustainability claims that are vague, exaggerated or not backed by real action.','Credible claims are specific, measurable, checkable and honest about limits, like composting, the glass studio and reef surveys.','Phrases like “eco-chic” or “planet-friendly paradise” are vague and risk greenwashing.','Overclaiming (“zero impact”) is a risk even for a genuine brand, because flights and luxury use resources.','Either judgement can score well if it is clear and supported by case evidence.']},
+
+  {title:'Pitch the Glass and Sun Escape',topic:'Topics 13 and 14',bloom:'Create',
+   q:'You are on Soneva’s sales team. A parent who has never stayed at Soneva asks about the Glass and Sun Escape for the family. Design a structured sales approach that includes: (a) how you would open the conversation, (b) one selling point you would highlight for this family and why, and (c) one objection you expect and how you would respond.',
+   parts:[{type:'builder',intro:'Build your approach one part at a time, then check it.',cardTitle:'Your sales approach',sections:[
+     {k:'a',label:'(a) Opening the conversation',opts:[
+      {t:'Ask what the children enjoy and what the parents want from this holiday',q:'good',fb:'Builds rapport and lets you tailor the rest of the pitch.'},
+      {t:'Ask how the family usually travels and whether they have visited the Maldives before',q:'good',fb:'Shows interest and gathers useful information before you pitch.'},
+      {t:'Start by listing every feature of the package and the price',q:'weak',fb:'A hard sell before you understand the family. Trust drops.'},
+      {t:'Say the package is selling out and they must book today',q:'weak',fb:'Pressure tactics do not fit a relationship-selling brand.'}]},
+     {k:'b',label:'(b) Selling point for this family',opts:[
+      {t:'The children make their own glass piece from recycled bottles to take home',q:'good',fb:'Specific, hands-on and easy for parents to picture.'},
+      {t:'A guided tour of the solar and waste systems shows how the island really works',q:'good',fb:'Specific evidence that the sustainability is real, which also builds trust.'},
+      {t:'Soneva is a very eco-friendly brand',q:'weak',fb:'Too vague. It sounds like the rival resorts’ claims.'},
+      {t:'Every villa has a big TV for the children',q:'weak',fb:'Not part of the package, and it clashes with “No News, No Shoes”.'}]},
+     {k:'c',label:'(c) Objection and your response',opts:[
+      {t:'“Is this just a way to charge more?” → explain what each activity includes and offer to share how the programmes are measured',q:'good',fb:'Answers scepticism with specific evidence, as Soneva’s leadership recommends.'},
+      {t:'“My children might get bored.” → describe the hands-on workshop and beach clean-up, with flexible timing',q:'good',fb:'Deals with the real worry of this customer.'},
+      {t:'“It’s too expensive.” → offer a large discount straight away',q:'weak',fb:'The case says Soneva rarely discounts, to protect its luxury image.'},
+      {t:'“Is it really green?” → “Trust us, we love the planet.”',q:'weak',fb:'A vague reply that sounds like greenwashing.'}]}]}],
+   paper:['(a) Describe your opening and why it builds trust with a new guest.','(b) Name one specific selling point and explain why it suits this family.','(c) State a realistic objection and a specific, honest response.','Use case evidence in each part. Roughly 2 marks each.'],
+   think:['(a) Open with questions and listening, not a pitch: the family’s interests, what they want from the trip, past travel.','(b) Choose a specific, tangible selling point, such as the glass workshop with recycled bottles or the solar and waste tour.','(c) Prepare for scepticism, price or the children’s interest, and answer with specific evidence, not discounts or vague promises.','Strong answers show relationship selling and genuine sustainability working together.']},
+
+  {title:'Sort the promotions',topic:'Topic 13 · Sales promotion',bloom:'Remember → Understand',mk:'Short-answer practice',
+   q:'Classify Soneva’s promotions as consumer, trade or business promotions. Explain why Soneva prefers adding value to cutting prices.',
+   parts:[{type:'classify',intro:'Choose who each promotion is aimed at.',cats:['Consumer promotion','Trade promotion','Business promotion'],items:[
+    {t:'Guests who stay seven nights in the rainy months pay for only six.',ok:['Consumer promotion'],why:'Aimed at guests: a price pack or value-add.'},
+    {t:'Returning guests receive a complimentary evening at the observatory.',ok:['Consumer promotion'],why:'A premium or loyalty reward for guests.'},
+    {t:'Travel designers are invited on familiarisation trips to the resort.',ok:['Trade promotion'],why:'Aimed at intermediaries, to help them sell Soneva.'},
+    {t:'Agents earn extra commission for booking low-season nights.',ok:['Trade promotion'],why:'An incentive for intermediaries to push bookings.'},
+    {t:'The sales team meets agents at luxury travel trade fairs.',ok:['Business promotion'],why:'Trade fairs generate business leads and build relationships.'}]}],
+   paper:['Define sales promotion: short-term incentives to encourage buying or selling.','Name the promotion type and give the case example.','Explain why value-adds protect a luxury brand better than discounts.'],
+   think:['Consumer promotions target guests; trade promotions target travel agents and designers; business promotions generate leads, for example at trade fairs.','Soneva avoids heavy discounts because they can make a luxury brand look ordinary.','Value-adds, such as an extra night or a complimentary experience, reward guests without lowering the perceived value of the stay.']}
+ ]
+}
+};
+const ORDER=['sto','soneva'];
+
+/* ---------- state ---------- */
+const doneMap=()=>S.get('done',{});
+function partKey(cid,n,p){return cid+'-'+n+'-'+p}
+function getPart(k){const a=S.get('st',{});return a[k]||{}}
+function setPart(k,v){const a=S.get('st',{});a[k]=v;S.set('st',a)}
+
+/* ---------- theme ---------- */
+(function(){const r=document.documentElement,b=$('#theme');
+ const dark=()=>r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+ const lab=()=>{b.textContent=dark()?'Light':'Dark'};
+ b.onclick=()=>{const n=dark()?'light':'dark';r.dataset.theme=n;S.set('theme',n);lab()};lab()})();
+
+/* ---------- shared bits ---------- */
+function logo(c,cls=''){return `<div class="logo ${cls}"><img src="logos/${c.id}.png" alt="${esc(c.org)} logo" onload="this.parentNode.classList.add('has')" onerror="this.remove()"><span class="wm">${esc(c.short)}<small>${esc(c.org)}</small></span></div>`}
+function barsHTML(arr){return `<div class="bars">${arr.map(([l,v])=>`<div class="barr"><span>${esc(l)}</span><i><b style="width:${v*20}%"></b></i></div>`).join('')}</div>`}
+function switcher(cur){$('#sw').innerHTML=`<a href="#/" ${!cur?'aria-current="page"':''}>All cases</a>`+ORDER.map(id=>`<a href="#/${id}" ${cur===id?'aria-current="page"':''}>${CASES[id].short}</a>`).join('')}
+
+/* ---------- home ---------- */
+function renderHome(){
+ document.body.dataset.case='';switcher(null);document.title='MKT101 Case Lab';
+ const dm=doneMap();
+ $('#app').innerHTML=`
+ <section class="hero">
+  <div class="kick">MKT101 Introduction to Marketing · Case study practice · T2 2026</div>
+  <h1>Choose a case to work on</h1>
+  <p class="lead">Read the case, use the activities to work out your ideas, then write your answers on paper. Your progress is saved in this browser.</p>
+ </section>
+ <div class="cases">${ORDER.map(id=>{const c=CASES[id];const d=c.acts.filter((a,i)=>dm[id+'-'+(i+1)]).length;
+  return `<a class="ccard c-${id}" href="#/${id}">${logo(c)}<div class="body"><div class="chips" style="margin-bottom:10px">${c.topics.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div><h2>${esc(c.title)}</h2><p>${esc(c.blurb)}</p><span class="chip n">${d} of ${c.acts.length} activities done</span></div><span class="go">Open case →</span></a>`}).join('')}</div>
+ <h2 style="font-size:1.1rem;margin:0 0 10px">How to use this page</h2>
+ <div class="steps">
+  <div class="step"><b>1. Read the case</b><span>Read it once for the story, then again for the facts and exhibits.</span></div>
+  <div class="step"><b>2. Try the activities</b><span>Click, sort and build. The tools help you see the idea before you write.</span></div>
+  <div class="step"><b>3. Write on paper</b><span>Use the “Write it on paper” guide, then compare with “Check your thinking”.</span></div>
+ </div>
+ <p class="foot">Practice material for MKT101 at MNU Business School. The questions here are for practice and are not exam questions.</p>`;
+}
+
+/* ---------- case ---------- */
+function renderCase(cid,tab,n){
+ const c=CASES[cid];document.body.dataset.case=cid;switcher(cid);document.title=c.short+' case · MKT101 Case Lab';
+ const dm=doneMap();const dn=c.acts.filter((a,i)=>dm[cid+'-'+(i+1)]).length;
+ const T=[['read','Read the case'],['terms','Key terms'],['act',`Activities ${dn}/${c.acts.length}`],['tips','Writing tips']];
+ $('#app').innerHTML=`
+ <section class="chead">${logo(c)}<div><div class="kick">Case study</div><h1>${esc(c.title)}</h1>
+  <div class="chips">${c.topics.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}${c.los.map(l=>`<span class="chip n">${l}</span>`).join('')}</div></div></section>
+ <nav class="tabs">${T.map(([k,l])=>`<a href="#/${cid}/${k}${k==='act'?'/'+(tab==='act'?n:1):''}" ${tab===k?'aria-current="page"':''}>${l}</a>`).join('')}</nav>
+ <div id="tab"></div>`;
+ const el=$('#tab');
+ if(tab==='terms')renderTerms(c,el);else if(tab==='act')renderAct(c,el,n);else if(tab==='tips')renderTips(el);else renderRead(c,el);
+}
+
+function renderRead(c,el){
+ const all=c.sections.flatMap(s=>s.ps).join(' ');const w=words(all);
+ el.innerHTML=`<div class="note">${esc(c.note)}</div>
+ <div class="readbar"><span>About ${Math.round(w/10)*10} words · ${Math.max(1,Math.round(w/200))} minute read</span><button class="btn" id="prt">Print the case</button></div>
+ <article class="reading">${c.sections.map(s=>`<h2>${esc(s.h)}</h2>${s.ps.map(p=>`<p>${esc(p)}</p>`).join('')}${s.ex!==undefined?exhibit(c.exhibits[s.ex]):''}`).join('')}</article>
+ <div class="row"><a class="btn primary" href="#/${c.id}/act/1" style="text-decoration:none">Start the activities →</a></div>`;
+ $('#prt').onclick=()=>window.print();
+}
+function exhibit(x){return `<div class="exhibit"><h3>${esc(x.t)}</h3><div class="tbl">${x.html}</div><small>${esc(x.n)}</small></div>`}
+
+function renderTerms(c,el){
+ el.innerHTML=`<p class="intro">Tap a card to see the meaning. Try saying the meaning out loud before you tap.</p>
+ <div class="terms">${c.terms.map(([t,d],i)=>`<button class="term" aria-pressed="false" data-i="${i}"><b>${esc(t)}</b><span>Tap to reveal</span></button>`).join('')}</div>
+ <div class="row"><button class="btn" id="tall">Show all</button><button class="btn" id="tnone">Hide all</button></div>`;
+ const set=(b,on)=>{const[t,d]=c.terms[b.dataset.i];b.setAttribute('aria-pressed',on);b.querySelector('span').textContent=on?d:'Tap to reveal'};
+ $$('.term',el).forEach(b=>b.onclick=()=>set(b,b.getAttribute('aria-pressed')!=='true'));
+ $('#tall').onclick=()=>$$('.term',el).forEach(b=>set(b,true));
+ $('#tnone').onclick=()=>$$('.term',el).forEach(b=>set(b,false));
+}
+
+function renderTips(el){
+ el.innerHTML=`<div class="tips">
+ <div class="part"><h3>How a 6-mark case answer is usually marked</h3>
+  <p class="intro" style="margin:4px 0 0">Think of it as three parts worth about 2 marks each.</p>
+  <ul><li><b>Concept:</b> name the marketing idea and say what it means in your own words.</li>
+  <li><b>Case evidence:</b> use specific facts from the case: names, numbers, quotes, exhibits.</li>
+  <li><b>Explain or judge:</b> say why it matters, recommend, or design, and link back to the question.</li></ul></div>
+ <div class="part"><h3>What the command word is asking</h3>
+  <div class="verb"><b>Identify</b><span>Name it clearly.</span><b>Explain</b><span>Say how or why, with a reason.</span><b>Analyse</b><span>Break it down and show the links or effects.</span><b>Evaluate</b><span>Weigh both sides, then give a clear judgement.</span><b>Design</b><span>Build a plan with every part the question asks for.</span></div></div>
+ <div class="part"><h3>A simple paragraph pattern</h3>
+  <ul><li><b>Point:</b> the concept or your recommendation.</li><li><b>Evidence:</b> the case fact that supports it.</li><li><b>Explain:</b> why the evidence proves your point.</li><li><b>Link:</b> connect back to the question.</li></ul></div>
+ <div class="part"><h3>Common ways to lose marks</h3>
+  <ul><li>Defining the concept but never using the case.</li><li>Retelling the case without naming the concept.</li><li>In “evaluate” questions, giving no final judgement.</li><li>In “design” questions, leaving out one of the required parts.</li><li>Spending too long: about 10 minutes for a 6-mark question.</li></ul></div>
+ </div>`;
+}
+
+/* ---------- activity view ---------- */
+function renderAct(c,el,n){
+ n=Math.min(Math.max(1,n||1),c.acts.length);const a=c.acts[n-1];const dm=doneMap();const dk=c.id+'-'+n;
+ el.innerHTML=`<nav class="anav" aria-label="Activities">${c.acts.map((x,i)=>`<a href="#/${c.id}/act/${i+1}" ${i+1===n?'aria-current="page"':''} title="${esc(x.title)}">${i+1}${dm[c.id+'-'+(i+1)]?'<span class="tick">✓</span>':''}</a>`).join('')}</nav>
+ <div class="ahead"><div class="kick">Activity ${n} of ${c.acts.length}</div><h2>${esc(a.title)}</h2>
+  <div class="chips"><span class="chip">${esc(a.topic)}</span><span class="chip n">${esc(a.bloom)}</span></div></div>
+ <div class="qbox"><div class="ql">Practice question</div><p>${esc(a.q)}</p><div class="mk">${esc(a.mk||'6 marks')}</div></div>
+ <div id="parts"></div>
+ <div class="paper"><h3>✍ Write it on paper</h3><ol>${a.paper.map(p=>`<li>${esc(p)}</li>`).join('')}</ol></div>
+ <details class="think"><summary>Check your thinking</summary><ul>${a.think.map(p=>`<li>${esc(p)}</li>`).join('')}</ul><p class="intro">Compare with what you wrote. Add anything you missed.</p></details>
+ <div class="anext">
+  <a class="btn" href="#/${c.id}/act/${n-1}" ${n===1?'style="visibility:hidden"':''}>← Previous</a>
+  <button class="btn done" id="done" aria-pressed="${!!dm[dk]}">${dm[dk]?'✓ Done':'Mark as done'}</button>
+  ${n<c.acts.length?`<a class="btn primary" href="#/${c.id}/act/${n+1}">Next →</a>`:`<a class="btn primary" href="#/">All cases →</a>`}
+ </div>`;
+ $$('.anext a',el).forEach(x=>x.style.textDecoration='none');
+ $('#done').onclick=e=>{const m=doneMap();m[dk]=!m[dk];S.set('done',m);renderCase(c.id,'act',n);};
+ const box=$('#parts');
+ a.parts.forEach((p,pi)=>{const d=document.createElement('div');d.className='part';box.appendChild(d);
+  const k=partKey(c.id,n,pi);const st=getPart(k);const save=()=>setPart(k,st);
+  R[p.type](d,p,st,save);});
+}
+
+/* ---------- renderers ---------- */
+const R={};
+const head=cfg=>(cfg.title?`<h3>${esc(cfg.title)}</h3>`:'')+(cfg.intro?`<p class="intro">${esc(cfg.intro)}</p>`:'');
+
+/* classify: choose one category per item */
+R.classify=(el,cfg,st,save)=>{
+ st.sel=st.sel||{};
+ const draw=()=>{el.innerHTML=head(cfg)+cfg.items.map((it,i)=>`<div class="item" data-i="${i}"><p class="it">${esc(it.t)}</p>${it.bars?barsHTML(it.bars):''}<div class="opts">${cfg.cats.map((c,ci)=>`<button class="opt" data-ci="${ci}" aria-pressed="${st.sel[i]===c}">${esc(c)}</button>`).join('')}</div><p class="fbk" hidden></p></div>`).join('')+`<div class="row"><button class="btn primary" data-a="chk">Check answers</button><button class="btn" data-a="rst">Start again</button><span class="score" aria-live="polite"></span></div>`};
+ draw();
+ el.onclick=e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.ci!==undefined){const it=b.closest('.item');const i=it.dataset.i;st.sel[i]=cfg.cats[b.dataset.ci];save();
+   $$('.opt',it).forEach(x=>x.setAttribute('aria-pressed',x===b));const f=$('.fbk',it);f.hidden=true;$('.score',el).textContent='';}
+  else if(b.dataset.a==='rst'){st.sel={};save();draw();}
+  else if(b.dataset.a==='chk'){let ok=0;cfg.items.forEach((it,i)=>{const f=$(`.item[data-i="${i}"] .fbk`,el);f.hidden=false;const s=st.sel[i];
+    if(!s){f.className='fbk info';f.textContent='Choose an answer first.';return}
+    if(it.ok.includes(s)){ok++;f.className='fbk good';f.textContent='✓ '+(it.ok.length>1?`Good. Accepted: ${it.ok.join(' or ')}. `:'')+it.why}
+    else{f.className='fbk bad';f.textContent=`✗ Not quite. Best fit: ${it.ok.join(' or ')}. ${it.why}`}});
+   $('.score',el).textContent=`${ok} of ${cfg.items.length} correct`;}
+ };
+};
+
+/* builder: choose one option per section, assemble a plan card */
+R.builder=(el,cfg,st,save)=>{
+ st.sel=st.sel||{};
+ const draw=()=>{
+  el.innerHTML=head(cfg)+cfg.sections.map((s,si)=>`<div class="sec" data-si="${si}"><h4>${esc(s.label)}</h4><div class="opts col">${s.opts.map((o,oi)=>`<button class="opt" data-oi="${oi}" aria-pressed="${st.sel[s.k]===oi}">${esc(o.t)}</button>`).join('')}</div><p class="fbk" hidden></p></div>`).join('')+
+  `<div class="plan" aria-live="polite"><h4>${esc(cfg.cardTitle||'Your plan')}</h4><div class="pc"></div></div>
+  <div class="row"><button class="btn primary" data-a="chk">Check my choices</button>${cfg.tests?'<button class="btn" data-a="test">Run stress tests</button>':''}<button class="btn" data-a="rst">Start again</button></div>
+  <div class="tests"></div>`;card();};
+ const card=()=>{$('.pc',el).innerHTML=cfg.sections.map(s=>`<p><b>${esc(s.label)}:</b> ${st.sel[s.k]!==undefined?esc(s.opts[st.sel[s.k]].t):'<span style="color:var(--mute)">not chosen yet</span>'}</p>`).join('')};
+ draw();
+ el.onclick=e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.oi!==undefined){const sec=b.closest('.sec');const s=cfg.sections[sec.dataset.si];st.sel[s.k]=+b.dataset.oi;save();
+   $$('.opt',sec).forEach(x=>x.setAttribute('aria-pressed',x===b));$('.fbk',sec).hidden=true;$('.tests',el).innerHTML='';card();}
+  else if(b.dataset.a==='rst'){st.sel={};save();draw();}
+  else if(b.dataset.a==='chk'){cfg.sections.forEach((s,si)=>{const f=$(`.sec[data-si="${si}"] .fbk`,el);f.hidden=false;const v=st.sel[s.k];
+    if(v===undefined){f.className='fbk info';f.textContent='Choose an option for this part.';return}
+    const o=s.opts[v];f.className='fbk '+(o.q==='good'?'good':'warn');f.textContent=(o.q==='good'?'✓ Strong choice. ':'⚠ Rethink this. ')+o.fb;});}
+  else if(b.dataset.a==='test'){const box=$('.tests',el);
+   if(cfg.sections.some(s=>st.sel[s.k]===undefined)){box.innerHTML='<p class="fbk info">Choose an option for every part first.</p>';return}
+   box.innerHTML=cfg.tests.map(t=>{const p=t.pass(st.sel);return `<p class="fbk ${p?'good':'warn'}"><b>${esc(t.n)}:</b> ${esc(p?t.ok:t.fail)}</p>`}).join('');}
+ };
+};
+
+/* channel builder */
+R.channel=(el,cfg,st,save)=>{
+ st.ch=st.ch||{};st.r=st.r||0;
+ const lvl=n=>n===0?'Direct channel (zero-level)':n===1?'One-level channel':`${['','','Two','Three','Four'][n]||n}-level channel`;
+ const draw=(msg)=>{const r=cfg.routes[st.r];const ch=st.ch[st.r]||[];const ok=JSON.stringify(ch)===JSON.stringify(r.expect);const showP=msg&&ok&&r.showPrice;
+  el.innerHTML=head(cfg)+`<div class="rtabs">${cfg.routes.map((x,i)=>`<button class="opt" data-r="${i}" aria-pressed="${i===st.r}">${esc(x.name)}</button>`).join('')}</div>
+  <p class="intro" style="margin-bottom:8px"><b>Customer:</b> ${esc(r.who)}</p>
+  <div class="chain"><span class="node end">STO${showP?`<small>MVR ${cfg.prices.STO}</small>`:''}</span>${ch.map((x,i)=>`<span class="arrow">→</span><button class="node mid" data-rm="${i}" title="Remove">${esc(x)}${showP?`<small>MVR ${cfg.prices[x]}</small>`:''}</button>`).join('')}<span class="arrow">→</span><span class="node end">Customer${showP?`<small>pays MVR ${cfg.prices[ch[ch.length-1]]||cfg.prices.STO}</small>`:''}</span></div>
+  <div class="lvl" aria-live="polite">${lvl(ch.length)} · ${ch.length} intermediar${ch.length===1?'y':'ies'}</div>
+  <p class="intro" style="margin:14px 0 6px">Add a business to the chain:</p>
+  <div class="opts">${cfg.palette.map((p,i)=>`<button class="opt" data-add="${i}">+ ${esc(p)}</button>`).join('')}</div>
+  <div class="row"><button class="btn primary" data-a="chk">Check this route</button><button class="btn" data-a="clr">Clear route</button><span class="score">${cfg.routes.filter((x,i)=>JSON.stringify(st.ch[i]||[])===JSON.stringify(x.expect)&&st['ok'+i]).length} of ${cfg.routes.length} routes checked</span></div>
+  ${msg?`<p class="fbk ${ok?'good':'bad'}">${ok?'✓ '+esc(r.note):'✗ Not quite. Re-read the case and Exhibit 2. Which businesses does the product pass through on this route, and in what order?'}</p>`:''}`;};
+ draw();
+ el.onclick=e=>{const b=e.target.closest('button');if(!b)return;const ch=st.ch[st.r]=st.ch[st.r]||[];
+  if(b.dataset.r!==undefined){st.r=+b.dataset.r;save();draw();}
+  else if(b.dataset.add!==undefined){const p=cfg.palette[b.dataset.add];if(!ch.includes(p))ch.push(p);st['ok'+st.r]=false;save();draw();}
+  else if(b.dataset.rm!==undefined){ch.splice(+b.dataset.rm,1);st['ok'+st.r]=false;save();draw();}
+  else if(b.dataset.a==='clr'){st.ch[st.r]=[];st['ok'+st.r]=false;save();draw();}
+  else if(b.dataset.a==='chk'){const r=cfg.routes[st.r];st['ok'+st.r]=JSON.stringify(ch)===JSON.stringify(r.expect);save();draw(true);}
+ };
+};
+
+/* atmosphere designer */
+R.atmos=(el,cfg,st,save)=>{
+ st.sel=st.sel||cfg.controls.map(()=>0);
+ const max=cfg.controls.reduce((a,c)=>a+Math.max(...c.opts.map(o=>o.s)),0);
+ const draw=()=>{const sc=cfg.controls.reduce((a,c,i)=>a+c.opts[st.sel[i]].s,0);const pct=Math.round(sc/max*100);
+  const label=pct<=30?'Practical and everyday':pct<70?'Mixed signals':'Premium and curated';
+  const left=cfg.controls.filter((c,i)=>st.sel[i]===0).map(c=>c.k.toLowerCase());
+  const senses=[...new Set(cfg.controls.filter((c,i)=>c.opts[st.sel[i]].s>0).map(c=>c.sense))];
+  el.innerHTML=head(cfg)+cfg.controls.map((c,i)=>`<div class="ctrl"><div class="lab">${esc(c.k)}<small>${esc(c.sense)}</small></div><div class="opts">${c.opts.map((o,oi)=>`<button class="opt" data-c="${i}" data-o="${oi}" aria-pressed="${st.sel[i]===oi}">${esc(o.t)}</button>`).join('')}</div></div>`).join('')+
+  `<div style="margin-top:16px"><b>What your corner says: ${label}</b>
+   <div class="meter" role="img" aria-label="${label}, ${pct} percent premium"><i style="left:${Math.max(2,Math.min(98,pct))}%"></i></div>
+   <div class="mlab"><span>Practical and everyday</span><span>Premium and curated</span></div></div>
+  <p class="fbk ${pct>=70?'good':pct>30?'warn':'info'}">${pct===100?'Every cue signals premium. Now think about what should stay the same so it still feels like STO: bilingual signs, easy movement, friendly service.':pct>=70?`Strong premium feel. These cues still say “everyday”: ${left.join(', ')}. Is that on purpose?`:pct>30?`Mixed signals. Shoppers may be unsure what this corner is for. Still everyday: ${left.join(', ')}.`:'This looks like the rest of People’s Choice. Change some cues to make the corner feel premium.'}${senses.length?` Senses you are using: ${senses.join(', ')}.`:''}</p>
+  <div class="tbl" style="margin-top:12px"><table><tr><th>Cue</th><th>Main store</th><th>Your STO Select corner</th></tr>${cfg.controls.map((c,i)=>`<tr><td>${esc(c.k)}</td><td>${esc(c.opts[0].t)}</td><td>${esc(c.opts[st.sel[i]].t)}</td></tr>`).join('')}</table></div>
+  <div class="row"><button class="btn" data-a="rst">Start again</button></div>`;};
+ draw();
+ el.onclick=e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.c!==undefined){st.sel[+b.dataset.c]=+b.dataset.o;save();draw();}
+  else if(b.dataset.a==='rst'){st.sel=cfg.controls.map(()=>0);save();draw();}};
+};
+
+/* distribution intensity */
+R.intensity=(el,cfg,st,save)=>{
+ st.sel=st.sel||{};const L=Object.keys(cfg.levels);const tag={strong:['good','✓ Strong choice. '],possible:['warn','~ Possible. '],weak:['bad','✗ Weak choice. ']};
+ const draw=()=>{el.innerHTML=head(cfg)+cfg.items.map((it,i)=>{const s=st.sel[i];const f=s&&it.fb[s];
+  return `<div class="item" data-i="${i}"><p class="it" style="font-weight:700">${esc(it.t)}</p><p class="intro" style="margin:0 0 8px">${esc(it.d)}</p>
+  <div class="opts">${L.map(l=>`<button class="opt" data-l="${l}" aria-pressed="${s===l}">${l}</button>`).join('')}</div>
+  ${s?barsHTML(cfg.levels[s])+`<p class="fbk ${tag[f[0]][0]}">${tag[f[0]][1]}${esc(f[1])}</p>`:''}</div>`}).join('')+
+  `<div class="row"><button class="btn" data-a="rst">Start again</button></div>`;};
+ draw();
+ el.onclick=e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.l){st.sel[b.closest('.item').dataset.i]=b.dataset.l;save();draw();}
+  else if(b.dataset.a==='rst'){st.sel={};save();draw();}};
+};
+
+/* order the selling process */
+R.order=(el,cfg,st,save)=>{
+ st.o=st.o||cfg.start.slice();st.cmp=!!st.cmp;
+ const draw=(chk)=>{const allOk=st.o.every((x,i)=>x===i);
+  el.innerHTML=head(cfg)+st.o.map((si,pos)=>{const s=cfg.steps[si];const ok=chk&&si===pos;
+   return `<div class="orow ${chk?(ok?'ok':'no'):''}"><span class="pos">${pos+1}</span><div>${ok||st.cmp&&chk&&allOk?`<span class="sn">${esc(s.n)}</span>`:''}${esc(s.m)}${st.cmp?`<span class="tr">Transactional seller: ${esc(s.tr)}</span>`:''}</div>
+   <div class="mv"><button data-up="${pos}" aria-label="Move up" ${pos===0?'disabled':''}>↑</button><button data-dn="${pos}" aria-label="Move down" ${pos===st.o.length-1?'disabled':''}>↓</button></div></div>`}).join('')+
+  `<div class="row"><button class="btn primary" data-a="chk">Check order</button><button class="btn" data-a="cmp" aria-pressed="${st.cmp}">${st.cmp?'Hide':'Show'} transactional seller</button><button class="btn" data-a="rst">Shuffle again</button>
+  ${chk?`<span class="score">${st.o.filter((x,i)=>x===i).length} of ${st.o.length} in the right place</span>`:''}</div>
+  ${chk&&allOk?'<p class="fbk good">✓ All seven steps in order. Each step now shows its name. Which two steps do the most to build a long-term relationship?</p>':''}`;};
+ draw();
+ el.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;
+  const sw=(a,c)=>{[st.o[a],st.o[c]]=[st.o[c],st.o[a]];save();draw();};
+  if(b.dataset.up!==undefined){const p=+b.dataset.up;sw(p,p-1);}
+  else if(b.dataset.dn!==undefined){const p=+b.dataset.dn;sw(p,p+1);}
+  else if(b.dataset.a==='chk')draw(true);
+  else if(b.dataset.a==='cmp'){st.cmp=!st.cmp;save();draw();}
+  else if(b.dataset.a==='rst'){st.o=cfg.start.slice();save();draw();}};
+};
+
+/* 2x2 grid placement */
+R.grid=(el,cfg,st,save)=>{
+ st.p=st.p||{};let pick=null;
+ const draw=(chk)=>{const tray=cfg.items.map((it,i)=>i).filter(i=>!st.p[i]);
+  const chip=i=>{const it=cfg.items[i];const cls=chk&&st.p[i]?(st.p[i]===it.q?'ok':'no'):'';return `<button class="pchip ${cls}" data-it="${i}" aria-pressed="${pick===i}">${esc(it.t)}</button>`};
+  el.innerHTML=head(cfg)+`<div class="tray" aria-label="Products to place">${tray.length?tray.map(chip).join(''):'<span class="intro" style="margin:0">All products placed.</span>'}</div>
+  <div class="gwrap"><div class="yax">Long-run benefit: low → high</div><div class="board">${cfg.quads.map(q=>`<div class="quad" data-q="${esc(q.n)}" role="button" tabindex="0"><b>${esc(q.n)}</b><small>${esc(q.d)}</small>${cfg.items.map((it,i)=>st.p[i]===q.n?chip(i):'').join('')}</div>`).join('')}</div><div class="xax">Satisfaction right now: low → high</div></div>
+  <div class="row"><button class="btn primary" data-a="chk">Check grid</button><button class="btn" data-a="rst">Start again</button>${chk?`<span class="score">${cfg.items.filter((it,i)=>st.p[i]===it.q).length} of ${cfg.items.length} correct</span>`:''}</div>
+  ${chk?`<div>${cfg.items.filter((it,i)=>st.p[i]&&st.p[i]!==it.q).map(it=>`<p class="fbk bad">✗ “${esc(it.t)}” belongs in <b>${esc(it.q)}</b>.</p>`).join('')}</div>`:''}`;};
+ draw();
+ const place=q=>{if(pick===null)return;st.p[pick]=q;pick=null;save();draw();};
+ el.onclick=e=>{const ch=e.target.closest('.pchip');
+  if(ch){const i=+ch.dataset.it;if(st.p[i]&&pick===null){delete st.p[i];save();draw();return}pick=pick===i?null:i;draw();return}
+  const q=e.target.closest('.quad');if(q){place(q.dataset.q);return}
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.a==='chk')draw(true);else if(b.dataset.a==='rst'){st.p={};pick=null;save();draw();}};
+ el.onkeydown=e=>{const q=e.target.closest('.quad');if(q&&(e.key==='Enter'||e.key===' ')){e.preventDefault();place(q.dataset.q)}};
+};
+
+/* claim checker */
+R.claims=(el,cfg,st,save)=>{
+ st.t=st.t||{};st.show=!!st.show;
+ const lab=n=>n>=3?'Credible':n===2?'Weak':'Greenwashing risk';
+ const draw=()=>{el.innerHTML=head(cfg)+cfg.claims.map((c,i)=>{const t=st.t[i]||[0,0,0,0];const n=t.filter(Boolean).length;
+  return `<div class="claim" data-i="${i}"><div class="who">${esc(c.who)}</div><p class="ct">“${esc(c.t)}”</p>
+  <div class="crit">${cfg.crit.map((k,ki)=>`<button class="opt" data-k="${ki}" aria-pressed="${!!t[ki]}">${esc(k)}</button>`).join('')}</div>
+  <div class="gauge"><span class="seg">${[0,1,2,3].map(x=>`<i class="${x<n?'on':''}"></i>`).join('')}</span><span>${lab(n)}</span></div>
+  ${st.show?`<p class="sugg">Suggested: ${cfg.crit.filter((k,ki)=>c.s[ki]).map(k=>k.split(':')[0]).join(', ')||'none of the tests'} → <b>${lab(c.s.filter(Boolean).length)}</b>. ${esc(c.why)}</p>`:''}</div>`}).join('')+
+  `<div class="row"><button class="btn primary" data-a="show">${st.show?'Hide':'Show'} suggested ticks</button><button class="btn" data-a="rst">Start again</button></div>`;};
+ draw();
+ el.onclick=e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.k!==undefined){const i=b.closest('.claim').dataset.i;const t=st.t[i]=st.t[i]||[0,0,0,0];t[+b.dataset.k]=t[+b.dataset.k]?0:1;save();draw();}
+  else if(b.dataset.a==='show'){st.show=!st.show;save();draw();}
+  else if(b.dataset.a==='rst'){st.t={};st.show=false;save();draw();}};
+};
+
+/* ---------- router ---------- */
+function route(){
+ const h=location.hash.replace(/^#\/?/,'').split('/');const cid=h[0];
+ if(!CASES[cid]){renderHome();}else{const tab=['read','terms','act','tips'].includes(h[1])?h[1]:'read';renderCase(cid,tab,parseInt(h[2],10)||1);}
+ window.scrollTo(0,0);
+}
+addEventListener('hashchange',route);route();
+</script>
+</body>
+</html>
