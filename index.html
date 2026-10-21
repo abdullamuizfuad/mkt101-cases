@@ -359,6 +359,49 @@ details.chk p{color:var(--ink)}
 .prompt p{margin:0;font-size:.93rem}
 @media (max-width:520px){.prompt{grid-template-columns:1fr}.prompt .btn{justify-self:start}}
 .nnav a:last-child{font-weight:600}
+.jump{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 4px}
+.jump .opt{font-size:.84rem;padding:6px 10px;background:var(--card)}
+#tab [id^=n-]{scroll-margin-top:72px}
+.concept h3{color:var(--acc);font-size:1.1rem}
+.concept li{margin:4px 0}
+.concept .tip{background:var(--warn-soft);color:var(--ink);border-left:4px solid var(--warn);border-radius:8px;padding:8px 12px;margin-top:10px;font-size:.93rem}
+.concept .tip b{color:var(--warn)}
+.mis{border-left:4px solid var(--bad)}
+.mis li{margin:6px 0}
+#n-ans .chip{margin-right:4px}
+/* diagrams */
+.dia{margin:14px 0 6px;padding:14px;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius)}
+.dia figcaption{font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin-bottom:10px}
+.dia small{display:block;color:var(--mute);font-size:.82rem;line-height:1.35;margin-top:2px}
+.dflow{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:22px}
+.dflow li{position:relative;background:var(--card);border:1px solid var(--acc);border-radius:10px;padding:10px 12px 10px 46px;line-height:1.3}
+.dflow li+li::before{content:"↓";position:absolute;top:-21px;left:50%;transform:translateX(-50%);color:var(--acc);font-weight:800;font-size:1rem;line-height:20px}
+.dflow .dn{position:absolute;left:10px;top:10px;width:26px;height:26px;border-radius:50%;background:var(--acc);color:var(--on-acc);font-weight:800;font-size:.85rem;display:flex;align-items:center;justify-content:center}
+@media (min-width:760px){.dflow{flex-direction:row;gap:26px}.dflow li{flex:1;padding:40px 10px 10px;text-align:center}.dflow .dn{left:50%;transform:translateX(-50%)}
+ .dflow li+li::before{content:"→";top:50%;left:-24px;transform:translateY(-50%)}}
+.dloop{margin:10px 0 0;font-size:.88rem;color:var(--acc);font-weight:600;text-align:center}
+.dgrid{display:grid;grid-template-columns:22px 1fr;gap:4px}
+.dyl{writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;font-size:.75rem;font-weight:700;color:var(--mute)}
+.dbox{display:grid;grid-template-columns:auto 1fr 1fr;grid-template-rows:1fr 1fr auto;gap:6px}
+.dyv{grid-column:1;writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;font-size:.75rem;color:var(--mute)}
+.dyv:nth-child(1){grid-row:1}.dyv:nth-child(2){grid-row:2}
+.dcell{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;line-height:1.3;min-height:84px}
+.dcell.c0{grid-area:1/2}.dcell.c1{grid-area:1/3}.dcell.c2{grid-area:2/2}.dcell.c3{grid-area:2/3}
+.dcell b{color:var(--acc)}
+.dxv{text-align:center;font-size:.75rem;color:var(--mute)}
+.dxl{grid-column:2;text-align:center;font-size:.75rem;font-weight:700;color:var(--mute)}
+.dpyr{display:flex;flex-direction:column;align-items:center;gap:4px}
+.dpyr div{background:var(--acc-soft);border:1px solid var(--line);border-radius:8px;padding:8px 10px;text-align:center;line-height:1.3;min-width:150px}
+.dpyr div:first-child{background:var(--acc)}.dpyr div:first-child b,.dpyr div:first-child small{color:var(--on-acc)}
+.dring{border:2px solid var(--acc);border-radius:14px;padding:10px 12px;background:var(--card);line-height:1.3}
+.dring .dring{margin-top:10px;background:var(--acc-soft)}
+.dring .dring .dring{background:var(--card)}
+.dring b{color:var(--acc)}
+.dcmp{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.dcmp>div{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--acc);border-radius:10px;padding:10px 12px}
+.dcmp b{color:var(--acc)}
+.dcmp ul{margin:6px 0 0;padding-left:18px;font-size:.9rem}
+.dcmp li{margin:3px 0}
 @media (max-width:440px){.nnav{gap:4px}.nnav a{min-width:40px;height:40px;padding:0 8px}}
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -1254,33 +1297,71 @@ function renderVerify(){
  };
 }
 
+/* Diagrams for the notes. Built from HTML so text wraps on phones and follows the theme.
+   flow: steps in order. grid: a 2 by 2 matrix. pyramid: levels, top first. rings: nested boxes, outside first. compare: side-by-side columns. */
+function diagramHTML(d){
+ const cap=d.title?`<figcaption>${esc(d.title)}</figcaption>`:'';const sub=x=>x?`<small>${esc(x)}</small>`:'';
+ let body='';
+ if(d.type==='flow')body=`<ol class="dflow">${d.steps.map(([h,s],i)=>`<li><span class="dn">${i+1}</span><b>${esc(h)}</b>${sub(s)}</li>`).join('')}</ol>${d.loop?`<p class="dloop">↻ ${esc(d.loop)}</p>`:''}`;
+ else if(d.type==='grid')body=`<div class="dgrid"><span class="dyl">${esc(d.yl)}</span><div class="dbox"><span class="dyv">${esc(d.y[0])}</span><span class="dyv">${esc(d.y[1])}</span>
+   ${d.cells.map(([h,s],i)=>`<div class="dcell c${i}"><b>${esc(h)}</b>${sub(s)}</div>`).join('')}<span></span><span class="dxv">${esc(d.x[0])}</span><span class="dxv">${esc(d.x[1])}</span></div><span class="dxl">${esc(d.xl)}</span></div>`;
+ else if(d.type==='pyramid')body=`<div class="dpyr">${d.levels.map(([h,s],i)=>`<div style="width:${Math.round(40+60*i/Math.max(1,d.levels.length-1))}%"><b>${esc(h)}</b>${sub(s)}</div>`).join('')}</div>${d.note?`<p class="dloop">${esc(d.note)}</p>`:''}`;
+ else if(d.type==='rings'){const r=(k)=>k>=d.rings.length?'':`<div class="dring r${k}"><b>${esc(d.rings[k][0])}</b>${sub(d.rings[k][1])}${r(k+1)}</div>`;body=r(0);}
+ else if(d.type==='compare')body=`<div class="dcmp">${d.cols.map(([h,items])=>`<div><b>${esc(h)}</b><ul>${items.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`).join('')}</div>`;
+ return `<figure class="dia">${cap}${body}</figure>`;
+}
+const listHTML=l=>`<ul>${l.map(x=>`<li>${Array.isArray(x)?`<b>${esc(x[0])}:</b> ${esc(x[1])}`:esc(x)}</li>`).join('')}</ul>`;
+function ideaHTML(c,k){const ps=[].concat(c.p||[]);
+ return `<section class="part concept" id="n-i${k}"><h3>${esc(c.h)}</h3>${ps.map(x=>`<p>${esc(x)}</p>`).join('')}${c.l?listHTML(c.l):''}${c.dia?diagramHTML(c.dia):''}${c.more?[].concat(c.more).map(x=>`<p>${esc(x)}</p>`).join(''):''}
+  ${c.eg?`<p class="eg"><b>Maldives example:</b> ${esc(c.eg)}</p>`:''}${c.tip?`<p class="tip"><b>Exam tip:</b> ${esc(c.tip)}</p>`:''}</section>`}
+
 /* ---------- study notes (data in notes.js) ---------- */
 const GEMINI='https://gemini.google.com/app';
 function renderNotes(P,el,sub,sub2){
  const N=notesOf(P.id),t=parseInt(sub,10),T=N.topics[t];const base=`#/paper/${P.id}/notes`;
  if(!T){document.title=P.name+' study notes · MKT101 Practice';
   el.innerHTML=`<p class="lead" style="margin-bottom:18px">${esc(N.intro)}</p>
+  <h3 class="h2s" style="margin-top:0">How to use these notes</h3>
+  <div class="steps" style="margin-bottom:22px">${N.how.map(([h,s],i)=>`<div class="step"><b>${i+1}. ${esc(h)}</b><span>${esc(s)}</span></div>`).join('')}</div>
+  <h3 class="h2s">Topics</h3>
   <div class="ntopics">${P.topics.filter(x=>N.topics[x]).map(x=>`<a class="ntopic" href="${base}/${x}"><span class="kick">Topic ${x}</span><b>${esc(TERM.topics[x])}</b><span>${esc(N.topics[x].sum)}</span></a>`).join('')}</div>
+  ${N.answer?`<div class="part" style="margin-top:22px"><h3>${esc(N.answer.h)}</h3><p class="intro">${esc(N.answer.p)}</p>${diagramHTML(N.answer.dia)}${listHTML(N.answer.l)}</div>`:''}
   ${paperFoot(P,'notes')}${footHTML()}`;return;}
  if(sub2==='practice'){renderDrill(P,t,el);return}
  document.title='Topic '+t+' notes · MKT101 Practice';
- const tps=P.topics.filter(x=>N.topics[x]),i=tps.indexOf(t),prev=tps[i-1],next=tps[i+1];
+ const tps=P.topics.filter(x=>N.topics[x]),i=tps.indexOf(t),prev=tps[i-1],next=tps[i+1];const W=T.worked;
+ const jumps=[['n-min','In one minute'],['n-ideas','Key ideas'],['n-terms','Key terms'],T.mistakes&&['n-mis','Common mistakes'],W&&['n-ans','Answer like this'],['n-chk','Check yourself'],['n-prac','Practise'],['n-ai','Explore with AI']].filter(Boolean);
  el.innerHTML=`<nav class="anav nnav" aria-label="Topics">${tps.map(x=>`<a href="${base}/${x}" ${x===t?'aria-current="page"':''} aria-label="Topic ${x}">${x}</a>`).join('')}<a href="${base}">All topics</a></nav>
   <div class="ahead"><div class="kick">Topic ${t}</div><h2>${esc(TERM.topics[t])}</h2></div>
-  <div class="lo"><h3>What you need to be able to do</h3><p>${esc(T.lo)}</p><h3>What the exam asks</h3><ul>${T.exam.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
-  <h3 class="h2s">Key ideas</h3>
-  ${T.ideas.map(c=>`<div class="part concept"><h3>${esc(c.h)}</h3><p>${esc(c.p)}</p>${c.l?`<ul>${c.l.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}${c.eg?`<p class="eg"><b>Maldives example:</b> ${esc(c.eg)}</p>`:''}</div>`).join('')}
-  <h3 class="h2s">Check yourself</h3>
+  <div class="jump" aria-label="On this page">${jumps.map(([id,n])=>`<button type="button" class="opt" data-jump="${id}">${esc(n)}</button>`).join('')}</div>
+  <div class="lo" id="n-min"><h3>In one minute</h3>${listHTML(T.min)}<h3>What you need to be able to do</h3><p>${esc(T.lo)}</p><h3>What the exam asks</h3>${listHTML(T.exam)}</div>
+  <h3 class="h2s" id="n-ideas">Key ideas</h3>
+  <p class="intro">Read one card at a time. Look at each diagram and try to say it in your own words.</p>
+  ${T.ideas.map(ideaHTML).join('')}
+  <h3 class="h2s" id="n-terms">Key terms</h3>
+  <p class="intro">Tap a card to see the meaning. Say the meaning out loud before you tap.</p>
+  <div class="terms">${T.terms.map(([a],k)=>`<button type="button" class="term" aria-pressed="false" data-ti="${k}"><b>${esc(a)}</b><span>Tap to reveal</span></button>`).join('')}</div>
+  <div class="row"><button type="button" class="btn" data-tall="1">Show all</button><button type="button" class="btn" data-tall="0">Hide all</button></div>
+  ${T.mistakes?`<div class="part mis" id="n-mis"><h3>Common mistakes</h3>${listHTML(T.mistakes)}</div>`:''}
+  ${W?`<div class="part" id="n-ans"><h3>Answer like this</h3><p class="intro">A worked practice question. Plan your own answer first, then open the model.</p>
+   <div class="qbox"><div class="ql">Practice question · ${W.marks||5} marks</div><p>${esc(W.q)}</p></div>
+   <div class="paper guide"><h3>✍ Plan</h3><ol>${W.plan.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div>
+   <details class="think model"><summary>Model answer, with what each part does</summary>${W.model.map(([tag,x])=>`<p><span class="chip">${esc(tag)}</span> ${esc(x)}</p>`).join('')}</details></div>`:''}
+  <h3 class="h2s" id="n-chk">Check yourself</h3>
   <p class="intro">Answer in your head or on paper first. Then open the answer.</p>
   ${T.check.map(([q,a],k)=>`<details class="think model chk"><summary>${k+1}. ${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}
-  <div class="part"><h3>Practise this topic</h3><p class="intro" style="margin:0">Try 10 multiple choice questions on Topic ${t} only. You see right or wrong at once.</p>
+  <div class="part" id="n-prac"><h3>Practise this topic</h3><p class="intro" style="margin:0">Try 10 multiple choice questions on Topic ${t} only. You see right or wrong at once, with a reason.</p>
    <div class="row"><a class="btn primary" href="${base}/${t}/practice">Practise Topic ${t} →</a><a class="btn" href="#/paper/${P.id}/b">Section B short answers</a></div></div>
-  <div class="part explore"><h3>Explore further with AI</h3><p class="intro">Copy a prompt, open Gemini, and paste it in. Read the reply with care. Check every idea against your textbook and your class notes.</p>
+  <div class="part explore" id="n-ai"><h3>Explore further with AI</h3><p class="intro">Copy a prompt, open Gemini, and paste it in. Read the reply with care. Check every idea against these notes and your textbook.</p>
    ${T.prompts.map((x,k)=>`<div class="prompt"><p>${esc(x)}</p><button class="btn" type="button" data-copy="${k}">Copy prompt</button></div>`).join('')}
    <div class="row"><a class="btn primary" href="${GEMINI}" target="_blank" rel="noopener">Open Gemini ↗</a></div></div>
   <div class="anext">${prev?`<a class="btn" href="${base}/${prev}" style="text-decoration:none;color:var(--ink)">← Topic ${prev}</a>`:'<span></span>'}${next?`<a class="btn primary" href="${base}/${next}" style="text-decoration:none">Topic ${next} →</a>`:`<a class="btn primary" href="#/paper/${P.id}/a" style="text-decoration:none">Try a full Section A →</a>`}</div>
   ${paperFoot(P,'notes')}${footHTML()}`;
- el.onclick=e=>{const b=e.target.closest('[data-copy]');if(!b)return;const txt=T.prompts[+b.dataset.copy];
+ const flip=(b,on)=>{b.setAttribute('aria-pressed',on);b.querySelector('span').textContent=on?T.terms[b.dataset.ti][1]:'Tap to reveal'};
+ el.onclick=e=>{const j=e.target.closest('[data-jump]');if(j){const x=document.getElementById(j.dataset.jump);if(x)x.scrollIntoView({behavior:'smooth'});return}
+  const tm=e.target.closest('[data-ti]');if(tm){flip(tm,tm.getAttribute('aria-pressed')!=='true');return}
+  const ta=e.target.closest('[data-tall]');if(ta){$$('[data-ti]',el).forEach(b=>flip(b,ta.dataset.tall==='1'));return}
+  const b=e.target.closest('[data-copy]');if(!b)return;const txt=T.prompts[+b.dataset.copy];
   const ok=()=>{b.textContent='Copied ✓';setTimeout(()=>{b.textContent='Copy prompt'},2000)};
   const old=()=>{const a=document.createElement('textarea');a.value=txt;a.setAttribute('readonly','');a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();
    try{document.execCommand('copy');ok()}catch(err){b.textContent='Select and copy the text'}a.remove()};
