@@ -284,12 +284,21 @@ details.casebox .reading{padding-bottom:10px}
 .mcq .opt.ok{background:var(--good-soft);border-color:var(--good);color:var(--ink)}
 .mcq .opt.no{background:var(--bad-soft);border-color:var(--bad);color:var(--ink)}
 .mcq .opt:disabled{cursor:default}
-.res{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:0 0 18px}
+.res{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:0 0 18px;scroll-margin-top:72px}
 .res .big{font-size:2rem;font-weight:800;color:var(--acc);line-height:1.1}
 .res .barr{grid-template-columns:minmax(120px,190px) 1fr 44px}
 .res .barr em{font-style:normal;font-weight:700;color:var(--ink);text-align:right}
 .res .barr.lo b{background:var(--bad)}
 .ess .ql em{font-style:normal;color:var(--acc)}
+
+/* paper section footer */
+.pfoot{margin:30px 0 0;padding:18px 0 4px;border-top:1px solid var(--line)}
+.pnext{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.pnext .btn{text-decoration:none;padding:12px 18px;color:var(--ink)}
+.pnext .btn.primary{margin-left:auto;color:var(--on-acc)}
+.pfoot .tabs{margin-top:16px}
+.incase{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin:0 0 16px;font-size:.95rem}
+.incase b{color:var(--acc)}
 
 /* landing + sign-in */
 .mnu{display:block;margin:0 auto;background:#fff;border-radius:20px;padding:14px 18px;width:min(168px,44vw);box-shadow:0 1px 0 var(--line)}
@@ -780,7 +789,7 @@ function bindTimer(el){const t=$('.timer',el);if(!t)return;const k='tm_'+t.datas
 const topicName=t=>`Topic ${t} · ${TERM.topics[t]}`;
 
 /* ---------- case exam practice (Section C) ---------- */
-function renderExam(c,el){
+function renderExam(c,el,inPaper){
  const ex=EXAM[c.id];const key=i=>c.id+'-q'+(i+1);
  el.innerHTML=`<div class="note">Section C practice: 5 questions, 6 marks each, 30 marks. Write your answers on paper. In the real exam the case is shorter (about 600 words), so practise finding the key facts quickly.</div>
  ${timerHTML('c-'+c.id,54,'Suggested time for Section C')}
@@ -788,7 +797,7 @@ function renderExam(c,el){
  ${ex.map((x,i)=>{const a=c.acts[i];return `<section class="eq"><div class="qbox"><div class="ql">Question ${i+1} · ${esc(a.bloom)}</div><p>${esc(a.q)}</p><div class="mk">6 marks · about 10 minutes · ${esc(a.topic)}</div></div>
   ${guideHTML(x.guide)}${modelHTML(x.model,x.rub,6)}${selfMarkHTML(key(i),6)}
   <p class="intro" style="margin-top:10px"><a href="#/${c.id}/act/${i+1}">Stuck? Try activity ${i+1} first →</a></p></section>`}).join('')}
- <div class="tot"><span>Section C total: <b id="ctot"></b></span><a class="btn" href="#/paper/final" style="text-decoration:none">Final practice paper →</a></div>`;
+ <div class="tot"><span>Section C total: <b id="ctot"></b></span>${inPaper?'':`<a class="btn" href="#/paper/final/c/${c.id}" style="text-decoration:none">Final practice paper →</a>`}</div>`;
  const upd=()=>{const m=getMk();const done=ex.filter((x,i)=>m[key(i)]!==undefined).length;$('#ctot').textContent=`${ex.reduce((s,x,i)=>s+(m[key(i)]||0),0)} / 30 (${done} of 5 marked)`};
  upd();bindMarks(el,upd);bindTimer(el);
 }
@@ -798,7 +807,18 @@ function paperHead(P,sec){return `<section class="chead" style="grid-template-co
  <div class="chips">${sec?`<span class="chip">${esc(sec.d)}</span><span class="chip n">${sec.marks} marks · about ${sec.mins} minutes</span>`:`<span class="chip">${P.hours} hours · ${P.marks} marks</span><span class="chip n">${P.topics.length} topics: ${P.topics[0]} to ${P.topics[P.topics.length-1]}</span>`}</div></div></section>
  <nav class="tabs"><a href="#/paper/${P.id}" ${!sec?'aria-current="page"':''}>Overview</a>${P.sections.map(s=>`<a href="#/paper/${P.id}/${s.k}" ${sec&&sec.k===s.k?'aria-current="page"':''}>${s.n}</a>`).join('')}</nav><div id="tab"></div>`}
 
-function renderPaper(pid,sk){
+/* Footer on every paper page: big previous / next buttons, then the same section tabs as the top.
+   extra: optional HTML placed between the two buttons. */
+function paperFoot(P,cur,extra){
+ const order=[{k:'',n:'Overview'}].concat(P.sections),i=order.findIndex(s=>s.k===(cur||'')),prev=order[i-1],next=order[i+1];
+ const href=s=>`#/paper/${P.id}${s.k?'/'+s.k:''}`;
+ return `<nav class="pfoot" aria-label="Paper sections"><div class="pnext">
+  ${prev?`<a class="btn" href="${href(prev)}">← ${esc(prev.n)}</a>`:''}${extra||''}
+  ${next?`<a class="btn primary" href="${href(next)}">${i===0?'Start ':''}${esc(next.n)}${next.t?': '+esc(next.t):''} →</a>`:`<a class="btn primary" href="${href(order[0])}">Finish: back to paper overview</a>`}</div>
+  <div class="tabs">${order.map(s=>`<a href="${href(s)}" ${s.k===(cur||'')?'aria-current="page"':''}>${esc(s.n)}</a>`).join('')}</div></nav>`;
+}
+
+function renderPaper(pid,sk,sub){
  const P=TERM.papers[pid];if(!P||!P.live){renderHome();return}P.id=pid;
  const sec=P.sections.find(s=>s.k===sk);
  document.body.dataset.case='';switcher('paper-'+pid);document.title=P.name+' practice · MKT101 Practice';
@@ -810,8 +830,8 @@ function renderPaper(pid,sk){
    <li><b>Section A:</b> tap your answer. You see right or wrong at once, with a short reason. Each set of ${P.mcqCount} is new and covers every topic.</li>
    <li><b>${P.sections.slice(1).map(s=>s.n).join(' and ')}:</b> write on paper. Each question has a guide to help you plan. Open the model answer only after you finish, then give yourself a mark.</li>
    <li>Use the timer to practise working at exam speed.</li></ul></div>
-  <div class="part"><h3>Topics in this paper</h3><ul style="margin:6px 0 0;padding-left:20px">${P.topics.map(t=>`<li>${esc(topicName(t))}</li>`).join('')}</ul></div>${footHTML()}`;
- }else if(sk==='a')renderMCQ(P,sec,el);else if(sk==='b')renderEssays(P,sec,el);else renderSecC(P,sec,el);
+  <div class="part"><h3>Topics in this paper</h3><ul style="margin:6px 0 0;padding-left:20px">${P.topics.map(t=>`<li>${esc(topicName(t))}</li>`).join('')}</ul></div>${paperFoot(P,'')}${footHTML()}`;
+ }else if(sk==='a')renderMCQ(P,sec,el);else if(sk==='b')renderEssays(P,sec,el);else renderSecC(P,sec,el,sub);
 }
 
 /* Section A: balanced random draw, shuffled options, avoid recent repeats */
@@ -838,11 +858,13 @@ function renderMCQ(P,sec,el){
  const draw=()=>{const n=Object.keys(set.ans).length,sc=set.ids.filter(id=>set.ans[id]===0).length,all=n===set.ids.length;
   el.innerHTML=`${timerHTML(P.id+'-a',sec.mins,'Suggested time for Section A')}${all?results():''}
   ${set.ids.map(qHTML).join('')}
-  <div class="tot"><span>Answered <b>${n} / ${set.ids.length}</b> · Score <b>${sc}</b></span><button class="btn" data-a="new">New set</button></div>`;bindTimer(el);};
+  <div class="tot"><span>Answered <b>${n} / ${set.ids.length}</b> · Score <b>${sc}</b></span><button class="btn" data-a="new">New set</button></div>
+  ${paperFoot(P,'a',all?'<button class="btn" data-a="res">See your results ↑</button>':'')}`;bindTimer(el);};
  draw();
  el.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;
   if(b.dataset.oi!==undefined){const id=b.closest('.mcq').dataset.id;set.ans[id]=+b.dataset.oi;S.set('mcq_'+P.id,set);
    const y=scrollY;draw();scrollTo(0,y);if(Object.keys(set.ans).length===set.ids.length)$('#res').scrollIntoView({behavior:'smooth'});}
+  else if(b.dataset.a==='res'){$('#res').scrollIntoView({behavior:'smooth'});}
   else if(b.dataset.a==='new'){if(Object.keys(set.ans).length<set.ids.length&&!confirm('Start a new set? Your answers in this set will be cleared.'))return;
    set=newMCQSet(P);try{localStorage.removeItem('mkt101_tm_'+P.id+'-a')}catch(e){}draw();scrollTo(0,0);}};
 }
@@ -862,7 +884,8 @@ function renderEssays(P,sec,el){
   ${timerHTML(P.id+'-b',sec.mins,'Suggested time for Section B')}
   ${ids.map((id,i)=>{const e=byId[id];const tot=e.marks.reduce((s,r)=>s+r[1],0);return `<section class="eq ess"><div class="qbox"><div class="ql">Question ${i+1} · <em>Topic ${e.t}</em> · ${e.b==='K'?'Knowledge':'Application'}</div><p>${esc(e.q)}</p><div class="mk">${tot} marks · ${esc(TERM.topics[e.t])}</div></div>
    ${guideHTML(e.guide)}${modelHTML(e.model,e.marks,tot)}${selfMarkHTML(key(id),tot)}</section>`}).join('')}
-  <div class="tot"><span>Section B: <b id="btot"></b></span><button class="btn" data-a="new">New set of questions</button></div>`;
+  <div class="tot"><span>Section B: <b id="btot"></b></span><button class="btn" data-a="new">New set of questions</button></div>
+  ${paperFoot(P,'b')}`;
   bindTimer(el);upd();};
  const upd=()=>{const m=getMk();const v=ids.map(id=>m[key(id)]).filter(x=>x!==undefined).sort((a,b)=>b-a);
   $('#btot').textContent=v.length?`${v.slice(0,P.essayAnswer).reduce((s,x)=>s+x,0)} / ${P.essayAnswer*P.essayMarks} (best ${Math.min(v.length,P.essayAnswer)} marked)`:`not marked yet`;};
@@ -871,11 +894,14 @@ function renderEssays(P,sec,el){
   ids=newEssaySet(P);try{localStorage.removeItem('mkt101_tm_'+P.id+'-b')}catch(e){}draw();scrollTo(0,0);});
 }
 
-/* Section C: pick a case, then use its exam practice tab */
-function renderSecC(P,sec,el){const m=getMk();
+/* Section C: pick a case, then answer its questions without leaving the paper */
+function renderSecC(P,sec,el,cid){const m=getMk();
+ if(P.cases.includes(cid)){const c=CASES[cid];document.title=c.short+' · Section C · MKT101 Practice';
+  el.innerHTML=`<p class="incase">Case: <b>${esc(c.title)}</b><a href="#/paper/${P.id}/c">Choose a different case</a></p><div id="cx"></div>${paperFoot(P,'c')}${footHTML()}`;
+  renderExam(c,$("#cx"),true);return;}
  el.innerHTML=`<p class="lead" style="margin-bottom:18px">Section C is one case study with 5 questions (6 marks each). Study both cases. Choose one to practise now.</p>
  <div class="cases" style="margin-top:0">${P.cases.map(id=>{const c=CASES[id];const n=EXAM[id].filter((x,i)=>m[id+'-q'+(i+1)]!==undefined).length;
-  return `<a class="ccard c-${id}" href="#/${id}/exam">${logo(c)}<div class="body"><div class="chips" style="margin-bottom:10px">${c.topics.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div><h2>${esc(c.title)}</h2><span class="chip n">${n} of 5 questions marked</span></div><span class="go">Practise Section C →</span></a>`}).join('')}</div>${footHTML()}`;
+  return `<a class="ccard c-${id}" href="#/paper/${P.id}/c/${id}">${logo(c)}<div class="body"><div class="chips" style="margin-bottom:10px">${c.topics.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div><h2>${esc(c.title)}</h2><span class="chip n">${n} of 5 questions marked</span></div><span class="go">Practise Section C →</span></a>`}).join('')}</div>${paperFoot(P,'c')}${footHTML()}`;
 }
 
 /* ---------- case ---------- */
@@ -1197,7 +1223,7 @@ function route(){
   window.scrollTo(0,0);return;
  }
  if(cid==='verify'){location.replace('#/');return}
- if(cid==='paper')renderPaper(h[1]||'final',h[2]);
+ if(cid==='paper')renderPaper(h[1]||'final',h[2],h[3]);
  else if(!CASES[cid]){renderHome();}else{const tab=['read','terms','act','exam','tips'].includes(h[1])?h[1]:'read';renderCase(cid,tab,parseInt(h[2],10)||1);}
  window.scrollTo(0,0);
 }
