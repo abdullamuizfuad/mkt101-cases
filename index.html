@@ -291,6 +291,46 @@ details.casebox .reading{padding-bottom:10px}
 .res .barr.lo b{background:var(--bad)}
 .ess .ql em{font-style:normal;color:var(--acc)}
 
+/* landing + sign-in */
+.mnu{display:block;margin:0 auto;background:#fff;border-radius:20px;padding:14px 18px;width:min(168px,44vw);box-shadow:0 1px 0 var(--line)}
+.mnu img{display:block;width:100%;height:auto}
+.mnu.sm{width:96px;padding:8px 10px;border-radius:14px}
+.land{text-align:center;padding:32px 0 8px}
+.land h1{margin-top:18px}
+.land .lead{margin:0 auto}
+.feats{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:26px 0;text-align:left}
+.feat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+.feat b{display:block;margin-bottom:2px}
+.feat span{color:var(--mute);font-size:.92rem}
+.cta{display:inline-block;background:var(--acc);color:var(--on-acc);border-radius:999px;padding:14px 28px;font-weight:700;text-decoration:none;font-size:1.05rem}
+.gate{max-width:440px;margin:0 auto;padding:28px 0 40px}
+.gate .land{padding:0 0 18px}
+.gate .land h1{font-size:1.6rem;margin:14px 0 4px}
+.gcard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 20px;border-top:4px solid var(--acc)}
+.gcard label{display:block;font-weight:700;font-size:.92rem;margin:0 0 6px}
+.gcard input{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:0 0 16px}
+.gcard input:focus{outline:2px solid var(--acc);outline-offset:1px;border-color:var(--acc)}
+.sid{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg)}
+.sid:focus-within{outline:2px solid var(--acc);outline-offset:1px;border-color:var(--acc)}
+.sid span{display:flex;align-items:center;padding:0 14px;background:var(--acc);color:var(--on-acc);font-weight:800;font-size:1.1rem}
+.gcard .sid input{border:0;border-radius:0;margin:0;letter-spacing:.25em;font-variant-numeric:tabular-nums;outline:0}
+.hint{display:block;font-size:.84rem;color:var(--mute);margin:6px 0 14px}
+.mail{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--soft);transition:border-color .15s ease,background .15s ease}
+.mail small{display:block;color:var(--mute);font-size:.76rem}
+.mail b{font-size:.95rem;word-break:break-all}
+.mail b i{color:var(--mute);font-style:normal;font-weight:500}
+.mail.ok{border-color:var(--good);background:var(--good-soft)}
+.mail svg{flex:none;color:var(--mute)}
+.mail.ok svg{color:var(--good)}
+.gerr{color:var(--bad);font-size:.9rem;margin:10px 0 0;min-height:1.2em}
+.gcard .btn.primary{width:100%;padding:14px;font-size:1.02rem;border-radius:999px;margin-top:8px}
+.signed{margin:14px 0 0;font-size:.9rem;color:var(--mute)}
+.signed button{margin-left:8px}
+@media (max-width:440px){#sw a.cs:not([aria-current]){display:none}}
+.signed b{color:var(--ink)}
+.signed button{border:0;background:none;color:var(--acc);text-decoration:underline;cursor:pointer;padding:0;font-size:.9rem}
+.small{color:var(--mute);font-size:.84rem;text-align:center;margin-top:14px}
+
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media print{
   .bar,.tabs,.chead .chips,.readbar button,.note,.foot,.timer,.selfmk,.tot{display:none!important}
@@ -684,7 +724,9 @@ function setPart(k,v){const a=S.get('st',{});a[k]=v;S.set('st',a)}
 /* ---------- shared bits ---------- */
 function logo(c,cls=''){return `<div class="logo ${cls}"><img src="logos/${c.id}.png" alt="${esc(c.org)} logo" onload="this.parentNode.classList.add('has')" onerror="this.remove()"><span class="wm">${esc(c.short)}<small>${esc(c.org)}</small></span></div>`}
 function barsHTML(arr){return `<div class="bars">${arr.map(([l,v])=>`<div class="barr"><span>${esc(l)}</span><i><b style="width:${v*20}%"></b></i></div>`).join('')}</div>`}
-function switcher(cur){$('#sw').innerHTML=`<a href="#/" ${!cur?'aria-current="page"':''}>Home</a><a href="#/paper/final" ${cur==='paper'?'aria-current="page"':''}>Final paper</a>`+ORDER.map(id=>`<a href="#/${id}" ${cur===id?'aria-current="page"':''}>${CASES[id].short}</a>`).join('')}
+function switcher(cur){$('#sw').innerHTML=`<a href="#/" ${!cur?'aria-current="page"':''}>Home</a>`
+ +Object.entries(TERM.papers).filter(([k,P])=>P.live).map(([k,P])=>`<a href="#/paper/${k}" ${cur==='paper-'+k?'aria-current="page"':''}>${k==='final'?'Final':esc(P.name)}</a>`).join('')
+ +ORDER.map(id=>`<a class="cs" href="#/${id}" ${cur===id?'aria-current="page"':''}>${CASES[id].short}</a>`).join('')}
 const footHTML=()=>`<p class="foot">Practice material for ${TERM.code} at ${TERM.school}, ${TERM.term}. The questions here are for practice and are not exam questions.</p>`;
 
 /* ---------- home ---------- */
@@ -696,6 +738,7 @@ function renderHome(){
   <div class="kick">${TERM.code} ${TERM.name} · ${TERM.term}</div>
   <h1>Practise for your exam</h1>
   <p class="lead">Read each question on your phone and write your answer on paper, just like the real exam. Then open the model answer and mark your own work. Your progress is saved in this browser.</p>
+  ${signedHTML()}
  </section>
  <h2 class="h2s">Practice papers</h2>
  <div class="pcards">${Object.entries(TERM.papers).map(([pid,P])=>P.live?`<div class="pcard"><div class="kick">Practice paper</div><h2>${esc(P.name)}</h2><p>${esc(P.blurb)} ${P.hours} hours, ${P.marks} marks.</p>
@@ -758,14 +801,14 @@ function paperHead(P,sec){return `<section class="chead" style="grid-template-co
 function renderPaper(pid,sk){
  const P=TERM.papers[pid];if(!P||!P.live){renderHome();return}P.id=pid;
  const sec=P.sections.find(s=>s.k===sk);
- document.body.dataset.case='';switcher('paper');document.title=P.name+' practice · MKT101 Practice';
+ document.body.dataset.case='';switcher('paper-'+pid);document.title=P.name+' practice · MKT101 Practice';
  $('#app').innerHTML=paperHead(P,sec);const el=$('#tab');
  if(!sec){
-  el.innerHTML=`<p class="lead" style="margin-bottom:18px">This paper has the same structure as your real ${esc(P.name)}. Do one section at a time, or all three in one sitting (${P.hours} hours).</p>
+  el.innerHTML=`<p class="lead" style="margin-bottom:18px">This paper has the same structure as your real ${esc(P.name)}. Do one section at a time, or the whole paper in one sitting (${P.hours} hours).</p>
   <div class="slinks">${P.sections.map(s=>`<a class="slink" href="#/paper/${pid}/${s.k}"><b>${s.n.replace('Section ','')}</b><div>${esc(s.t)}<br><span>${esc(s.d)} About ${s.mins} minutes.</span></div><i>${s.marks} marks</i></a>`).join('')}</div>
   <div class="part" style="margin-top:22px"><h3>How it works</h3><ul style="margin:6px 0 0;padding-left:20px">
    <li><b>Section A:</b> tap your answer. You see right or wrong at once, with a short reason. Each set of ${P.mcqCount} is new and covers every topic.</li>
-   <li><b>Section B and C:</b> write on paper. Each question has a guide to help you plan. Open the model answer only after you finish, then give yourself a mark.</li>
+   <li><b>${P.sections.slice(1).map(s=>s.n).join(' and ')}:</b> write on paper. Each question has a guide to help you plan. Open the model answer only after you finish, then give yourself a mark.</li>
    <li>Use the timer to practise working at exam speed.</li></ul></div>
   <div class="part"><h3>Topics in this paper</h3><ul style="margin:6px 0 0;padding-left:20px">${P.topics.map(t=>`<li>${esc(topicName(t))}</li>`).join('')}</ul></div>${footHTML()}`;
  }else if(sk==='a')renderMCQ(P,sec,el);else if(sk==='b')renderEssays(P,sec,el);else renderSecC(P,sec,el);
@@ -805,22 +848,24 @@ function renderMCQ(P,sec,el){
 }
 
 /* Section B: draw essays from different topics, answer any four */
-function newEssaySet(P){const pool=BANK.essays.filter(e=>P.topics.includes(e.t));
- const tps=shuffle([...new Set(pool.map(e=>e.t))]).slice(0,P.essayOffer).sort((a,b)=>a-b);
- const ids=tps.map(t=>shuffle(pool.filter(e=>e.t===t))[0].id);S.set('ess_'+P.id,ids);
+function newEssaySet(P){const pool=shuffle(BANK.essays.filter(e=>P.topics.includes(e.t)));
+ // one question per topic first (topics in random order), then fill any spare places
+ const first=shuffle([...new Set(pool.map(e=>e.t))]).map(t=>pool.find(e=>e.t===t));
+ const pick=first.concat(pool.filter(e=>!first.includes(e))).slice(0,P.essayOffer);
+ const ids=pick.sort((a,b)=>a.t-b.t).map(e=>e.id);S.set('ess_'+P.id,ids);
  const m=getMk();Object.keys(m).filter(k=>k.startsWith('ess-'+P.id)).forEach(k=>delete m[k]);S.set('mk',m);return ids;}
 function renderEssays(P,sec,el){
  const byId=Object.fromEntries(BANK.essays.map(e=>[e.id,e]));
  let ids=S.get('ess_'+P.id,null);if(!ids||!ids.every(id=>byId[id]))ids=newEssaySet(P);
  const key=id=>'ess-'+P.id+'-'+id;
- const draw=()=>{el.innerHTML=`<div class="note">Answer any ${P.essayAnswer} of these ${ids.length} questions on paper. Each is worth 10 marks, so spend about 18 minutes on each. Plan with the guide, write, then open the model answer.</div>
+ const draw=()=>{el.innerHTML=`<div class="note">Answer any ${P.essayAnswer} of these ${ids.length} questions on paper. Each is worth ${P.essayMarks} marks, so spend about ${Math.round(sec.mins/P.essayAnswer)} minutes on each. Plan with the guide, write, then open the model answer.</div>
   ${timerHTML(P.id+'-b',sec.mins,'Suggested time for Section B')}
   ${ids.map((id,i)=>{const e=byId[id];const tot=e.marks.reduce((s,r)=>s+r[1],0);return `<section class="eq ess"><div class="qbox"><div class="ql">Question ${i+1} · <em>Topic ${e.t}</em> · ${e.b==='K'?'Knowledge':'Application'}</div><p>${esc(e.q)}</p><div class="mk">${tot} marks · ${esc(TERM.topics[e.t])}</div></div>
    ${guideHTML(e.guide)}${modelHTML(e.model,e.marks,tot)}${selfMarkHTML(key(id),tot)}</section>`}).join('')}
   <div class="tot"><span>Section B: <b id="btot"></b></span><button class="btn" data-a="new">New set of questions</button></div>`;
   bindTimer(el);upd();};
  const upd=()=>{const m=getMk();const v=ids.map(id=>m[key(id)]).filter(x=>x!==undefined).sort((a,b)=>b-a);
-  $('#btot').textContent=v.length?`${v.slice(0,P.essayAnswer).reduce((s,x)=>s+x,0)} / ${P.essayAnswer*10} (best ${Math.min(v.length,P.essayAnswer)} marked)`:`not marked yet`;};
+  $('#btot').textContent=v.length?`${v.slice(0,P.essayAnswer).reduce((s,x)=>s+x,0)} / ${P.essayAnswer*P.essayMarks} (best ${Math.min(v.length,P.essayAnswer)} marked)`:`not marked yet`;};
  draw();bindMarks(el,upd);
  el.addEventListener('click',e=>{const b=e.target.closest('[data-a=new]');if(!b)return;if(!confirm('Get a new set of questions? Your marks for this set will be cleared.'))return;
   ids=newEssaySet(P);try{localStorage.removeItem('mkt101_tm_'+P.id+'-b')}catch(e){}draw();scrollTo(0,0);});
@@ -1066,10 +1111,91 @@ R.claims=(el,cfg,st,save)=>{
   else if(b.dataset.a==='rst'){st.t={};st.show=false;save();draw();}};
 };
 
+/* ---------- student sign-in ----------
+   The class list lives in a Google Sheet. Only the ID is sent to the Apps Script,
+   which answers yes or no. See tools/README.md for setup. */
+const SKEY=TERM.signin.key;
+function me(){try{const r=JSON.parse(localStorage.getItem(SKEY)||sessionStorage.getItem(SKEY)||'null');return r&&/^S0\d{5}$/.test(r.sid||'')?r:null}catch(e){return null}}
+function signOut(){try{localStorage.removeItem(SKEY);sessionStorage.removeItem(SKEY)}catch(e){}location.hash='#/';route()}
+function saveMe(rec){
+ try{
+  // a different student on this device: clear the previous student's progress (keep the theme).
+  // The last ID is kept separately because signing out removes the record.
+  const last=localStorage.getItem('mkt101-last');
+  if(last!==rec.sid)Object.keys(localStorage).filter(k=>k.startsWith('mkt101_')&&k!=='mkt101_theme').forEach(k=>localStorage.removeItem(k));
+  localStorage.setItem('mkt101-last',rec.sid);
+  localStorage.setItem(SKEY,JSON.stringify(rec));sessionStorage.setItem(SKEY,JSON.stringify(rec));
+ }catch(e){}
+}
+const logoHTML=(sm)=>`<span class="mnu ${sm?'sm':''}"><img src="assets/mnu-logo.png" alt="The Maldives National University logo" width="560" height="676"></span>`;
+const signedHTML=()=>{const r=me();return r?`<p class="signed">Signed in as <b>${esc(r.name)}</b> · ${esc(r.sid)}<button type="button" data-signout>Not you? Sign out</button></p>`:''};
+document.addEventListener('click',e=>{if(e.target.closest('[data-signout]'))signOut()});
+
+function renderLanding(){
+ document.body.dataset.case='';$('#sw').innerHTML='';document.title='MKT101 Exam Practice · MNU';
+ const live=Object.values(TERM.papers).filter(P=>P.live).map(P=>P.name);
+ $('#app').innerHTML=`<section class="land">${logoHTML()}
+  <div class="kick" style="margin-top:20px">${TERM.school} · ${TERM.term}</div>
+  <h1>${TERM.code} ${TERM.name}<br>Exam Practice</h1>
+  <p class="lead">Practise for your exams on your phone. Read each question, write your answer on paper like the real exam, then check it against the model answer.</p></section>
+ <div class="feats">
+  <div class="feat"><b>Practice papers</b><span>${esc(live.join(' and '))}, with the same sections as the real exams.</span></div>
+  <div class="feat"><b>Instant MCQ feedback</b><span>A fresh set every time, with a reason for each answer and your score by topic.</span></div>
+  <div class="feat"><b>Guides and model answers</b><span>Plan your answer with the guide, then mark your work with the model answer.</span></div>
+  <div class="feat"><b>Case studies</b><span>${ORDER.map(id=>esc(CASES[id].org)).join(' and ')}, with activities and Section C practice.</span></div>
+ </div>
+ <p style="text-align:center"><a class="cta" href="#/verify">Sign in with your student ID →</a></p>
+ <p class="small">For ${TERM.code} students at The Maldives National University, ${TERM.term}.</p>${footHTML()}`;
+}
+
+function renderVerify(){
+ document.body.dataset.case='';$('#sw').innerHTML='';document.title='Sign in · MKT101 Exam Practice';
+ $('#app').innerHTML=`<div class="gate"><section class="land">${logoHTML(true)}<h1>Sign in</h1><p class="lead" style="font-size:.98rem">${TERM.code} ${TERM.name} · ${TERM.term}</p></section>
+ <form class="gcard" id="gate" novalidate autocomplete="off">
+  <label for="gName">Full name</label>
+  <input id="gName" type="text" autocomplete="name" placeholder="As it appears on your student record" required>
+  <label for="gId">Student ID</label>
+  <div class="sid"><span aria-hidden="true">S</span><input id="gId" type="text" inputmode="numeric" maxlength="6" placeholder="0XXXXX" aria-describedby="gIdHint" required></div>
+  <span class="hint" id="gIdHint">Type the 6 numbers after the S. They start with 0.</span>
+  <div class="mail" id="gMail" aria-live="polite"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+   <div><small>Your student email</small><b id="gMailTxt"></b></div></div>
+  <p class="gerr" id="gErr" role="alert"></p>
+  <button class="btn primary" id="gGo" type="submit" disabled>Verify and start</button>
+ </form>
+ <p class="small">Your progress stays on this device. <a href="#/">Back</a></p></div>`;
+ const name=$('#gName'),id=$('#gId'),mail=$('#gMail'),mt=$('#gMailTxt'),err=$('#gErr'),go=$('#gGo');
+ const check=()=>{const d=id.value.replace(/\D/g,'').slice(0,6);if(id.value!==d)id.value=d;
+  mt.innerHTML='s'+d+(d.length<6?'<i>'+'0xxxxx'.slice(d.length)+'</i>':'')+'@student.mnu.edu.mv';
+  const idOk=/^0\d{5}$/.test(d),nameOk=name.value.trim().replace(/[^A-Za-z]/g,'').length>=3;
+  mail.classList.toggle('ok',idOk);
+  err.textContent=d.length&&d[0]!=='0'?'MNU student IDs start with S0. Check the first number.':'';
+  go.disabled=!(idOk&&nameOk);return idOk&&nameOk;};
+ name.oninput=id.oninput=check;check();name.focus();
+ const enter=(rec)=>{saveMe(rec);let next='#/';try{next=sessionStorage.getItem('mkt101-next')||'#/';sessionStorage.removeItem('mkt101-next')}catch(e){}location.hash=next;};
+ $('#gate').onsubmit=ev=>{ev.preventDefault();if(!check())return;
+  const sid='S'+id.value,rec={name:name.value.trim().replace(/\s+/g,' '),sid,email:sid.toLowerCase()+'@student.mnu.edu.mv',verified:false,at:Date.now()};
+  const url=TERM.signin.checkUrl;
+  if(!url){enter(rec);return}   // setup mode: no class list yet
+  go.disabled=true;go.textContent='Checking the class list…';err.textContent='';
+  fetch(url+'?action=check&sid='+encodeURIComponent(sid),{credentials:'omit',redirect:'follow',cache:'no-store'})
+   .then(r=>r.json())
+   .then(res=>{
+    if(!res.ok){go.textContent='Verify and start';check();err.textContent=res.reason==='not-listed'?`This ID is not on the ${TERM.code} class list for ${TERM.term}. Check the number, or ask your lecturer to add you.`:'Please check your student ID.';return}
+    rec.verified=!res.open;if(res.name&&res.name!=='Lecturer access')rec.name=res.name;if(res.email)rec.email=res.email;enter(rec);})
+   .catch(()=>{enter(rec)});   // Google unreachable: let the student practise, marked unverified
+ };
+}
+
 /* ---------- router ---------- */
 function route(){
  const h=location.hash.replace(/^#\/?/,'').split('/');const cid=h[0];
  clearInterval(tmr);
+ if(!me()){
+  if(cid==='verify')renderVerify();
+  else{if(cid){try{sessionStorage.setItem('mkt101-next',location.hash)}catch(e){}history.replaceState(null,'','#/')}renderLanding();}
+  window.scrollTo(0,0);return;
+ }
+ if(cid==='verify'){location.replace('#/');return}
  if(cid==='paper')renderPaper(h[1]||'final',h[2]);
  else if(!CASES[cid]){renderHome();}else{const tab=['read','terms','act','exam','tips'].includes(h[1])?h[1]:'read';renderCase(cid,tab,parseInt(h[2],10)||1);}
  window.scrollTo(0,0);
