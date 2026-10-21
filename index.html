@@ -429,9 +429,10 @@ const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelect
 const S={get(k,d){try{const v=localStorage.getItem('mkt101_'+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem('mkt101_'+k,JSON.stringify(v))}catch(e){}}};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const words=t=>t.trim().split(/\s+/).length;
-/* Release dates. A bank item with from:"YYYY-MM-DD" stays hidden until that date on the student's own device. */
-const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
-const released=x=>!x.from||x.from<=today();
+/* Release times. A bank item with from:"YYYY-MM-DD" (midnight, Maldives time) or a full time such as
+   "2026-10-21T19:12:00+05:00" stays hidden until then, by the clock on the student's own device. */
+const releaseAt=f=>Date.parse(f.length===10?f+'T00:00:00+05:00':f);
+const released=x=>!x.from||Date.now()>=releaseAt(x.from);
 
 /* ---------- case data ---------- */
 const CASES={
