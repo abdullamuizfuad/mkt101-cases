@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <script>try{var t=localStorage.getItem("mkt101_theme");if(t)document.documentElement.dataset.theme=JSON.parse(t)}catch(e){}</script>
-<title>MKT101 Case Lab</title>
+<title>MKT101 Practice</title>
 <style>
 :root{
   --bg:#f6f4ef;--card:#ffffff;--ink:#1c2328;--mute:#5a6670;--line:#e2ddd2;--soft:#eef2f1;
@@ -243,9 +243,57 @@ details.think li{margin:5px 0}
 .verb{display:grid;grid-template-columns:120px 1fr;gap:6px 12px;font-size:.93rem}
 .verb b{color:var(--acc)}
 
+/* exam practice */
+.h2s{font-size:1.1rem;margin:28px 0 10px}
+.pcards{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin:0 0 12px}
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.pcard h2{font-size:1.2rem;margin:0}
+.pcard p{margin:0;color:var(--mute);font-size:.95rem}
+.pcard.off{opacity:.6}
+.slinks{display:grid;gap:8px}
+.slink{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);text-decoration:none;color:var(--ink)}
+.slink:hover{border-color:var(--acc)}
+.slink b{color:var(--acc)}
+.slink span{font-size:.88rem;color:var(--mute)}
+.slink i{font-style:normal;font-weight:700;font-size:.85rem;color:var(--mute)}
+.timer{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;margin:0 0 18px}
+.timer .tt{font-weight:800;font-size:1.3rem;font-variant-numeric:tabular-nums;min-width:4.5ch;color:var(--acc)}
+.timer .tl{color:var(--mute);font-size:.88rem;margin-right:auto}
+.timer.over .tt{color:var(--bad)}
+.eq{border-top:2px solid var(--line);padding-top:6px;margin-top:26px}
+.eq:first-of-type{border-top:0;margin-top:0}
+details.model{margin-top:12px}
+details.model summary{list-style:none}
+details.model summary::-webkit-details-marker{display:none}
+details.model summary::before{content:"▸ ";display:inline-block;width:1.1em}
+details.model[open] summary::before{content:"▾ "}
+details.model p{margin:0 0 10px}
+details.model h4{margin:16px 0 6px;font-size:.92rem}
+details.casebox{margin-bottom:18px}
+details.casebox .reading{padding-bottom:10px}
+.selfmk{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin:12px 0 0;font-size:.9rem;color:var(--mute)}
+.selfmk span:first-child{margin-right:4px;font-weight:600}
+.selfmk .opt{min-width:38px;min-height:38px;padding:4px 8px;text-align:center}
+.selfmk .of{margin-left:4px}
+.tot{position:sticky;bottom:0;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:10px 0;margin-top:22px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;font-size:.95rem}
+.mcq{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin:0 0 12px}
+.mcq .stem{margin:6px 0 10px;font-weight:500}
+.mcq .stem b{margin-right:4px}
+.mcq .opt{display:grid;grid-template-columns:auto 1fr;gap:8px;width:100%;padding:10px 12px;font-size:.95rem}
+.mcq .opt b{min-width:1.2em}
+.mcq .opt.ok{background:var(--good-soft);border-color:var(--good);color:var(--ink)}
+.mcq .opt.no{background:var(--bad-soft);border-color:var(--bad);color:var(--ink)}
+.mcq .opt:disabled{cursor:default}
+.res{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:0 0 18px}
+.res .big{font-size:2rem;font-weight:800;color:var(--acc);line-height:1.1}
+.res .barr{grid-template-columns:minmax(120px,190px) 1fr 44px}
+.res .barr em{font-style:normal;font-weight:700;color:var(--ink);text-align:right}
+.res .barr.lo b{background:var(--bad)}
+.ess .ql em{font-style:normal;color:var(--acc)}
+
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media print{
-  .bar,.tabs,.chead .chips,.readbar button,.note,.foot{display:none!important}
+  .bar,.tabs,.chead .chips,.readbar button,.note,.foot,.timer,.selfmk,.tot{display:none!important}
   body{background:#fff;color:#000}
   .exhibit{break-inside:avoid}
 }
@@ -253,12 +301,13 @@ details.think li{margin:5px 0}
 </head>
 <body>
 <header class="bar"><div class="wrap">
-  <a class="brand" href="#/"><span class="full">MKT101 Case Lab</span><span class="short">MKT101</span> <small>· Introduction to Marketing</small></a>
-  <nav id="sw" aria-label="Choose a case"></nav>
+  <a class="brand" href="#/"><span class="full">MKT101 Practice</span><span class="short">MKT101</span> <small>· Introduction to Marketing</small></a>
+  <nav id="sw" aria-label="Sections"></nav>
   <button id="theme" type="button" aria-label="Switch light or dark mode">Dark</button>
 </div></header>
 <main class="wrap" id="app"></main>
 
+<script src="bank.js"></script>
 <script>
 /* ---------- helpers ---------- */
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -579,6 +628,47 @@ soneva:{
 };
 const ORDER=['sto','soneva'];
 
+/* ---------- exam practice (Section C) ----------
+   One entry per case question, in the same order as acts 1 to 5.
+   guide: how to build the answer (shown). model: model answer (closed dropdown).
+   rub: [part, marks, what the marker looks for], three rows of 2 marks. */
+const EXAM={
+sto:[
+ {guide:['Paragraph 1: name the channel level, then define it in one sentence.','Find the evidence: read the STO Online section and Exhibit 2. Note who delivers, where, and how fast.','Paragraph 2: explain why it works in Malé and Hulhumalé. Think about distance, how many customers live close together, and delivery cost.','Paragraph 3: explain why it is harder for every outer-atoll household. Use what intermediaries do (Exhibit 1) and the problems in the case.','Last line: link back to the question in one sentence. About 10 minutes, half a page to one page.'],
+  model:['STO Online home delivery is a direct marketing channel, also called a zero-level channel. In a direct channel the company sells straight to the final customer, with no intermediaries. Exhibit 2 shows that goods go from the STO warehouse to the customer’s door within hours.','This channel suits Malé and Hulhumalé. Customers live close to STO’s central warehouse, so delivery is fast. Many orders come from a small area, so each delivery costs little. No distributor, stockist or shop adds a margin, so prices can stay close to the warehouse price, for example MVR 28 for a bag of rice.','It is harder to use for every household in the outer atolls. Each order would need a boat trip, and in the southwest monsoon boats can be delayed for days. Orders from one small island are small, so the cost per order is high. Some islands have weak internet, and some older customers prefer to pay cash to a shopkeeper they know. Intermediaries still do useful work there: they store goods, break bulk and give credit to small shops (Exhibit 1).','So the direct channel works best where customers are close together and connected, while the atolls still need indirect channels.'],
+  rub:[['Concept',2,'Correct channel level named and defined.'],['Case evidence',2,'At least two specific case facts (within hours, Malé and Hulhumalé, Exhibits 1 and 2, monsoon, internet).'],['Explanation',2,'Clear reasons why it suits Malé and why it is harder in the atolls.']]},
+ {guide:['Paragraph 1: define channel conflict, then name and define its two types.','Paragraph 2: give one case example of each type. Say WHY each example fits that type (think about the level of each business).','Paragraph 3: analyse the effects. Who loses if the conflict continues? Think about STO, the intermediaries and island customers.','Paragraph 4: choose ONE conflict and suggest one way to manage it. Explain why it would work for STO.','Do not list many solutions. One well-explained solution scores better.'],
+  model:['Channel conflict is disagreement among channel members over goals, roles and rewards. Vertical conflict happens between different levels of the same channel. Horizontal conflict happens between firms at the same level.','STO has vertical conflict with its island stockists. After STO Online launched, stockists said STO was “selling around them” to shops and families they had served for years. STO is the supplier and the stockists are a lower level of the same channel, so this is vertical. STO’s system also has horizontal conflict. Two large distributors in the north cut prices to win the same island shops. Both are at the same level, so this is horizontal.','These conflicts can hurt the whole channel. Unhappy stockists may stop cooperating or push other suppliers’ goods. A price war squeezes distributor margins, so service to island shops may fall. In the end, island customers may face gaps in supply.','To manage the vertical conflict, STO could make stockists the local pick-up and delivery points for STO Online orders and pay them a fee for each order. This turns stockists from competitors into partners. They keep earning, and STO keeps their storage and local knowledge, which it still needs in the atolls.'],
+  rub:[['Concept',2,'Channel conflict defined; vertical and horizontal explained.'],['Analysis with case evidence',2,'A correct case example of each type, with effects.'],['Management',2,'One realistic way to manage one conflict, with a reason it works.']]},
+ {guide:['Paragraph 1: define store atmosphere in your own words.','Paragraph 2: choose two or three atmosphere cues (think about the senses). For each, say what STO would do and what feeling it creates.','Paragraph 3: explain WHY the corner should feel different. Use the case: who is STO Select for, and who is the main store for?','Paragraph 4: explain what should stay the same so it still feels like STO. Find the features the case says matter in People’s Choice.','Use the store manager’s quote or the case words about the main store as evidence.'],
+  model:['Store atmosphere is the physical setting of a store. Retailers design lighting, sound, scent, layout, display and service to shape how shoppers feel and what they buy.','STO could use a few cues to make the STO Select corner feel premium. Warm spotlights and soft background music would help shoppers slow down and relax. Open tables with a few items neatly arranged would show that the range is chosen with care, not stacked in bulk. A coffee tasting counter would add a pleasant smell and let shoppers try the specialty coffee. A staff member who can explain the products would help customers who are paying more.','The corner should feel different because it serves a different customer. The main store is practical and accessible for “busy parents, students and workers”. STO Select is for higher-income families and young professionals in Hulhumalé. If the range sits next to bulk rice and cleaning products under bright, even lights, its premium image will be weak.','Some things should stay the same. Bilingual signs in Dhivehi and English, wide aisles and easy movement are part of STO’s identity. Keeping them means the corner still feels like STO, so loyal customers feel welcome there too.'],
+  rub:[['Concept',2,'Store atmosphere defined with its elements.'],['Analysis of cues',2,'Two or three cues linked to a premium feeling, using the case.'],['Explanation',2,'Why the corner differs (target customer, positioning) and what stays the same.']]},
+ {guide:['Paragraph 1: define distribution intensity and the three levels.','Paragraphs 2 to 4: one product per paragraph. Choose a level, then justify it with case facts (how often people buy, price, need for service, STO’s public duty).','Evaluate means weighing. Say what is lost with your choice, not only what is gained.','Last paragraph: name the main trade-off and give a clear overall judgement.','Do not choose the same level for all three products without a strong reason.'],
+  model:['Distribution intensity is about how many outlets carry a product. Intensive distribution uses as many outlets as possible. Selective distribution uses a limited number of chosen outlets. Exclusive distribution gives a very small number of dealers the right to sell.','Rice and cooking oil should have intensive distribution. Almost every household buys them every week and they are low in price. STO is majority government-owned and has a public duty to keep essentials available on every island. In only a few outlets, families on outer islands would go without.','Household appliances should have selective distribution. Customers want to compare a few models before buying and need some after-sales help. A small island shop cannot show models or give that help. A few larger stores on hub islands can, without the cost of stocking every outlet.','Marine engines should have exclusive distribution. They are expensive, and buyers need trained technicians, spare parts and service nearby. A small number of authorised dealers gives STO control over service quality and protects trust.','The main trade-off is reach against control. More outlets give wider reach but less control over service and image. For essentials reach matters most; for engines control matters most. Overall, STO should match intensity to how often people buy and how much service each product needs.'],
+  rub:[['Concept',2,'The three levels of distribution intensity defined.'],['Judgement per product',2,'A suitable level chosen for each product.'],['Evaluation with evidence',2,'Each choice justified with case facts, and the trade-off weighed.']]},
+ {guide:['Write three labelled parts: (a), (b) and (c). Each part is worth about 2 marks.','(a) State ONE specific channel or wholesaling change. Link it directly to the monsoon problem in the case.','(b) Name ONE retailing or distribution tool. Explain how it keeps shelves stocked.','(c) Name ONE realistic challenge that YOUR plan creates, and how STO would manage it.','Keep every part specific to STO. A general plan that could fit any company scores low.'],
+  model:['(a) STO should build up stocks of rice, flour, oil and tinned fish at STO-run hub stores on larger southern islands before the monsoon begins. Island shops can then restock from a nearby hub instead of waiting for boats from Malé. This answers the problem in the case: rough seas delay boats for several days and shops run out.','(b) STO could offer island shops pre-packed monsoon essentials bundles. Each bundle holds the most needed items, so it is easy to order, load and store. Shops order the bundles early through STO Online or by phone, and essentials get priority loading on the first cargo dhoni that can sail.','(c) One challenge is that distributors and stockists may fear losing business to the hubs, which could cause vertical conflict. STO could manage this by paying distributors a handling fee to run the hub stock. They keep earning, and STO keeps their storage and local knowledge.'],
+  rub:[['(a) Channel or wholesaling change',2,'Specific change, clearly linked to the monsoon problem.'],['(b) Tool',2,'A practical retailing or distribution tool, explained.'],['(c) Challenge and response',2,'A realistic challenge for this plan, with a sensible response.']]}
+],
+soneva:[
+ {guide:['Paragraph 1: define personal selling. Mention one strength and one cost of it.','Paragraph 2: use the villa stay. Find case facts that show why it needs a salesperson (price, how complex the choice is, who decides, need for trust).','Paragraph 3: choose a second Soneva offer where another tool works better. Name the tool and explain why.','Last line: conclude about how Soneva uses a mix of tools.','Use numbers from the case where you can (USD per night, length of stay).'],
+  model:['Personal selling is one-to-one communication by a company’s salespeople to make sales and build customer relationships. It is the most personal promotion tool, but also the most costly for each customer reached.','Personal selling suits a villa stay at Soneva Fushi. A stay costs USD 2,000 to 6,000 per night, and most guests stay a week or more. The choice is complex: villa type, activities, dates and dietary needs. Several people are often involved, such as a family and a travel designer like Lena. A salesperson can answer questions, tailor the offer and build trust. Before each call, the sales team reviews the client’s past stays and special occasions.','Personal selling is not the best tool for everything. A handmade glass vase in the resort shop has a low price, and the guest is already on the island and can see it. A good in-store display and a friendly word are enough. A full sales process would cost more than the sale is worth. Similarly, “stay seven nights, pay for six” is sales promotion: a short-term offer that reaches many guests at once.','So Soneva uses a mix of tools, and saves personal selling for where price, complexity and the need for trust are highest.'],
+  rub:[['Concept',2,'Personal selling defined.'],['Villa stay explained',2,'Why it suits the villa, with case evidence.'],['Second offer',2,'A second offer and a better tool, with a reason.']]},
+ {guide:['Paragraph 1: list the steps of the personal selling process, and define relationship selling.','Paragraph 2: match moments in Lena’s booking to the steps. Short sentences are fine here.','Paragraphs 3 and 4: choose TWO steps. For each, explain HOW it builds trust or loyalty, using what the manager actually did.','Last line: say why this matters for Soneva. Look for a fact about repeat guests.','Analyse means showing links. Do not only retell the story.'],
+  model:['The personal selling process has seven steps: prospecting and qualifying, pre-approach, approach, presentation and demonstration, handling objections, closing and follow-up. Soneva uses relationship selling, which aims for long-term loyalty, not only one quick sale.','Lena’s booking shows each step. The manager met Lena at a travel fair and saw that her clients fit Soneva (prospecting and qualifying). She read about the family’s past holidays (pre-approach). She opened the call by asking what the family wanted to feel (approach). She sent a tailored proposal (presentation). When Lena said the price was higher, she explained what was included (handling objections). She held the villa for 48 hours (closing). After the stay she called Lena and sent a coral photo (follow-up).','The pre-approach builds the relationship because the manager learned the children loved snorkelling. She could then offer a private snorkelling trip with a marine biologist. The family felt known and valued, which builds trust.','The follow-up keeps contact after payment. The call and the photo of the coral the children planted remind the family of a happy memory. This makes repeat visits and referrals more likely, and Lena may send more clients.','This matters because a large share of Soneva’s guests come back for a second or third visit.'],
+  rub:[['Concept',2,'Selling process steps and relationship selling explained.'],['Analysis of the case',2,'Steps correctly matched to Lena’s booking.'],['Two steps and relationships',2,'Two steps explained with evidence of how they build loyalty.']]},
+ {guide:['Paragraph 1: define sustainable marketing and name its principles.','Paragraph 2: match at least three Soneva practices to principles. Give a short reason for each match.','Paragraph 3: choose ONE principle that best explains why Soneva makes sustainability part of what it sells. Use the case section “Sustainability as part of the sale”.','If you use societal marketing, use the product grid idea: satisfaction now and benefit in the long run.','Give a clear reason why your chosen principle fits better than the others.'],
+  model:['Sustainable marketing means meeting the present needs of consumers and businesses while protecting the ability of future generations to meet their needs. It has five principles: consumer-oriented, customer-value, innovative, sense-of-mission and societal marketing.','Soneva shows several of them. The sales team learns each guest’s preferences before a call, which is consumer-oriented marketing. The glass studio turns waste bottles into products for sale, which is innovative marketing. The Soneva GIVE fund supports education and community projects, which shows sense-of-mission marketing. Solar power and composting show care for long-run welfare.','Societal marketing best explains why Soneva sells sustainability as part of the experience. Societal marketing balances what guests want now, what the company needs and the long-run interests of society. A coral planting session is a desirable product: guests enjoy it now, and it helps the reef in the long run. Soneva does not hide these programmes. It turns them into value guests pay for, so profit and protecting the reef support each other.'],
+  rub:[['Concept',2,'Sustainable marketing defined and principles named.'],['Practices matched',2,'At least three practices matched to principles with reasons.'],['Analysis',2,'One principle chosen and justified with case evidence.']]},
+ {guide:['Paragraph 1: define greenwashing.','Paragraph 2: give evidence that some claims are credible. Choose specific Soneva claims and use tests: is it specific, measurable, checkable, honest?','Paragraph 3: give evidence of greenwashing risk. Use the rival resorts’ words and the guest review in the case.','Paragraph 4: make a clear final judgement. Say what Soneva must keep doing to stay credible (look at Exhibit 1).','You can argue either way, as long as you weigh both sides and use case evidence.'],
+  model:['Greenwashing means making sustainability claims that are vague, exaggerated or not backed by real action.','Many of Soneva’s claims are credible. “All food waste is composted on the island” is specific and could be measured by weight. Guests can visit the glass studio and see bottles turned into products. Guests can join reef surveys with marine biologists themselves. These claims are specific, measurable and checkable.','By contrast, rival resorts call themselves “eco-chic” or a “planet-friendly paradise” without saying what they do. These claims are vague and cannot be checked, so they risk being greenwashing. There is also a fair counter-argument against Soneva. As one guest asked, most guests fly halfway around the world, and a luxury stay uses many resources. If Soneva ever claimed “zero impact”, that would be an overclaim.','Overall, Soneva’s approach is more credible than its rivals’. Its claims name real actions that guests can see and check. To stay credible, it should publish real numbers, such as the figures suggested in Exhibit 1, and be honest about the impact of flights.'],
+  rub:[['Concept',2,'Greenwashing defined.'],['Evidence on both sides',2,'Credible claims and risky claims, with reasons.'],['Judgement',2,'A clear final judgement, supported by case evidence.']]},
+ {guide:['Write three labelled parts: (a), (b) and (c). Each part is worth about 2 marks.','(a) Describe how you would open the conversation, and why it builds trust with someone who has never stayed at Soneva. Think about the approach step.','(b) Choose ONE specific selling point from the Glass and Sun Escape. Explain why it suits this family.','(c) State ONE realistic objection this parent might raise, and your specific, honest response. Remember how Soneva treats discounts.','Use case facts in every part.'],
+  model:['(a) I would open by asking questions, not by pitching. I would ask what the children enjoy and what the parents want from this holiday. This shows I care about their needs, builds trust with a new guest and helps me tailor the rest of the conversation, as Soneva’s manager did with Lena.','(b) I would highlight the glass studio workshop, where the children make their own piece from recycled bottles to take home. It is hands-on and easy for parents to picture, and it gives the family a real memory of the holiday. It also shows that Soneva’s sustainability is real, not just a story.','(c) The parent may ask, “Is this just a way to charge more?” I would not offer a discount, because Soneva protects its luxury image. Instead, I would explain exactly what each activity includes and offer to share how the programmes are measured, such as the number of bottles reused. Specific evidence answers scepticism better than general promises.'],
+  rub:[['(a) Opening',2,'A question-based opening that builds trust, linked to the case.'],['(b) Selling point',2,'One specific selling point suited to this family.'],['(c) Objection and response',2,'A realistic objection with a specific, honest response.']]}
+]
+};
+
 /* ---------- state ---------- */
 const doneMap=()=>S.get('done',{});
 function partKey(cid,n,p){return cid+'-'+n+'-'+p}
@@ -594,51 +684,178 @@ function setPart(k,v){const a=S.get('st',{});a[k]=v;S.set('st',a)}
 /* ---------- shared bits ---------- */
 function logo(c,cls=''){return `<div class="logo ${cls}"><img src="logos/${c.id}.png" alt="${esc(c.org)} logo" onload="this.parentNode.classList.add('has')" onerror="this.remove()"><span class="wm">${esc(c.short)}<small>${esc(c.org)}</small></span></div>`}
 function barsHTML(arr){return `<div class="bars">${arr.map(([l,v])=>`<div class="barr"><span>${esc(l)}</span><i><b style="width:${v*20}%"></b></i></div>`).join('')}</div>`}
-function switcher(cur){$('#sw').innerHTML=`<a href="#/" ${!cur?'aria-current="page"':''}>All cases</a>`+ORDER.map(id=>`<a href="#/${id}" ${cur===id?'aria-current="page"':''}>${CASES[id].short}</a>`).join('')}
+function switcher(cur){$('#sw').innerHTML=`<a href="#/" ${!cur?'aria-current="page"':''}>Home</a><a href="#/paper/final" ${cur==='paper'?'aria-current="page"':''}>Final paper</a>`+ORDER.map(id=>`<a href="#/${id}" ${cur===id?'aria-current="page"':''}>${CASES[id].short}</a>`).join('')}
+const footHTML=()=>`<p class="foot">Practice material for ${TERM.code} at ${TERM.school}, ${TERM.term}. The questions here are for practice and are not exam questions.</p>`;
 
 /* ---------- home ---------- */
 function renderHome(){
- document.body.dataset.case='';switcher(null);document.title='MKT101 Case Lab';
+ document.body.dataset.case='';switcher(null);document.title='MKT101 Practice';
  const dm=doneMap();
  $('#app').innerHTML=`
  <section class="hero">
-  <div class="kick">MKT101 Introduction to Marketing · Case study practice · T2 2026</div>
-  <h1>Choose a case to work on</h1>
-  <p class="lead">Read the case, use the activities to work out your ideas, then write your answers on paper. Your progress is saved in this browser.</p>
+  <div class="kick">${TERM.code} ${TERM.name} · ${TERM.term}</div>
+  <h1>Practise for your exam</h1>
+  <p class="lead">Read each question on your phone and write your answer on paper, just like the real exam. Then open the model answer and mark your own work. Your progress is saved in this browser.</p>
  </section>
- <div class="cases">${ORDER.map(id=>{const c=CASES[id];const d=c.acts.filter((a,i)=>dm[id+'-'+(i+1)]).length;
+ <h2 class="h2s">Practice papers</h2>
+ <div class="pcards">${Object.entries(TERM.papers).map(([pid,P])=>P.live?`<div class="pcard"><div class="kick">Practice paper</div><h2>${esc(P.name)}</h2><p>${esc(P.blurb)} ${P.hours} hours, ${P.marks} marks.</p>
+  <div class="slinks">${P.sections.map(s=>`<a class="slink" href="#/paper/${pid}/${s.k}"><b>${s.n.replace('Section ','')}</b><div>${esc(s.t)}<br><span>${esc(s.d)}</span></div><i>${s.marks}</i></a>`).join('')}</div>
+  <a class="btn primary" href="#/paper/${pid}" style="text-decoration:none;text-align:center">Open ${esc(P.name)} paper →</a></div>`
+  :`<div class="pcard off"><div class="kick">Practice paper</div><h2>${esc(P.name)}</h2><p>${esc(P.blurb)}</p></div>`).join('')}</div>
+ <h2 class="h2s">Case studies</h2>
+ <p class="intro">Study these cases before the exam. Each one has activities to build your ideas, and an exam practice tab with Section C style questions.</p>
+ <div class="cases" style="margin-top:0">${ORDER.map(id=>{const c=CASES[id];const d=c.acts.filter((a,i)=>dm[id+'-'+(i+1)]).length;
   return `<a class="ccard c-${id}" href="#/${id}">${logo(c)}<div class="body"><div class="chips" style="margin-bottom:10px">${c.topics.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div><h2>${esc(c.title)}</h2><p>${esc(c.blurb)}</p><span class="chip n">${d} of ${c.acts.length} activities done</span></div><span class="go">Open case →</span></a>`}).join('')}</div>
- <h2 style="font-size:1.1rem;margin:0 0 10px">How to use this page</h2>
+ <h2 class="h2s" style="margin-top:0">How to use this page</h2>
  <div class="steps">
-  <div class="step"><b>1. Read the case</b><span>Read it once for the story, then again for the facts and exhibits.</span></div>
-  <div class="step"><b>2. Try the activities</b><span>Click, sort and build. The tools help you see the idea before you write.</span></div>
-  <div class="step"><b>3. Write on paper</b><span>Use the “Write it on paper” guide, then compare with “Check your thinking”.</span></div>
+  <div class="step"><b>1. Read and explore</b><span>Read the cases. Use the activities to work out your ideas.</span></div>
+  <div class="step"><b>2. Write on paper</b><span>Follow “How to build your answer”. Time yourself, just like the exam.</span></div>
+  <div class="step"><b>3. Check and mark</b><span>Open the model answer only after you write. Give yourself a mark.</span></div>
  </div>
- <p class="foot">Practice material for MKT101 at MNU Business School. The questions here are for practice and are not exam questions.</p>`;
+ ${footHTML()}`;
+}
+
+/* ---------- exam practice helpers ---------- */
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const LET='ABCD';
+function guideHTML(g){return `<div class="paper guide"><h3>✍ How to build your answer</h3><ol>${g.map(p=>`<li>${esc(p)}</li>`).join('')}</ol></div>`}
+function modelHTML(paras,rub,max){return `<details class="think model"><summary>Model answer: open after you write</summary>${paras.map(p=>`<p>${esc(p)}</p>`).join('')}
+ <h4>How the ${max} marks are given</h4><div class="tbl"><table><tr><th>Part</th><th>Marks</th><th>What the marker looks for</th></tr>${rub.map(([l,m,d])=>`<tr><td>${esc(l)}</td><td class="num">${m}</td><td>${esc(d)}</td></tr>`).join('')}</table></div>
+ <p class="intro" style="margin-top:10px">Compare with what you wrote. Your words can be different. Marks come from the ideas, the case evidence and the explanation.</p></details>`}
+const getMk=()=>S.get('mk',{});
+function selfMarkHTML(key,max){const v=getMk()[key];return `<div class="selfmk" data-key="${key}"><span>My mark:</span>${Array.from({length:max+1},(_,i)=>`<button class="opt" data-mk="${i}" aria-pressed="${v===i}">${i}</button>`).join('')}<span class="of">out of ${max}</span></div>`}
+function bindMarks(el,onChange){el.addEventListener('click',e=>{const b=e.target.closest('[data-mk]');if(!b)return;const box=b.closest('.selfmk');const k=box.dataset.key;const m=getMk();const v=+b.dataset.mk;
+ if(m[k]===v)delete m[k];else m[k]=v;S.set('mk',m);$$('.opt',box).forEach(x=>x.setAttribute('aria-pressed',m[k]===+x.dataset.mk));onChange&&onChange();})}
+function timerHTML(key,mins,label){return `<div class="timer" data-key="${key}" data-m="${mins}"><span class="tt">${mins}:00</span><span class="tl">${esc(label)}</span><button class="btn primary" data-t="go">Start</button><button class="btn" data-t="rs">Reset</button></div>`}
+let tmr=null;
+function bindTimer(el){const t=$('.timer',el);if(!t)return;const k='tm_'+t.dataset.key,m=+t.dataset.m;
+ const tick=()=>{const end=S.get(k,null);const left=end?Math.max(0,end-Date.now()):m*60000;const s=Math.ceil(left/1000);
+  $('.tt',t).textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;t.classList.toggle('over',!!end&&left===0);
+  const go=$('[data-t=go]',t);go.disabled=!!end;go.textContent=end?(left?'Running':'Time is up'):'Start';};
+ tick();clearInterval(tmr);tmr=setInterval(tick,1000);
+ t.onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.t==='go')S.set(k,Date.now()+m*60000);else{try{localStorage.removeItem('mkt101_'+k)}catch(e){}}tick();};}
+const topicName=t=>`Topic ${t} · ${TERM.topics[t]}`;
+
+/* ---------- case exam practice (Section C) ---------- */
+function renderExam(c,el){
+ const ex=EXAM[c.id];const key=i=>c.id+'-q'+(i+1);
+ el.innerHTML=`<div class="note">Section C practice: 5 questions, 6 marks each, 30 marks. Write your answers on paper. In the real exam the case is shorter (about 600 words), so practise finding the key facts quickly.</div>
+ ${timerHTML('c-'+c.id,54,'Suggested time for Section C')}
+ <details class="think casebox"><summary>Show the case</summary>${caseHTML(c)}</details>
+ ${ex.map((x,i)=>{const a=c.acts[i];return `<section class="eq"><div class="qbox"><div class="ql">Question ${i+1} · ${esc(a.bloom)}</div><p>${esc(a.q)}</p><div class="mk">6 marks · about 10 minutes · ${esc(a.topic)}</div></div>
+  ${guideHTML(x.guide)}${modelHTML(x.model,x.rub,6)}${selfMarkHTML(key(i),6)}
+  <p class="intro" style="margin-top:10px"><a href="#/${c.id}/act/${i+1}">Stuck? Try activity ${i+1} first →</a></p></section>`}).join('')}
+ <div class="tot"><span>Section C total: <b id="ctot"></b></span><a class="btn" href="#/paper/final" style="text-decoration:none">Final practice paper →</a></div>`;
+ const upd=()=>{const m=getMk();const done=ex.filter((x,i)=>m[key(i)]!==undefined).length;$('#ctot').textContent=`${ex.reduce((s,x,i)=>s+(m[key(i)]||0),0)} / 30 (${done} of 5 marked)`};
+ upd();bindMarks(el,upd);bindTimer(el);
+}
+
+/* ---------- practice papers ---------- */
+function paperHead(P,sec){return `<section class="chead" style="grid-template-columns:1fr"><div><div class="kick">${TERM.code} · ${esc(P.name)} practice paper</div><h1>${sec?esc(sec.n+': '+sec.t):esc(P.name)+' practice paper'}</h1>
+ <div class="chips">${sec?`<span class="chip">${esc(sec.d)}</span><span class="chip n">${sec.marks} marks · about ${sec.mins} minutes</span>`:`<span class="chip">${P.hours} hours · ${P.marks} marks</span><span class="chip n">${P.topics.length} topics: ${P.topics[0]} to ${P.topics[P.topics.length-1]}</span>`}</div></div></section>
+ <nav class="tabs"><a href="#/paper/${P.id}" ${!sec?'aria-current="page"':''}>Overview</a>${P.sections.map(s=>`<a href="#/paper/${P.id}/${s.k}" ${sec&&sec.k===s.k?'aria-current="page"':''}>${s.n}</a>`).join('')}</nav><div id="tab"></div>`}
+
+function renderPaper(pid,sk){
+ const P=TERM.papers[pid];if(!P||!P.live){renderHome();return}P.id=pid;
+ const sec=P.sections.find(s=>s.k===sk);
+ document.body.dataset.case='';switcher('paper');document.title=P.name+' practice · MKT101 Practice';
+ $('#app').innerHTML=paperHead(P,sec);const el=$('#tab');
+ if(!sec){
+  el.innerHTML=`<p class="lead" style="margin-bottom:18px">This paper has the same structure as your real ${esc(P.name)}. Do one section at a time, or all three in one sitting (${P.hours} hours).</p>
+  <div class="slinks">${P.sections.map(s=>`<a class="slink" href="#/paper/${pid}/${s.k}"><b>${s.n.replace('Section ','')}</b><div>${esc(s.t)}<br><span>${esc(s.d)} About ${s.mins} minutes.</span></div><i>${s.marks} marks</i></a>`).join('')}</div>
+  <div class="part" style="margin-top:22px"><h3>How it works</h3><ul style="margin:6px 0 0;padding-left:20px">
+   <li><b>Section A:</b> tap your answer. You see right or wrong at once, with a short reason. Each set of ${P.mcqCount} is new and covers every topic.</li>
+   <li><b>Section B and C:</b> write on paper. Each question has a guide to help you plan. Open the model answer only after you finish, then give yourself a mark.</li>
+   <li>Use the timer to practise working at exam speed.</li></ul></div>
+  <div class="part"><h3>Topics in this paper</h3><ul style="margin:6px 0 0;padding-left:20px">${P.topics.map(t=>`<li>${esc(topicName(t))}</li>`).join('')}</ul></div>${footHTML()}`;
+ }else if(sk==='a')renderMCQ(P,sec,el);else if(sk==='b')renderEssays(P,sec,el);else renderSecC(P,sec,el);
+}
+
+/* Section A: balanced random draw, shuffled options, avoid recent repeats */
+function newMCQSet(P){
+ const n=P.mcqCount,tp=P.topics,base=Math.floor(n/tp.length);const extra=new Set(shuffle(tp).slice(0,n-base*tp.length));
+ const hist=S.get('seen_'+P.id,[]);const recent=new Set(hist.flat());const ids=[];
+ tp.forEach(t=>{const pool=BANK.mcq.filter(q=>q.t===t&&q.p.includes(P.id));const k=base+(extra.has(t)?1:0);
+  ids.push(...shuffle(pool.filter(q=>!recent.has(q.id))).concat(shuffle(pool.filter(q=>recent.has(q.id)))).slice(0,k).map(q=>q.id));});
+ hist.push(ids);S.set('seen_'+P.id,hist.slice(-TERM.avoidLast));
+ const set={ids,ord:Object.fromEntries(ids.map(id=>[id,shuffle([0,1,2,3])])),ans:{}};S.set('mcq_'+P.id,set);return set;
+}
+function renderMCQ(P,sec,el){
+ let set=S.get('mcq_'+P.id,null);const byId=Object.fromEntries(BANK.mcq.map(q=>[q.id,q]));
+ if(!set||!set.ids.every(id=>byId[id]))set=newMCQSet(P);
+ const qHTML=(id,i)=>{const q=byId[id],a=set.ans[id];const done=a!==undefined;
+  return `<div class="mcq" data-id="${id}"><div class="chips"><span class="chip n">Topic ${q.t}</span></div><p class="stem"><b>${i+1}.</b>${esc(q.q)}</p>
+  <div class="opts col">${set.ord[id].map((oi,pos)=>`<button class="opt ${done&&oi===0?'ok':''} ${done&&a===oi&&oi!==0?'no':''}" data-oi="${oi}" ${done?'disabled':''}><b>${LET[pos]}.</b><span>${esc(q.o[oi])}</span></button>`).join('')}</div>
+  ${done?`<p class="fbk ${a===0?'good':'bad'}">${a===0?'✓ Correct. ':`✗ The answer is ${LET[set.ord[id].indexOf(0)]}. `}${esc(q.why)}</p>`:''}</div>`};
+ const results=()=>{const per={};set.ids.forEach(id=>{const q=byId[id];per[q.t]=per[q.t]||[0,0];per[q.t][1]++;if(set.ans[id]===0)per[q.t][0]++});
+  const sc=set.ids.filter(id=>set.ans[id]===0).length;
+  return `<div class="res" id="res"><div class="kick">Your result</div><div class="big">${sc} / ${set.ids.length}</div><p class="intro">Score by topic. Red bars show topics to revise first.</p>
+  <div class="bars" style="max-width:none">${Object.entries(per).map(([t,[c,n]])=>`<div class="barr ${c/n<.5?'lo':''}"><span>${esc(topicName(t))}</span><i><b style="width:${c/n*100}%"></b></i><em>${c}/${n}</em></div>`).join('')}</div>
+  <div class="row"><button class="btn primary" data-a="new">Start a new set of ${P.mcqCount}</button></div></div>`};
+ const draw=()=>{const n=Object.keys(set.ans).length,sc=set.ids.filter(id=>set.ans[id]===0).length,all=n===set.ids.length;
+  el.innerHTML=`${timerHTML(P.id+'-a',sec.mins,'Suggested time for Section A')}${all?results():''}
+  ${set.ids.map(qHTML).join('')}
+  <div class="tot"><span>Answered <b>${n} / ${set.ids.length}</b> · Score <b>${sc}</b></span><button class="btn" data-a="new">New set</button></div>`;bindTimer(el);};
+ draw();
+ el.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;
+  if(b.dataset.oi!==undefined){const id=b.closest('.mcq').dataset.id;set.ans[id]=+b.dataset.oi;S.set('mcq_'+P.id,set);
+   const y=scrollY;draw();scrollTo(0,y);if(Object.keys(set.ans).length===set.ids.length)$('#res').scrollIntoView({behavior:'smooth'});}
+  else if(b.dataset.a==='new'){if(Object.keys(set.ans).length<set.ids.length&&!confirm('Start a new set? Your answers in this set will be cleared.'))return;
+   set=newMCQSet(P);try{localStorage.removeItem('mkt101_tm_'+P.id+'-a')}catch(e){}draw();scrollTo(0,0);}};
+}
+
+/* Section B: draw essays from different topics, answer any four */
+function newEssaySet(P){const pool=BANK.essays.filter(e=>P.topics.includes(e.t));
+ const tps=shuffle([...new Set(pool.map(e=>e.t))]).slice(0,P.essayOffer).sort((a,b)=>a-b);
+ const ids=tps.map(t=>shuffle(pool.filter(e=>e.t===t))[0].id);S.set('ess_'+P.id,ids);
+ const m=getMk();Object.keys(m).filter(k=>k.startsWith('ess-'+P.id)).forEach(k=>delete m[k]);S.set('mk',m);return ids;}
+function renderEssays(P,sec,el){
+ const byId=Object.fromEntries(BANK.essays.map(e=>[e.id,e]));
+ let ids=S.get('ess_'+P.id,null);if(!ids||!ids.every(id=>byId[id]))ids=newEssaySet(P);
+ const key=id=>'ess-'+P.id+'-'+id;
+ const draw=()=>{el.innerHTML=`<div class="note">Answer any ${P.essayAnswer} of these ${ids.length} questions on paper. Each is worth 10 marks, so spend about 18 minutes on each. Plan with the guide, write, then open the model answer.</div>
+  ${timerHTML(P.id+'-b',sec.mins,'Suggested time for Section B')}
+  ${ids.map((id,i)=>{const e=byId[id];const tot=e.marks.reduce((s,r)=>s+r[1],0);return `<section class="eq ess"><div class="qbox"><div class="ql">Question ${i+1} · <em>Topic ${e.t}</em> · ${e.b==='K'?'Knowledge':'Application'}</div><p>${esc(e.q)}</p><div class="mk">${tot} marks · ${esc(TERM.topics[e.t])}</div></div>
+   ${guideHTML(e.guide)}${modelHTML(e.model,e.marks,tot)}${selfMarkHTML(key(id),tot)}</section>`}).join('')}
+  <div class="tot"><span>Section B: <b id="btot"></b></span><button class="btn" data-a="new">New set of questions</button></div>`;
+  bindTimer(el);upd();};
+ const upd=()=>{const m=getMk();const v=ids.map(id=>m[key(id)]).filter(x=>x!==undefined).sort((a,b)=>b-a);
+  $('#btot').textContent=v.length?`${v.slice(0,P.essayAnswer).reduce((s,x)=>s+x,0)} / ${P.essayAnswer*10} (best ${Math.min(v.length,P.essayAnswer)} marked)`:`not marked yet`;};
+ draw();bindMarks(el,upd);
+ el.addEventListener('click',e=>{const b=e.target.closest('[data-a=new]');if(!b)return;if(!confirm('Get a new set of questions? Your marks for this set will be cleared.'))return;
+  ids=newEssaySet(P);try{localStorage.removeItem('mkt101_tm_'+P.id+'-b')}catch(e){}draw();scrollTo(0,0);});
+}
+
+/* Section C: pick a case, then use its exam practice tab */
+function renderSecC(P,sec,el){const m=getMk();
+ el.innerHTML=`<p class="lead" style="margin-bottom:18px">Section C is one case study with 5 questions (6 marks each). Study both cases. Choose one to practise now.</p>
+ <div class="cases" style="margin-top:0">${P.cases.map(id=>{const c=CASES[id];const n=EXAM[id].filter((x,i)=>m[id+'-q'+(i+1)]!==undefined).length;
+  return `<a class="ccard c-${id}" href="#/${id}/exam">${logo(c)}<div class="body"><div class="chips" style="margin-bottom:10px">${c.topics.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div><h2>${esc(c.title)}</h2><span class="chip n">${n} of 5 questions marked</span></div><span class="go">Practise Section C →</span></a>`}).join('')}</div>${footHTML()}`;
 }
 
 /* ---------- case ---------- */
 function renderCase(cid,tab,n){
- const c=CASES[cid];document.body.dataset.case=cid;switcher(cid);document.title=c.short+' case · MKT101 Case Lab';
+ const c=CASES[cid];document.body.dataset.case=cid;switcher(cid);document.title=c.short+' case · MKT101 Practice';
  const dm=doneMap();const dn=c.acts.filter((a,i)=>dm[cid+'-'+(i+1)]).length;
- const T=[['read','Read the case'],['terms','Key terms'],['act',`Activities ${dn}/${c.acts.length}`],['tips','Writing tips']];
+ const T=[['read','Read the case'],['terms','Key terms'],['act',`Activities ${dn}/${c.acts.length}`],['exam','Exam practice'],['tips','Writing tips']];
  $('#app').innerHTML=`
  <section class="chead">${logo(c)}<div><div class="kick">Case study</div><h1>${esc(c.title)}</h1>
   <div class="chips">${c.topics.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}${c.los.map(l=>`<span class="chip n">${l}</span>`).join('')}</div></div></section>
  <nav class="tabs">${T.map(([k,l])=>`<a href="#/${cid}/${k}${k==='act'?'/'+(tab==='act'?n:1):''}" ${tab===k?'aria-current="page"':''}>${l}</a>`).join('')}</nav>
  <div id="tab"></div>`;
  const el=$('#tab');
- if(tab==='terms')renderTerms(c,el);else if(tab==='act')renderAct(c,el,n);else if(tab==='tips')renderTips(el);else renderRead(c,el);
+ if(tab==='terms')renderTerms(c,el);else if(tab==='act')renderAct(c,el,n);else if(tab==='exam')renderExam(c,el);else if(tab==='tips')renderTips(el);else renderRead(c,el);
 }
 
 function renderRead(c,el){
  const all=c.sections.flatMap(s=>s.ps).join(' ');const w=words(all);
  el.innerHTML=`<div class="note">${esc(c.note)}</div>
  <div class="readbar"><span>About ${Math.round(w/10)*10} words · ${Math.max(1,Math.round(w/200))} minute read</span><button class="btn" id="prt">Print the case</button></div>
- <article class="reading">${c.sections.map(s=>`<h2>${esc(s.h)}</h2>${s.ps.map(p=>`<p>${esc(p)}</p>`).join('')}${s.ex!==undefined?exhibit(c.exhibits[s.ex]):''}`).join('')}</article>
+ ${caseHTML(c)}
  <div class="row"><a class="btn primary" href="#/${c.id}/act/1" style="text-decoration:none">Start the activities →</a></div>`;
  $('#prt').onclick=()=>window.print();
 }
+function caseHTML(c){return `<article class="reading">${c.sections.map(s=>`<h2>${esc(s.h)}</h2>${s.ps.map(p=>`<p>${esc(p)}</p>`).join('')}${s.ex!==undefined?exhibit(c.exhibits[s.ex]):''}`).join('')}</article>`}
 function exhibit(x){return `<div class="exhibit"><h3>${esc(x.t)}</h3><div class="tbl">${x.html}</div><small>${esc(x.n)}</small></div>`}
 
 function renderTerms(c,el){
@@ -677,6 +894,7 @@ function renderAct(c,el,n){
  <div id="parts"></div>
  <div class="paper"><h3>✍ Write it on paper</h3><ol>${a.paper.map(p=>`<li>${esc(p)}</li>`).join('')}</ol></div>
  <details class="think"><summary>Check your thinking</summary><ul>${a.think.map(p=>`<li>${esc(p)}</li>`).join('')}</ul><p class="intro">Compare with what you wrote. Add anything you missed.</p></details>
+ ${n<=EXAM[c.id].length?`<p class="intro" style="margin-top:12px"><a href="#/${c.id}/exam">Ready? Write this as an exam answer, with a full model answer →</a></p>`:''}
  <div class="anext">
   <a class="btn" href="#/${c.id}/act/${n-1}" ${n===1?'style="visibility:hidden"':''}>← Previous</a>
   <button class="btn done" id="done" aria-pressed="${!!dm[dk]}">${dm[dk]?'✓ Done':'Mark as done'}</button>
@@ -851,7 +1069,9 @@ R.claims=(el,cfg,st,save)=>{
 /* ---------- router ---------- */
 function route(){
  const h=location.hash.replace(/^#\/?/,'').split('/');const cid=h[0];
- if(!CASES[cid]){renderHome();}else{const tab=['read','terms','act','tips'].includes(h[1])?h[1]:'read';renderCase(cid,tab,parseInt(h[2],10)||1);}
+ clearInterval(tmr);
+ if(cid==='paper')renderPaper(h[1]||'final',h[2]);
+ else if(!CASES[cid]){renderHome();}else{const tab=['read','terms','act','exam','tips'].includes(h[1])?h[1]:'read';renderCase(cid,tab,parseInt(h[2],10)||1);}
  window.scrollTo(0,0);
 }
 addEventListener('hashchange',route);route();
