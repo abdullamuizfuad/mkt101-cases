@@ -46,7 +46,7 @@ const TERM={
 
  /* Student sign-in. checkUrl is the Google Apps Script web app link (ends in /exec).
     Leave it empty to accept any correctly formatted ID (setup mode, no class list check). */
- signin:{checkUrl:"https://script.google.com/macros/s/AKfycbzWjfuOp0JgTH2p2VOSoGM2Ysa3Et7_kcRwUOLKD4bKO9YZfa8QditbnhS4DVdeonXloA/exec",key:"mkt101-student"}
+ signin:{checkUrl:"",key:"mkt101-student"}
 };
 
 const BANK={mcq:[],essays:[]};
