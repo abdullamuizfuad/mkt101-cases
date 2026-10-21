@@ -357,6 +357,7 @@ details.casebox .reading{padding-bottom:10px}
 <main class="wrap" id="app"></main>
 
 <script src="bank.js"></script>
+<script src="roster.js"></script>
 <script>
 /* ---------- helpers ---------- */
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -1200,6 +1201,16 @@ function renderVerify(){
  const enter=(rec)=>{saveMe(rec);let next='#/';try{next=sessionStorage.getItem('mkt101-next')||'#/';sessionStorage.removeItem('mkt101-next')}catch(e){}location.hash=next;};
  $('#gate').onsubmit=ev=>{ev.preventDefault();if(!check())return;
   const sid='S'+id.value,rec={name:name.value.trim().replace(/\s+/g,' '),sid,email:sid.toLowerCase()+'@student.mnu.edu.mv',verified:false,at:Date.now()};
+  const notListed=()=>{go.textContent='Verify and start';check();err.textContent=`This ID is not on the ${TERM.code} class list for ${TERM.term}. Check the number, or ask your lecturer to add you.`};
+  // class list check: roster.js holds scrambled IDs only (built by tools/build-roster.py)
+  if(typeof ROSTER!=='undefined'&&ROSTER.hashes&&ROSTER.hashes.length&&window.crypto&&crypto.subtle){
+   go.disabled=true;go.textContent='Checking the class list…';
+   crypto.subtle.digest('SHA-256',new TextEncoder().encode(ROSTER.salt+'|'+sid)).then(b=>{
+    const h=[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+    if(ROSTER.hashes.includes(h)){rec.verified=true;enter(rec)}else notListed();
+   }).catch(()=>enter(rec));
+   return;
+  }
   const url=TERM.signin.checkUrl;
   if(!url){enter(rec);return}   // setup mode: no class list yet
   go.disabled=true;go.textContent='Checking the class list…';err.textContent='';
@@ -1207,7 +1218,7 @@ function renderVerify(){
    .then(r=>r.json())
    .then(res=>{
     if(!res.ok&&res.reason==='error'){enter(rec);return}   // script problem: treat like an outage
-    if(!res.ok){go.textContent='Verify and start';check();err.textContent=res.reason==='not-listed'?`This ID is not on the ${TERM.code} class list for ${TERM.term}. Check the number, or ask your lecturer to add you.`:'Please check your student ID.';return}
+    if(!res.ok){if(res.reason==='not-listed')notListed();else{go.textContent='Verify and start';check();err.textContent='Please check your student ID.'}return}
     rec.verified=!res.open;if(res.name&&res.name!=='Lecturer access')rec.name=res.name;if(res.email)rec.email=res.email;enter(rec);})
    .catch(()=>{enter(rec)});   // Google unreachable: let the student practise, marked unverified
  };
