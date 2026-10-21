@@ -340,6 +340,27 @@ details.casebox .reading{padding-bottom:10px}
 .signed button{border:0;background:none;color:var(--acc);text-decoration:underline;cursor:pointer;padding:0;font-size:.9rem}
 .small{color:var(--mute);font-size:.84rem;text-align:center;margin-top:14px}
 
+/* study notes */
+.ntopics{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.ntopic{display:flex;flex-direction:column;gap:2px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;text-decoration:none;color:var(--ink)}
+.ntopic:hover{border-color:var(--acc)}
+.ntopic b{font-size:1.02rem;line-height:1.3}
+.ntopic span:last-child{color:var(--mute);font-size:.9rem}
+.lo{background:var(--acc-soft);border:1px solid var(--line);border-radius:var(--radius);padding:14px 18px;margin:14px 0}
+.lo h3{margin:0 0 4px;font-size:.98rem;color:var(--acc)}
+.lo p{margin:0 0 10px}
+.lo ul,.concept ul{margin:4px 0 0;padding-left:20px}
+.concept p{margin:6px 0 0}
+.concept .eg{background:var(--soft);border-radius:8px;padding:8px 12px;margin-top:10px;font-size:.93rem}
+details.chk{margin-bottom:8px}
+details.chk summary{color:var(--ink);font-weight:600}
+details.chk p{color:var(--ink)}
+.prompt{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;border-top:1px solid var(--line);padding:12px 0}
+.prompt p{margin:0;font-size:.93rem}
+@media (max-width:520px){.prompt{grid-template-columns:1fr}.prompt .btn{justify-self:start}}
+.nnav a:last-child{font-weight:600}
+@media (max-width:440px){.nnav{gap:4px}.nnav a{min-width:40px;height:40px;padding:0 8px}}
+
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media print{
   .bar,.tabs,.chead .chips,.readbar button,.note,.foot,.timer,.selfmk,.tot{display:none!important}
@@ -357,6 +378,7 @@ details.casebox .reading{padding-bottom:10px}
 <main class="wrap" id="app"></main>
 
 <script src="bank.js"></script>
+<script src="notes.js"></script>
 <script src="roster.js"></script>
 <script>
 /* ---------- helpers ---------- */
@@ -364,6 +386,9 @@ const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelect
 const S={get(k,d){try{const v=localStorage.getItem('mkt101_'+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem('mkt101_'+k,JSON.stringify(v))}catch(e){}}};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const words=t=>t.trim().split(/\s+/).length;
+/* Release dates. A bank item with from:"YYYY-MM-DD" stays hidden until that date on the student's own device. */
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const released=x=>!x.from||x.from<=today();
 
 /* ---------- case data ---------- */
 const CASES={
@@ -752,7 +777,7 @@ function renderHome(){
  </section>
  <h2 class="h2s">Practice papers</h2>
  <div class="pcards">${Object.entries(TERM.papers).map(([pid,P])=>P.live?`<div class="pcard"><div class="kick">Practice paper</div><h2>${esc(P.name)}</h2><p>${esc(P.blurb)} ${P.hours} hours, ${P.marks} marks.</p>
-  <div class="slinks">${P.sections.map(s=>`<a class="slink" href="#/paper/${pid}/${s.k}"><b>${s.n.replace('Section ','')}</b><div>${esc(s.t)}<br><span>${esc(s.d)}</span></div><i>${s.marks}</i></a>`).join('')}</div>
+  <div class="slinks">${P.sections.map(s=>`<a class="slink" href="#/paper/${pid}/${s.k}"><b>${s.n.replace('Section ','')}</b><div>${esc(s.t)}<br><span>${esc(s.d)}</span></div><i>${s.marks}</i></a>`).join('')}${notesOf(pid)?`<a class="slink" href="#/paper/${pid}/notes"><b>✎</b><div>Study notes<br><span>Key ideas for each topic, with check questions.</span></div><i></i></a>`:''}</div>
   <a class="btn primary" href="#/paper/${pid}" style="text-decoration:none;text-align:center">Open ${esc(P.name)} paper →</a></div>`
   :`<div class="pcard off"><div class="kick">Practice paper</div><h2>${esc(P.name)}</h2><p>${esc(P.blurb)}</p></div>`).join('')}</div>
  <h2 class="h2s">Case studies</h2>
@@ -804,14 +829,18 @@ function renderExam(c,el,inPaper){
 }
 
 /* ---------- practice papers ---------- */
-function paperHead(P,sec){return `<section class="chead" style="grid-template-columns:1fr"><div><div class="kick">${TERM.code} · ${esc(P.name)} practice paper</div><h1>${sec?esc(sec.n+': '+sec.t):esc(P.name)+' practice paper'}</h1>
- <div class="chips">${sec?`<span class="chip">${esc(sec.d)}</span><span class="chip n">${sec.marks} marks · about ${sec.mins} minutes</span>`:`<span class="chip">${P.hours} hours · ${P.marks} marks</span><span class="chip n">${P.topics.length} topics: ${P.topics[0]} to ${P.topics[P.topics.length-1]}</span>`}</div></div></section>
- <nav class="tabs"><a href="#/paper/${P.id}" ${!sec?'aria-current="page"':''}>Overview</a>${P.sections.map(s=>`<a href="#/paper/${P.id}/${s.k}" ${sec&&sec.k===s.k?'aria-current="page"':''}>${s.n}</a>`).join('')}</nav><div id="tab"></div>`}
+const notesOf=pid=>typeof NOTES!=='undefined'&&NOTES[pid]||null;
+const NOTES_TAB={k:'notes',n:'Study notes'};
+/* All the tabs of a paper: overview, its sections, then study notes if the paper has them */
+const paperTabs=P=>[{k:'',n:'Overview'}].concat(P.sections,notesOf(P.id)?[NOTES_TAB]:[]);
+function paperHead(P,sec){const nt=sec&&sec.k==='notes';return `<section class="chead" style="grid-template-columns:1fr"><div><div class="kick">${TERM.code} · ${esc(P.name)} practice paper</div><h1>${nt?esc(P.name)+' study notes':sec?esc(sec.n+': '+sec.t):esc(P.name)+' practice paper'}</h1>
+ <div class="chips">${nt?`<span class="chip">${P.topics.length} topics: ${P.topics[0]} to ${P.topics[P.topics.length-1]}</span><span class="chip n">Read, check yourself, then practise</span>`:sec?`<span class="chip">${esc(sec.d)}</span><span class="chip n">${sec.marks} marks · about ${sec.mins} minutes</span>`:`<span class="chip">${P.hours} hours · ${P.marks} marks</span><span class="chip n">${P.topics.length} topics: ${P.topics[0]} to ${P.topics[P.topics.length-1]}</span>`}</div></div></section>
+ <nav class="tabs">${paperTabs(P).map(s=>`<a href="#/paper/${P.id}${s.k?'/'+s.k:''}" ${(sec?sec.k:'')===s.k?'aria-current="page"':''}>${esc(s.n)}</a>`).join('')}</nav><div id="tab"></div>`}
 
 /* Footer on every paper page: big previous / next buttons, then the same section tabs as the top.
    extra: optional HTML placed between the two buttons. */
 function paperFoot(P,cur,extra){
- const order=[{k:'',n:'Overview'}].concat(P.sections),i=order.findIndex(s=>s.k===(cur||'')),prev=order[i-1],next=order[i+1];
+ const order=paperTabs(P),i=order.findIndex(s=>s.k===(cur||'')),prev=order[i-1],next=order[i+1];
  const href=s=>`#/paper/${P.id}${s.k?'/'+s.k:''}`;
  return `<nav class="pfoot" aria-label="Paper sections"><div class="pnext">
   ${prev?`<a class="btn" href="${href(prev)}">← ${esc(prev.n)}</a>`:''}${extra||''}
@@ -819,9 +848,9 @@ function paperFoot(P,cur,extra){
   <div class="tabs">${order.map(s=>`<a href="${href(s)}" ${s.k===(cur||'')?'aria-current="page"':''}>${esc(s.n)}</a>`).join('')}</div></nav>`;
 }
 
-function renderPaper(pid,sk,sub){
+function renderPaper(pid,sk,sub,sub2){
  const P=TERM.papers[pid];if(!P||!P.live){renderHome();return}P.id=pid;
- const sec=P.sections.find(s=>s.k===sk);
+ const sec=sk==='notes'&&notesOf(pid)?NOTES_TAB:P.sections.find(s=>s.k===sk);
  document.body.dataset.case='';switcher('paper-'+pid);document.title=P.name+' practice · MKT101 Practice';
  $('#app').innerHTML=paperHead(P,sec);const el=$('#tab');
  if(!sec){
@@ -830,27 +859,28 @@ function renderPaper(pid,sk,sub){
   <div class="part" style="margin-top:22px"><h3>How it works</h3><ul style="margin:6px 0 0;padding-left:20px">
    <li><b>Section A:</b> tap your answer. You see right or wrong at once, with a short reason. Each set of ${P.mcqCount} is new and covers every topic.</li>
    <li><b>${P.sections.slice(1).map(s=>s.n).join(' and ')}:</b> write on paper. Each question has a guide to help you plan. Open the model answer only after you finish, then give yourself a mark.</li>
-   <li>Use the timer to practise working at exam speed.</li></ul></div>
-  <div class="part"><h3>Topics in this paper</h3><ul style="margin:6px 0 0;padding-left:20px">${P.topics.map(t=>`<li>${esc(topicName(t))}</li>`).join('')}</ul></div>${paperFoot(P,'')}${footHTML()}`;
- }else if(sk==='a')renderMCQ(P,sec,el);else if(sk==='b')renderEssays(P,sec,el);else renderSecC(P,sec,el,sub);
+   <li>Use the timer to practise working at exam speed.</li>${notesOf(pid)?`<li><b>Study notes:</b> read the key ideas for each topic before you practise.</li>`:''}</ul></div>
+  <div class="part"><h3>Topics in this paper</h3><ul style="margin:6px 0 0;padding-left:20px">${P.topics.map(t=>`<li>${notesOf(pid)?`<a href="#/paper/${pid}/notes/${t}">${esc(topicName(t))}</a>`:esc(topicName(t))}</li>`).join('')}</ul></div>${paperFoot(P,'')}${footHTML()}`;
+ }else if(sk==='notes')renderNotes(P,el,sub,sub2);else if(sk==='a')renderMCQ(P,sec,el);else if(sk==='b')renderEssays(P,sec,el);else renderSecC(P,sec,el,sub);
 }
 
 /* Section A: balanced random draw, shuffled options, avoid recent repeats */
 function newMCQSet(P){
  const n=P.mcqCount,tp=P.topics,base=Math.floor(n/tp.length);const extra=new Set(shuffle(tp).slice(0,n-base*tp.length));
  const hist=S.get('seen_'+P.id,[]);const recent=new Set(hist.flat());const ids=[];
- tp.forEach(t=>{const pool=BANK.mcq.filter(q=>q.t===t&&q.p.includes(P.id));const k=base+(extra.has(t)?1:0);
+ tp.forEach(t=>{const pool=BANK.mcq.filter(q=>q.t===t&&q.p.includes(P.id)&&released(q));const k=base+(extra.has(t)?1:0);
   ids.push(...shuffle(pool.filter(q=>!recent.has(q.id))).concat(shuffle(pool.filter(q=>recent.has(q.id)))).slice(0,k).map(q=>q.id));});
  hist.push(ids);S.set('seen_'+P.id,hist.slice(-TERM.avoidLast));
  const set={ids,ord:Object.fromEntries(ids.map(id=>[id,shuffle([0,1,2,3])])),ans:{}};S.set('mcq_'+P.id,set);return set;
 }
-function renderMCQ(P,sec,el){
- let set=S.get('mcq_'+P.id,null);const byId=Object.fromEntries(BANK.mcq.map(q=>[q.id,q]));
- if(!set||!set.ids.every(id=>byId[id]))set=newMCQSet(P);
- const qHTML=(id,i)=>{const q=byId[id],a=set.ans[id];const done=a!==undefined;
+function mcqHTML(q,set,i){const id=q.id,a=set.ans[id];const done=a!==undefined;
   return `<div class="mcq" data-id="${id}"><div class="chips"><span class="chip n">Topic ${q.t}</span></div><p class="stem"><b>${i+1}.</b>${esc(q.q)}</p>
   <div class="opts col">${set.ord[id].map((oi,pos)=>`<button class="opt ${done&&oi===0?'ok':''} ${done&&a===oi&&oi!==0?'no':''}" data-oi="${oi}" ${done?'disabled':''}><b>${LET[pos]}.</b><span>${esc(q.o[oi])}</span></button>`).join('')}</div>
-  ${done?`<p class="fbk ${a===0?'good':'bad'}">${a===0?'✓ Correct. ':`✗ The answer is ${LET[set.ord[id].indexOf(0)]}. `}${esc(q.why)}</p>`:''}</div>`};
+  ${done?`<p class="fbk ${a===0?'good':'bad'}">${a===0?'✓ Correct. ':`✗ The answer is ${LET[set.ord[id].indexOf(0)]}. `}${esc(q.why)}</p>`:''}</div>`}
+function renderMCQ(P,sec,el){
+ let set=S.get('mcq_'+P.id,null);const byId=Object.fromEntries(BANK.mcq.map(q=>[q.id,q]));
+ if(!set||!set.ids.every(id=>byId[id]&&released(byId[id])))set=newMCQSet(P);
+ const qHTML=(id,i)=>mcqHTML(byId[id],set,i);
  const results=()=>{const per={};set.ids.forEach(id=>{const q=byId[id];per[q.t]=per[q.t]||[0,0];per[q.t][1]++;if(set.ans[id]===0)per[q.t][0]++});
   const sc=set.ids.filter(id=>set.ans[id]===0).length;
   return `<div class="res" id="res"><div class="kick">Your result</div><div class="big">${sc} / ${set.ids.length}</div><p class="intro">Score by topic. Red bars show topics to revise first.</p>
@@ -871,7 +901,7 @@ function renderMCQ(P,sec,el){
 }
 
 /* Section B: draw essays from different topics, answer any four */
-function newEssaySet(P){const pool=shuffle(BANK.essays.filter(e=>P.topics.includes(e.t)));
+function newEssaySet(P){const pool=shuffle(BANK.essays.filter(e=>P.topics.includes(e.t)&&released(e)));
  // one question per topic first (topics in random order), then fill any spare places
  const first=shuffle([...new Set(pool.map(e=>e.t))]).map(t=>pool.find(e=>e.t===t));
  const pick=first.concat(pool.filter(e=>!first.includes(e))).slice(0,P.essayOffer);
@@ -879,7 +909,7 @@ function newEssaySet(P){const pool=shuffle(BANK.essays.filter(e=>P.topics.includ
  const m=getMk();Object.keys(m).filter(k=>k.startsWith('ess-'+P.id)).forEach(k=>delete m[k]);S.set('mk',m);return ids;}
 function renderEssays(P,sec,el){
  const byId=Object.fromEntries(BANK.essays.map(e=>[e.id,e]));
- let ids=S.get('ess_'+P.id,null);if(!ids||!ids.every(id=>byId[id]))ids=newEssaySet(P);
+ let ids=S.get('ess_'+P.id,null);if(!ids||!ids.every(id=>byId[id]&&released(byId[id])))ids=newEssaySet(P);
  const key=id=>'ess-'+P.id+'-'+id;
  const draw=()=>{el.innerHTML=`<div class="note">Answer any ${P.essayAnswer} of these ${ids.length} questions on paper. Each is worth ${P.essayMarks} marks, so spend about ${Math.round(sec.mins/P.essayAnswer)} minutes on each. Plan with the guide, write, then open the model answer.</div>
   ${timerHTML(P.id+'-b',sec.mins,'Suggested time for Section B')}
@@ -1224,6 +1254,58 @@ function renderVerify(){
  };
 }
 
+/* ---------- study notes (data in notes.js) ---------- */
+const GEMINI='https://gemini.google.com/app';
+function renderNotes(P,el,sub,sub2){
+ const N=notesOf(P.id),t=parseInt(sub,10),T=N.topics[t];const base=`#/paper/${P.id}/notes`;
+ if(!T){document.title=P.name+' study notes · MKT101 Practice';
+  el.innerHTML=`<p class="lead" style="margin-bottom:18px">${esc(N.intro)}</p>
+  <div class="ntopics">${P.topics.filter(x=>N.topics[x]).map(x=>`<a class="ntopic" href="${base}/${x}"><span class="kick">Topic ${x}</span><b>${esc(TERM.topics[x])}</b><span>${esc(N.topics[x].sum)}</span></a>`).join('')}</div>
+  ${paperFoot(P,'notes')}${footHTML()}`;return;}
+ if(sub2==='practice'){renderDrill(P,t,el);return}
+ document.title='Topic '+t+' notes · MKT101 Practice';
+ const tps=P.topics.filter(x=>N.topics[x]),i=tps.indexOf(t),prev=tps[i-1],next=tps[i+1];
+ el.innerHTML=`<nav class="anav nnav" aria-label="Topics">${tps.map(x=>`<a href="${base}/${x}" ${x===t?'aria-current="page"':''} aria-label="Topic ${x}">${x}</a>`).join('')}<a href="${base}">All topics</a></nav>
+  <div class="ahead"><div class="kick">Topic ${t}</div><h2>${esc(TERM.topics[t])}</h2></div>
+  <div class="lo"><h3>What you need to be able to do</h3><p>${esc(T.lo)}</p><h3>What the exam asks</h3><ul>${T.exam.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+  <h3 class="h2s">Key ideas</h3>
+  ${T.ideas.map(c=>`<div class="part concept"><h3>${esc(c.h)}</h3><p>${esc(c.p)}</p>${c.l?`<ul>${c.l.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}${c.eg?`<p class="eg"><b>Maldives example:</b> ${esc(c.eg)}</p>`:''}</div>`).join('')}
+  <h3 class="h2s">Check yourself</h3>
+  <p class="intro">Answer in your head or on paper first. Then open the answer.</p>
+  ${T.check.map(([q,a],k)=>`<details class="think model chk"><summary>${k+1}. ${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}
+  <div class="part"><h3>Practise this topic</h3><p class="intro" style="margin:0">Try 10 multiple choice questions on Topic ${t} only. You see right or wrong at once.</p>
+   <div class="row"><a class="btn primary" href="${base}/${t}/practice">Practise Topic ${t} →</a><a class="btn" href="#/paper/${P.id}/b">Section B short answers</a></div></div>
+  <div class="part explore"><h3>Explore further with AI</h3><p class="intro">Copy a prompt, open Gemini, and paste it in. Read the reply with care. Check every idea against your textbook and your class notes.</p>
+   ${T.prompts.map((x,k)=>`<div class="prompt"><p>${esc(x)}</p><button class="btn" type="button" data-copy="${k}">Copy prompt</button></div>`).join('')}
+   <div class="row"><a class="btn primary" href="${GEMINI}" target="_blank" rel="noopener">Open Gemini ↗</a></div></div>
+  <div class="anext">${prev?`<a class="btn" href="${base}/${prev}" style="text-decoration:none;color:var(--ink)">← Topic ${prev}</a>`:'<span></span>'}${next?`<a class="btn primary" href="${base}/${next}" style="text-decoration:none">Topic ${next} →</a>`:`<a class="btn primary" href="#/paper/${P.id}/a" style="text-decoration:none">Try a full Section A →</a>`}</div>
+  ${paperFoot(P,'notes')}${footHTML()}`;
+ el.onclick=e=>{const b=e.target.closest('[data-copy]');if(!b)return;const txt=T.prompts[+b.dataset.copy];
+  const ok=()=>{b.textContent='Copied ✓';setTimeout(()=>{b.textContent='Copy prompt'},2000)};
+  const old=()=>{const a=document.createElement('textarea');a.value=txt;a.setAttribute('readonly','');a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();
+   try{document.execCommand('copy');ok()}catch(err){b.textContent='Select and copy the text'}a.remove()};
+  if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(txt).then(ok,old);else old();};
+}
+
+/* Topic practice from the notes: 10 released MCQs from one topic, kept apart from the Section A set */
+function renderDrill(P,t,el){
+ const k='drill_'+P.id+'_'+t,n=10,byId=Object.fromEntries(BANK.mcq.map(q=>[q.id,q]));document.title='Topic '+t+' practice · MKT101 Practice';
+ const fresh=()=>{const ids=shuffle(BANK.mcq.filter(q=>q.t===t&&q.p.includes(P.id)&&released(q))).slice(0,n).map(q=>q.id);
+  const s={ids,ord:Object.fromEntries(ids.map(id=>[id,shuffle([0,1,2,3])])),ans:{}};S.set(k,s);return s};
+ let set=S.get(k,null);if(!set||!set.ids.every(id=>byId[id]&&released(byId[id])))set=fresh();
+ const draw=()=>{const a=Object.keys(set.ans).length,sc=set.ids.filter(id=>set.ans[id]===0).length,all=a===set.ids.length;
+  el.innerHTML=`<div class="incase"><a href="#/paper/${P.id}/notes/${t}">← Topic ${t} notes</a><span>·</span><b>${esc(topicName(t))}</b></div>
+  ${all?`<div class="res" id="res"><div class="kick">Your result</div><div class="big">${sc} / ${set.ids.length}</div><p class="intro" style="margin:6px 0 0">${sc/set.ids.length>=.7?'Well done. Try a new set, or move on to the next topic.':'Read the notes for this topic again, then try a new set.'}</p></div>`:''}
+  ${set.ids.map((id,i)=>mcqHTML(byId[id],set,i)).join('')}
+  <div class="tot"><span>Answered <b>${a} / ${set.ids.length}</b> · Score <b>${sc}</b></span><button class="btn" data-a="new">New set</button></div>
+  ${paperFoot(P,'notes')}`;};
+ draw();
+ el.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;
+  if(b.dataset.oi!==undefined){const id=b.closest('.mcq').dataset.id;set.ans[id]=+b.dataset.oi;S.set(k,set);
+   const y=scrollY;draw();scrollTo(0,y);if(Object.keys(set.ans).length===set.ids.length)$('#res').scrollIntoView({behavior:'smooth'});}
+  else if(b.dataset.a==='new'){set=fresh();draw();scrollTo(0,0);}};
+}
+
 /* ---------- router ---------- */
 function route(){
  const h=location.hash.replace(/^#\/?/,'').split('/');const cid=h[0];
@@ -1234,7 +1316,7 @@ function route(){
   window.scrollTo(0,0);return;
  }
  if(cid==='verify'){location.replace('#/');return}
- if(cid==='paper')renderPaper(h[1]||'final',h[2],h[3]);
+ if(cid==='paper')renderPaper(h[1]||'final',h[2],h[3],h[4]);
  else if(!CASES[cid]){renderHome();}else{const tab=['read','terms','act','exam','tips'].includes(h[1])?h[1]:'read';renderCase(cid,tab,parseInt(h[2],10)||1);}
  window.scrollTo(0,0);
 }
