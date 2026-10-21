@@ -1,0 +1,32 @@
+{
+  "bank.js": {
+    "mtime": 1792577617.4475415,
+    "seen": 1792578047.3980072,
+    "ast_hash": "8fe01ca858e7da80b8823370f95618b8",
+    "semantic_hash": "8fe01ca858e7da80b8823370f95618b8"
+  },
+  "README.md": {
+    "mtime": 1792574592.6034482,
+    "seen": 1792578047.398011,
+    "ast_hash": "79cc24f0c8440579ffc2a51742e61830",
+    "semantic_hash": "79cc24f0c8440579ffc2a51742e61830"
+  },
+  "index.html": {
+    "mtime": 1792577617.448006,
+    "seen": 1792578047.398012,
+    "ast_hash": "a0cbdd045f56b4af2bde3f16d4ca0d6d",
+    "semantic_hash": "a0cbdd045f56b4af2bde3f16d4ca0d6d"
+  },
+  "tools/README.md": {
+    "mtime": 1792577617.4481838,
+    "seen": 1792578047.3980129,
+    "ast_hash": "86cafb55922038fba26cc8303f92e237",
+    "semantic_hash": "86cafb55922038fba26cc8303f92e237"
+  },
+  "assets/mnu-logo.png": {
+    "mtime": 1792577617.4471807,
+    "seen": 1792578047.398014,
+    "ast_hash": "5e35fb8bd901ed1a2a8db3c5c39089f3",
+    "semantic_hash": "5e35fb8bd901ed1a2a8db3c5c39089f3"
+  }
+}
