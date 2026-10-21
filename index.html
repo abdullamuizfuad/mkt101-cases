@@ -377,8 +377,10 @@ details.chk p{color:var(--ink)}
 .dflow li{position:relative;background:var(--card);border:1px solid var(--acc);border-radius:10px;padding:10px 12px 10px 46px;line-height:1.3}
 .dflow li+li::before{content:"↓";position:absolute;top:-21px;left:50%;transform:translateX(-50%);color:var(--acc);font-weight:800;font-size:1rem;line-height:20px}
 .dflow .dn{position:absolute;left:10px;top:10px;width:26px;height:26px;border-radius:50%;background:var(--acc);color:var(--on-acc);font-weight:800;font-size:.85rem;display:flex;align-items:center;justify-content:center}
-@media (min-width:760px){.dflow{flex-direction:row;gap:26px}.dflow li{flex:1;padding:40px 10px 10px;text-align:center}.dflow .dn{left:50%;transform:translateX(-50%)}
- .dflow li+li::before{content:"→";top:50%;left:-24px;transform:translateY(-50%)}}
+/* up to 5 steps run across on wide screens; longer flows (.dlong) stay as a column */
+@media (min-width:760px){.dflow:not(.dlong){flex-direction:row;gap:26px}.dflow:not(.dlong) li{flex:1;padding:40px 10px 10px;text-align:center}.dflow:not(.dlong) .dn{left:50%;transform:translateX(-50%)}
+ .dflow:not(.dlong) li+li::before{content:"→";top:50%;left:-24px;transform:translateY(-50%)}}
+.dflow.dlong{max-width:640px;margin:0 auto}
 .dloop{margin:10px 0 0;font-size:.88rem;color:var(--acc);font-weight:600;text-align:center}
 .dgrid{display:grid;grid-template-columns:22px 1fr;gap:4px}
 .dyl{writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;font-size:.75rem;font-weight:700;color:var(--mute)}
@@ -1303,7 +1305,7 @@ function renderVerify(){
 function diagramHTML(d){
  const cap=d.title?`<figcaption>${esc(d.title)}</figcaption>`:'';const sub=x=>x?`<small>${esc(x)}</small>`:'';
  let body='';
- if(d.type==='flow')body=`<ol class="dflow">${d.steps.map(([h,s],i)=>`<li><span class="dn">${i+1}</span><b>${esc(h)}</b>${sub(s)}</li>`).join('')}</ol>${d.loop?`<p class="dloop">↻ ${esc(d.loop)}</p>`:''}`;
+ if(d.type==='flow')body=`<ol class="dflow${d.steps.length>5?' dlong':''}">${d.steps.map(([h,s],i)=>`<li><span class="dn">${i+1}</span><b>${esc(h)}</b>${sub(s)}</li>`).join('')}</ol>${d.loop?`<p class="dloop">↻ ${esc(d.loop)}</p>`:''}`;
  else if(d.type==='grid')body=`<div class="dgrid"><span class="dyl">${esc(d.yl)}</span><div class="dbox"><span class="dyv">${esc(d.y[0])}</span><span class="dyv">${esc(d.y[1])}</span>
    ${d.cells.map(([h,s],i)=>`<div class="dcell c${i}"><b>${esc(h)}</b>${sub(s)}</div>`).join('')}<span></span><span class="dxv">${esc(d.x[0])}</span><span class="dxv">${esc(d.x[1])}</span></div><span class="dxl">${esc(d.xl)}</span></div>`;
  else if(d.type==='pyramid')body=`<div class="dpyr">${d.levels.map(([h,s],i)=>`<div style="width:${Math.round(40+60*i/Math.max(1,d.levels.length-1))}%"><b>${esc(h)}</b>${sub(s)}</div>`).join('')}</div>${d.note?`<p class="dloop">${esc(d.note)}</p>`:''}`;
@@ -1326,7 +1328,8 @@ function renderNotes(P,el,sub,sub2){
   <div class="steps" style="margin-bottom:22px">${N.how.map(([h,s],i)=>`<div class="step"><b>${i+1}. ${esc(h)}</b><span>${esc(s)}</span></div>`).join('')}</div>
   <h3 class="h2s">Topics</h3>
   <div class="ntopics">${P.topics.filter(x=>N.topics[x]).map(x=>`<a class="ntopic" href="${base}/${x}"><span class="kick">Topic ${x}</span><b>${esc(TERM.topics[x])}</b><span>${esc(N.topics[x].sum)}</span></a>`).join('')}</div>
-  ${N.answer?`<div class="part" style="margin-top:22px"><h3>${esc(N.answer.h)}</h3><p class="intro">${esc(N.answer.p)}</p>${diagramHTML(N.answer.dia)}${listHTML(N.answer.l)}</div>`:''}
+  ${[].concat(N.answer||[]).map(A=>`<div class="part" style="margin-top:22px"><h3>${esc(A.h)}</h3><p class="intro">${esc(A.p)}</p>${A.dia?diagramHTML(A.dia):''}${listHTML(A.l)}
+   ${A.links?`<div class="row">${A.links.map(([n,h])=>`<a class="btn" href="${h}" style="text-decoration:none">${esc(n)} →</a>`).join('')}</div>`:''}</div>`).join('')}
   ${paperFoot(P,'notes')}${footHTML()}`;return;}
  if(sub2==='practice'){renderDrill(P,t,el);return}
  document.title='Topic '+t+' notes · MKT101 Practice';
@@ -1352,7 +1355,7 @@ function renderNotes(P,el,sub,sub2){
   <p class="intro">Answer in your head or on paper first. Then open the answer.</p>
   ${T.check.map(([q,a],k)=>`<details class="think model chk"><summary>${k+1}. ${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}
   <div class="part" id="n-prac"><h3>Practise this topic</h3><p class="intro" style="margin:0">Try 10 multiple choice questions on Topic ${t} only. You see right or wrong at once, with a reason.</p>
-   <div class="row"><a class="btn primary" href="${base}/${t}/practice">Practise Topic ${t} →</a><a class="btn" href="#/paper/${P.id}/b">Section B short answers</a></div></div>
+   <div class="row"><a class="btn primary" href="${base}/${t}/practice">Practise Topic ${t} →</a><a class="btn" href="#/paper/${P.id}/b">Section B ${esc(P.sections[1].t.toLowerCase())}</a>${P.cases?`<a class="btn" href="#/paper/${P.id}/c">Section C case study</a>`:''}</div></div>
   <div class="part explore" id="n-ai"><h3>Explore further with AI</h3><p class="intro">Copy a prompt, open Gemini, and paste it in. Read the reply with care. Check every idea against these notes and your textbook.</p>
    ${T.prompts.map((x,k)=>`<div class="prompt"><p>${esc(x)}</p><button class="btn" type="button" data-copy="${k}">Copy prompt</button></div>`).join('')}
    <div class="row"><a class="btn primary" href="${GEMINI}" target="_blank" rel="noopener">Open Gemini ↗</a></div></div>
