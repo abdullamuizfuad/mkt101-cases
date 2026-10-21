@@ -1180,6 +1180,7 @@ function renderVerify(){
   fetch(url+'?action=check&sid='+encodeURIComponent(sid),{credentials:'omit',redirect:'follow',cache:'no-store'})
    .then(r=>r.json())
    .then(res=>{
+    if(!res.ok&&res.reason==='error'){enter(rec);return}   // script problem: treat like an outage
     if(!res.ok){go.textContent='Verify and start';check();err.textContent=res.reason==='not-listed'?`This ID is not on the ${TERM.code} class list for ${TERM.term}. Check the number, or ask your lecturer to add you.`:'Please check your student ID.';return}
     rec.verified=!res.open;if(res.name&&res.name!=='Lecturer access')rec.name=res.name;if(res.email)rec.email=res.email;enter(rec);})
    .catch(()=>{enter(rec)});   // Google unreachable: let the student practise, marked unverified

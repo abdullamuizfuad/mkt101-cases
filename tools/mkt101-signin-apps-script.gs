@@ -16,7 +16,20 @@
 
 const ADMIN_IDS = ["S000001"];   // lecturer test ID: always allowed
 
+// Only needed if this script was NOT opened from the sheet (Extensions > Apps Script).
+// Paste the long ID from the sheet's address: docs.google.com/spreadsheets/d/<THIS PART>/edit
+const SHEET_ID = "";
+
 function doGet(e) {
+  try {
+    return check_(e);
+  } catch (err) {
+    // Send the real error back as JSON, so problems show up in a browser test
+    return out_({ ok: false, reason: "error", message: String(err && err.message || err) });
+  }
+}
+
+function check_(e) {
   const p = (e && e.parameter) || {};
   if (p.action !== "check") return out_({ ok: false });
   const sid = String(p.sid || "").trim().toUpperCase();
@@ -48,7 +61,14 @@ function lookup_(sid) {
 }
 
 function rosters_() {
-  return SpreadsheetApp.getActiveSpreadsheet().getSheets().filter(function (s) { return /roster/i.test(s.getName()); });
+  return book_().getSheets().filter(function (s) { return /roster/i.test(s.getName()); });
+}
+
+function book_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (ss) return ss;
+  if (!SHEET_ID) throw new Error("Script is not attached to a sheet. Set SHEET_ID at the top of the script.");
+  return SpreadsheetApp.openById(SHEET_ID);
 }
 
 function out_(o) {
@@ -57,7 +77,7 @@ function out_(o) {
 
 /** Run once from the editor (select "setup", then Run) if the sheet has no Roster tab yet. */
 function setup() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = book_();
   if (rosters_().length) return;
   const sh = ss.insertSheet("Roster T2 2026");
   sh.getRange(1, 1, 2, 3).setValues([
