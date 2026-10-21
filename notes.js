@@ -4,14 +4,13 @@
    One entry per paper. A paper with notes gets a "Study notes" tab.
    Definitions follow Armstrong & Kotler, Marketing: An Introduction,
    15th Global Edition. Plain, short sentences for Level 100 students.
-   Never put real exam questions here.
+   Write new practice material only.
 
    Paper entry: {intro, how:[[step, text]], answer:{h, p, dia, l}, topics:{n:{...}}}
    Topic entry:
      sum:      one-line summary for the topic list
      min:      "In one minute" points: the big picture
      lo:       what students must be able to do
-     exam:     what the exam asks (general)
      ideas:    [{h, p (text or list of paragraphs), l (list: text or [term, text]),
                  dia (diagram, see diagramHTML in index.html), more, eg, tip}]
      terms:    [[term, meaning]] for the flip cards
@@ -41,7 +40,6 @@ midterm:{
  1:{sum:"What marketing is, needs, wants and demands, the five marketing orientations, and building customer relationships.",
   min:["Marketing is about creating value for customers so they give value back: sales, loyalty and good reviews.","It starts with customer needs, wants and demands.","Companies can think about marketing in five ways. The marketing concept and the societal marketing concept put the customer first.","Good marketing builds long-term relationships, because loyal customers are worth much more over time."],
   lo:"Explain the core ideas of marketing and how companies create value for customers and capture value in return.",
-  exam:["Section A: define key terms, and spot an orientation or idea in a short business story.","Section B: explain a core idea with an example, or show how a local business could use it to win and keep customers."],
   ideas:[
    {h:"What is marketing?",p:["Many people think marketing is just selling and advertising. That is only a small part of it.","The textbook defines marketing as the process by which companies engage customers, build strong customer relationships and create customer value, in order to capture value from customers in return.","Put simply: first you give customers something of value. Then they give value back to you."],
     dia:{type:"flow",title:"A simple model of the marketing process",steps:[["Understand the market","Learn customer needs and wants."],["Design a strategy","Choose customers and how to serve them."],["Build a programme","Use the 4Ps to deliver value."],["Build relationships","Create value and delight customers."],["Capture value","Get sales, profit and loyalty back."]]},
@@ -93,7 +91,6 @@ midterm:{
  2:{sum:"Strategic planning, the mission, the BCG matrix, growth strategies, the value chain and the marketing mix.",
   min:["Strategic planning decides where the whole company is going. Marketing helps it get there.","The planning steps are: mission, objectives, business portfolio, then functional plans.","The BCG matrix and the product/market expansion grid help companies decide which businesses to grow.","Marketing works with partners and uses the 4Ps. SWOT, planning, implementation and control keep the plan on track."],
   lo:"Explain how a company plans its strategy, and how marketing fits into the plan with partners and the marketing mix.",
-  exam:["Section A: define planning terms, and place a business in the BCG matrix or the growth grid.","Section B: explain a planning tool, or apply it to a Maldivian company's options."],
   ideas:[
    {h:"Strategic planning",p:"Strategic planning is the process of developing and keeping a strategic fit between the organisation's goals and abilities and its changing marketing opportunities. It is the base for all other planning in the company. It has four steps.",
     dia:{type:"flow",title:"Steps in strategic planning",steps:[["Define the mission","Why does the company exist?"],["Set objectives and goals","What must it achieve?"],["Design the business portfolio","Which businesses and products?"],["Plan functional strategies","Marketing and other departments' plans."]]},
@@ -147,7 +144,6 @@ midterm:{
  3:{sum:"The microenvironment, the six macroenvironment forces, publics, and how companies respond to change.",
   min:["The marketing environment is everything outside marketing that affects how well a company serves its customers.","The microenvironment is the actors close to the company: the company itself, suppliers, intermediaries, competitors, publics and customers.","The macroenvironment is six big forces: demographic, economic, natural, technological, political and social, and cultural.","Smart companies watch these forces and act early. Some even try to shape them."],
   lo:"Describe the forces in a company's marketing environment and explain how changes in them affect marketing decisions.",
-  exam:["Section A: name the actor or force behind a change, and know the types of publics and markets.","Section B: explain the two environments, or analyse how changes in the environment affect a Maldivian business."],
   ideas:[
    {h:"The marketing environment",p:["The marketing environment includes the actors and forces outside marketing that affect marketing management's ability to build and keep successful relationships with target customers.","It has two layers. The microenvironment is close to the company. The macroenvironment is the bigger forces in society that affect everyone in the microenvironment."],
     dia:{type:"rings",title:"Layers of the marketing environment",rings:[["Macroenvironment","Demographic, economic, natural, technological, political and social, cultural forces."],["Microenvironment","Suppliers, marketing intermediaries, competitors, publics, customers."],["The company","Top management, finance, operations, HR, marketing."]]},
@@ -202,7 +198,6 @@ midterm:{
  4:{sum:"Marketing information systems, primary and secondary data, the research process, research approaches and sampling.",
   min:["Companies need good information to understand customers. This gives them customer insights.","A marketing information system gathers information from three sources: internal databases, marketing intelligence and marketing research.","Research follows clear steps: define the problem, plan, collect, analyse, then report and act.","Researchers choose the type of data, the research approach, the contact method and the sample."],
   lo:"Explain how companies gather and use marketing information, and apply the marketing research process to a real problem.",
-  exam:["Section A: tell types of data, research and samples apart, and name the method in a short story.","Section B: explain the parts of a marketing information system or a research idea, or plan research for a Maldivian business."],
   ideas:[
    {h:"Customer insights",p:"Companies have more data than ever, but data alone is not enough. Customer insights are fresh understandings of customers and the marketplace, taken from marketing information. They become the basis for creating customer value and engagement."},
    {h:"The marketing information system (MIS)",p:"A marketing information system (MIS) is the people and procedures used to assess information needs, develop the needed information, and help decision makers use it to create and check customer and market insights.",
@@ -251,7 +246,6 @@ midterm:{
  5:{sum:"What shapes consumer buying, the four types of buying behaviour, the buyer decision process, and business buyers.",
   min:["Buyers are influenced by four groups of factors: cultural, social, personal and psychological.","How much thought a buyer puts in depends on involvement and on how different the brands are. This gives four buying behaviours.","Most buyers pass through five stages: need recognition, information search, evaluation, purchase, and post-purchase behaviour.","Businesses buy differently from consumers: fewer, larger buyers, more people involved, and more formal steps."],
   lo:"Explain the factors that influence consumer and business buyers, and apply them to real buying decisions.",
-  exam:["Section A: name the factor, behaviour type or stage in a short buying story.","Section B: explain a model of buying, or show how factors influence Maldivian buyers and how a business can use them."],
   ideas:[
    {h:"Model of consumer behaviour",p:"Consumer buyer behaviour is the buying behaviour of final consumers: people and households who buy for personal use. Marketers want to know how buyers respond to marketing. The textbook shows this as a stimulus-response model.",
     dia:{type:"flow",title:"Stimulus and response",steps:[["Marketing and other stimuli","The 4Ps, plus economic, technological, social and cultural forces."],["The buyer's black box","Buyer characteristics and the buyer decision process."],["Buyer responses","Attitudes and preferences, and what, when, where and how much they buy."]]},
@@ -299,7 +293,6 @@ midterm:{
  6:{sum:"Segmentation, targeting, differentiation and positioning: choosing customers and a clear place in their minds.",
   min:["A company cannot serve everyone well, so it chooses its customers.","Segmentation splits the market into groups. Targeting chooses which groups to serve.","Differentiation makes the offer different and better. Positioning gives it a clear place in customers' minds.","A positioning statement and a value proposition sum up why customers should buy."],
   lo:"Apply market segmentation, targeting, differentiation and positioning to design a customer value-driven strategy.",
-  exam:["Section A: name the segmentation base, targeting strategy or value proposition in a short story.","Section B: explain the steps, bases or requirements, or recommend a target market and position for a Maldivian business."],
   ideas:[
    {h:"Four steps of a customer value-driven strategy",p:"The first two steps choose the customers to serve. The last two steps decide how to create value for them.",
     dia:{type:"flow",title:"Customer value-driven marketing strategy",steps:[["Segmentation","Divide the whole market into smaller groups."],["Targeting","Choose the segment or segments to serve."],["Differentiation","Make the offer different to create superior value."],["Positioning","Give it a clear, desirable place in customers' minds."]]},
@@ -350,7 +343,6 @@ midterm:{
  7:{sum:"Levels of product, types of products, product and brand decisions, and the special nature of services.",
   min:["A product is anything offered to satisfy a need or want. It has three levels: core value, actual product and augmented product.","Consumer products are convenience, shopping, specialty or unsought. They are marketed differently.","Services are intangible, inseparable, variable and perishable, so they need special marketing.","Brands add value. Companies choose how to position, name, sponsor and develop their brands."],
   lo:"Explain product, service and brand decisions, and apply them to products and services in the Maldives.",
-  exam:["Section A: classify products, name service characteristics, and know product mix and brand terms.","Section B: explain a product or service idea, or apply product and brand decisions to a Maldivian business."],
   ideas:[
    {h:"Products, services and experiences",p:["A product is anything that can be offered to a market for attention, acquisition, use or consumption that might satisfy a want or need. It includes physical objects, services, events, persons, places, organisations and ideas.","A service is an activity, benefit or satisfaction offered for sale that is essentially intangible and does not result in the ownership of anything.","Many companies now create customer experiences: memorable moments around the product."],
     eg:"A resort does not just rent rooms. It sells sunset dolphin trips, island dinners and memories."},
@@ -400,7 +392,7 @@ midterm:{
  }
 },
 final:{
- intro:"Everything you need for the Final, in plain English. Each topic has short lessons, diagrams, flip cards, a worked 10-mark answer, check questions and practice. Topics 10, 11, 13 and 14 are also tested in the Section C case study.",
+ intro:"Everything you need for the Final, in plain English. Each topic has short lessons, diagrams, flip cards, a worked 10-mark answer, check questions and practice.",
  how:[
   ["Read the one-minute summary","Get the big picture of the topic first."],
   ["Work through the key ideas","Read one card at a time. Study each diagram until you can draw it."],
@@ -408,15 +400,15 @@ final:{
   ["Practise","Do the 10-question topic quiz. Then write one 10-mark essay on paper in about 18 minutes."]
  ],
  answer:[
-  {h:"How to write a 10-mark essay",p:"Section B has five essays. You answer any four, 10 marks each. A 10-mark essay needs about 8 to 10 clear points, in a clear order. Use these five moves.",
+  {h:"How to write a 10-mark essay",p:"A 10-mark essay needs about 8 to 10 clear points, in a clear order. Use these five moves.",
    dia:{type:"flow",title:"Five moves for a 10-mark essay",steps:[["Plan","List your points. Count them against the marks."],["Define","Give the textbook meaning of each key term."],["Explain","Say how it works and why it matters."],["Apply","Use the business in the question, by name."],["Judge","For 'evaluate' or 'recommend', make a clear choice and give a reason."]]},
-   l:[["Choose your four","Read all five questions first. Choose the four where you know the theory best. Do not spend time on the fifth."],["Read the command word","'Explain' needs reasons. 'Analyse' needs causes and effects. 'Evaluate' needs both sides and a judgement. 'Recommend' needs one clear choice and why."],["Count the parts","Many questions have two or three parts, such as 'explain the strategies, then recommend one'. Answer every part. Each part has its own marks."],["One point, one paragraph","Start a new short paragraph for each stage, tool or strategy. It helps you and the marker see every point."],["Time","Spend about 18 minutes on each essay. One and a half to two pages is enough."]]},
-  {h:"How to answer a Section C case question",p:"Section C has one case and five questions, 6 marks each. Each answer is marked on three things, about 2 marks each. Every answer needs all three.",
+   l:[["Choose well","When you can choose questions, read them all first. Choose the ones where you know the theory best."],["Read the command word","'Explain' needs reasons. 'Analyse' needs causes and effects. 'Evaluate' needs both sides and a judgement. 'Recommend' needs one clear choice and why."],["Count the parts","Many questions have two or three parts, such as 'explain the strategies, then recommend one'. Answer every part. Each part has its own marks."],["One point, one paragraph","Start a new short paragraph for each stage, tool or strategy. It helps you and the marker see every point."],["Time","Spend about 18 minutes on each essay. One and a half to two pages is enough."]]},
+  {h:"How to answer a case question",p:"A good case answer has three parts. Every answer needs all three.",
    dia:{type:"compare",title:"Three parts of every case answer",cols:[["Concept",["Name the right theory.","Define it in one sentence."]],["Case evidence",["Use at least two facts from the case.","Use numbers, names and places."]],["Explanation",["Link the theory to the facts.","Say why or how, not just what."]]]},
-   l:[["Questions 1 to 3","Explain, apply and analyse. Name the concept, find the facts, then explain the link."],["Question 4","Evaluate. Take a clear side and support it with case evidence. Either side can get full marks if it is well argued."],["Question 5","Create. It has three parts, (a), (b) and (c). Label each part and answer it on its own. Make your plan specific to the case business."],["Time","About 10 minutes for each question, about 54 minutes in all."]]},
-  {h:"How to read and use the case studies",p:"This site has two practice cases: STO and Soneva. The practice cases are long, and managers in them suggest different ideas, some strong and some weak. In the exam the case is shorter, about 650 words, with no managers' ideas. You must find the facts quickly and think of the ideas yourself.",
-   dia:{type:"flow",title:"Reading a case in four steps",steps:[["Skim","Read the whole case once, quickly. What is the business and its main problem?"],["Mark by topic","Read again. Mark facts for channels (10), retailing and wholesaling (11), selling and promotion (13) and sustainability (14)."],["List the facts","Note numbers, prices, places and names. These are your evidence."],["Answer with evidence","Use the three parts: concept, case evidence, explanation."]]},
-   l:[["Judge the managers' ideas","For each idea in the practice case, ask: which concept is this? Does it fit the theory and the case? Why is it strong or weak? This is the thinking you will do on your own in the exam."],["Do the activities first","The first five activities in each case match the five exam questions: one each on channels, retailing, selling and promotion, and sustainability, plus a plan to create. They build the skills step by step."],["Then write under time","Use the Section C timer. Write on paper, then open the model answer and mark yourself."],["Do not memorise answers","Learn the method and the theory. A new case needs new evidence."]],
+   l:[["Explain and apply","Name the concept, find the facts in the case, then explain the link."],["Analyse","Break the situation into parts. Show causes and effects, using case facts."],["Evaluate","Look at both sides, then take a clear position. Support it with case evidence."],["Create","Design a plan that fits the case business. If the question has parts, such as (a), (b) and (c), label each part and answer it on its own."]]},
+  {h:"How to read and use the case studies",p:"This site has two practice cases: STO and Soneva. Study both. In each case, managers suggest different ideas, some strong and some weak. Decide which ideas fit the theory, and why. Then practise suggesting ideas of your own.",
+   dia:{type:"flow",title:"Reading a case in four steps",steps:[["Skim","Read the whole case once, quickly. What is the business and its main problem?"],["Mark by topic","Read again. Mark the facts that link to each topic you have studied."],["List the facts","Note numbers, prices, places and names. These are your evidence."],["Answer with evidence","Use the three parts: concept, case evidence, explanation."]]},
+   l:[["Judge the managers' ideas","For each idea in the case, ask: which concept is this? Does it fit the theory and the case? Why is it strong or weak? Then ask what you would suggest instead."],["Do the activities first","Each case has activities that build your skills step by step, from simple questions to plans you create yourself."],["Then write under time","Use the timer. Write on paper, then open the model answer and mark yourself."],["Do not memorise answers","Learn the method and the theory, not the model answers. Every question needs its own evidence."]],
    links:[["Read the STO case","#/sto/read"],["Read the Soneva case","#/soneva/read"],["Section C practice","#/paper/final/c"]]}
  ],
  topics:{
@@ -425,7 +417,6 @@ final:{
  8:{sum:"How companies develop new products in eight stages, and how marketing changes across the product life cycle.",
   min:["Companies get new products in two ways: by acquisition or by their own new product development.","Many new products fail, so companies follow eight clear stages, from idea generation to commercialisation.","Good development is customer-centred, team-based and systematic.","After launch, a product moves through the product life cycle: introduction, growth, maturity and decline. Marketing strategy changes at each stage."],
   lo:"Explain the new product development process and apply product life cycle strategies.",
-  exam:["Section A: name the stage of new product development, or the stage of the product life cycle, from a short story.","Section B: explain the stages of new product development, or find a product's life cycle stage from clues and recommend a strategy."],
   ideas:[
    {h:"Where new products come from",p:["A company can get new products in two ways.","Acquisition means buying a whole company, a patent, or a licence to make someone else's product.","New product development means creating original products, product improvements, product modifications and new brands through the company's own research and development."],
     dia:{type:"compare",title:"Two ways to get new products",cols:[["Acquisition",["Buy a whole company","Buy a patent","Buy a licence"]],["New product development",["Original products","Product improvements","Product modifications","New brands"]]]},
@@ -486,7 +477,6 @@ final:{
  9:{sum:"What price is, the three main pricing approaches, other pricing factors, and strategies for new products, product mixes and price changes.",
   min:["Price is the only part of the marketing mix that brings in revenue. All the other parts are costs.","Customer value sets the top limit for price. Costs set the bottom limit. Competitors' prices help decide where in between.","There are three main approaches: customer value-based, cost-based and competition-based pricing.","Companies also use special strategies for new products, product mixes, price adjustments and price changes."],
   lo:"Explain the main pricing approaches and apply pricing strategies to a business situation.",
-  exam:["Section A: name a pricing approach or strategy from a short example.","Section B: explain the pricing approaches, or recommend a pricing strategy for a Maldivian business and explain why."],
   ideas:[
    {h:"What is price?",p:["In the narrow sense, price is the amount of money charged for a product or service.","More broadly, price is the sum of all the values that customers give up to gain the benefits of having or using a product or service.","Price is the only part of the marketing mix that produces revenue. All the other parts represent costs. Price is also the most flexible part: a company can change it quickly."],
     eg:"A tourist who pays for a seaplane transfer also gives up time and some comfort. The price is everything they give up to reach the resort.",
@@ -544,7 +534,6 @@ final:{
  10:{sum:"What marketing channels are, how intermediaries add value, channel levels, conflict, vertical and horizontal systems, channel design and logistics.",
   min:["A marketing channel is a set of businesses that work together to make a product available to the final customer.","Intermediaries add value. They cut the number of contacts needed and do many jobs more cheaply than the producer could.","Channels can be direct or indirect, and they can have conflict. Vertical marketing systems help members work as one.","Companies design channels by studying customer needs, setting objectives, finding alternatives and evaluating them. Logistics then moves the goods."],
   lo:"Explain and analyse marketing channel structures, channel design and channel conflict.",
-  exam:["Section A: name the channel level, conflict type, vertical marketing system or distribution intensity in a short example.","Section B: explain channel functions or types of vertical marketing system, or design a channel for a Maldivian business.","Section C: use case facts to analyse channel levels, channel conflict or distribution intensity."],
   ideas:[
    {h:"Channels, supply chains and the value delivery network",p:["A marketing channel (or distribution channel) is a set of interdependent organisations that help make a product or service available for use or consumption by the consumer or business user.","Every company is part of a bigger supply chain. Upstream partners supply raw materials, parts and packaging. Downstream partners, such as wholesalers and retailers, link the company with its customers.","The value delivery network is made up of the company, its suppliers, its distributors and, finally, its customers. They work together to improve the performance of the whole system."],
     dia:{type:"flow",title:"A supply chain for canned tuna",steps:[["Suppliers (upstream)","Fishermen, can makers, packaging."],["The company","The tuna factory."],["Wholesalers","Buy in bulk in Malé."],["Retailers","Island shops and supermarkets."],["Consumers","Families buy and eat the tuna."]]},
@@ -608,7 +597,6 @@ final:{
  11:{sum:"Types of retailers, retailer marketing decisions, retail trends, and what wholesalers do.",
   min:["Retailing is selling goods and services directly to final consumers for their personal use. Wholesaling is selling to businesses that resell or use the goods.","Retailers can be grouped by amount of service, product line, relative prices and how they are organised.","Every retailer chooses its target market and positioning, then decides on product assortment and services, price, promotion and place.","Wholesalers add value by doing jobs such as bulk breaking, warehousing, transport and financing."],
   lo:"Analyse and evaluate retailer decisions such as location, product range and store atmosphere.",
-  exam:["Section A: name the type of retailer or wholesaler, or the retail decision, from a short example.","Section B: explain retailer marketing decisions or wholesaler functions, or recommend how a Maldivian shop can compete.","Section C: use case facts to analyse store atmosphere, product range, location or wholesaling."],
   ideas:[
    {h:"Retailing, shopper marketing and omni-channel retailing",p:["Retailing is all the activities involved in selling goods or services directly to final consumers for their personal, non-business use. A retailer is a business whose sales come mainly from retailing.","Shopper marketing means focusing the whole marketing process on turning shoppers into buyers as they get close to the point of sale, whether in the store, online or on mobile.","Omni-channel retailing creates a seamless cross-channel buying experience that joins in-store, online and mobile shopping."],
     eg:"A shopper sees a phone on a Malé shop's Instagram page, checks the price on its website, then buys it in the store. A good omni-channel retailer makes this easy, with the same price and stock information everywhere.",
@@ -665,7 +653,6 @@ final:{
  12:{sum:"The promotion mix, integrated marketing communications, the communication process, budgets, advertising decisions and public relations.",
   min:["The promotion mix has five tools: advertising, sales promotion, personal selling, public relations, and direct and digital marketing.","With so many media, companies need integrated marketing communications (IMC), so every message is clear and consistent.","Good communication follows six steps, from the target audience to feedback.","Advertising needs four decisions: objectives, budget, strategy (message and media) and evaluation. Public relations builds good relations and goodwill."],
   lo:"Explain the promotion mix and the role of IMC in delivering a clear and consistent message.",
-  exam:["Section A: name a promotion tool, advertising objective, budget method or execution style from a short example.","Section B: explain the promotion mix and IMC, or recommend a promotion or advertising plan for a Maldivian business."],
   ideas:[
    {h:"The promotion mix",p:"The promotion mix (or marketing communications mix) is the specific blend of promotion tools that a company uses to engage consumers, communicate customer value persuasively and build customer relationships.",
     dia:{type:"compare",title:"Five promotion mix tools",cols:[["Advertising",["Paid and non-personal","An identified sponsor","Reaches many people"]],["Sales promotion",["Short-term incentives","A reason to buy now"]],["Personal selling",["Personal presentation by the sales force","Builds relationships"]],["Public relations",["Good relations with publics","Favourable publicity","High trust"]],["Direct and digital marketing",["Engages individual consumers directly","Online, social media, mobile and email","Quick response"]]]},
@@ -730,7 +717,6 @@ final:{
  13:{sum:"The role of the sales force, managing salespeople, the seven-step selling process, and consumer, trade and business promotions.",
   min:["Personal selling is the person-to-person part of the promotion mix. Salespeople link the company and its customers.","Managing a sales force means designing its structure, then recruiting, training, paying, motivating and evaluating salespeople.","The selling process has seven steps, from prospecting to follow-up. Good salespeople build long-term relationships, not just single sales.","Sales promotion gives short-term reasons to buy now. Its tools target consumers, the trade and business customers."],
   lo:"Analyse personal selling and sales promotion and their role in building customer relationships.",
-  exam:["Section A: name a selling step, sales force structure or promotion tool from a short example.","Section B: explain the selling process or sales force management, or recommend promotion tools for a Maldivian brand.","Section C: use case facts to analyse the work of salespeople or a promotion plan."],
   ideas:[
    {h:"Personal selling and the role of the salesperson",p:["Personal selling is the personal presentation by the firm's sales force for the purpose of engaging customers, making sales and building customer relationships.","A salesperson represents a company to customers by prospecting, communicating, selling, servicing, gathering information and building relationships.","Salespeople link the company and its customers. They work in both directions."],
     dia:{type:"compare",title:"The salesperson links two sides",cols:[["Represents the company to customers",["Finds and serves customers","Presents products and solves problems","Closes sales"]],["Represents customers to the company",["Reports customer needs and problems","Speaks up for customers' interests","Helps the company improve its offer"]]]},
@@ -788,7 +774,6 @@ final:{
  14:{sum:"What sustainable marketing is, the social criticisms of marketing, consumerism and environmentalism, and the five sustainable marketing principles.",
   min:["Sustainable marketing meets the needs of consumers and businesses today, while protecting the ability of future generations to meet their needs.","Critics say marketing harms individual consumers, society as a whole and other businesses.","Citizens and governments push back through consumerism, environmentalism and laws.","Responsible companies follow five sustainable marketing principles and act ethically."],
   lo:"Analyse and evaluate business practices using the principles of sustainable marketing.",
-  exam:["Section A: name a criticism of marketing, a sustainable marketing principle or a product type in the societal classification.","Section B: explain the principles, or evaluate a Maldivian business's practices and recommend changes.","Section C: use case facts to evaluate a company's sustainability practices."],
   ideas:[
    {h:"What is sustainable marketing?",p:["Sustainable marketing is socially and environmentally responsible marketing that meets the present needs of consumers and businesses, while also preserving or enhancing the ability of future generations to meet their needs.","It goes further than the marketing concept and the societal marketing concept. It looks at the future needs of both consumers and the company."],
     dia:{type:"grid",title:"Sustainable marketing",yl:"Consumer needs",xl:"Business needs",y:["Future","Now"],x:["Now","Future"],cells:[["Societal marketing concept","Consumers' long-run welfare, company needs now."],["Sustainable marketing concept","Future needs of both consumers and the company."],["Marketing concept","Consumers' needs now, company needs now."],["Strategic planning concept","Company's future needs, consumers' needs now."]]},

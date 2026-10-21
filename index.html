@@ -623,7 +623,7 @@ sto:{
       {t:'Storage space and cost at hub islands → rent extra space only for the monsoon months',q:'good',fb:'A realistic challenge with a practical response.'},
       {t:'Distributors fear losing business → let them run the hub stock for a handling fee',q:'good',fb:'Reduces conflict by keeping intermediaries involved.'},
       {t:'Weak internet on some islands → accept phone orders through the island shop',q:'good',fb:'Makes sure the plan still works where the app does not.'},
-      {t:'No challenges expected',q:'weak',fb:'Every plan has challenges. Examiners expect one realistic challenge.'}]}],
+      {t:'No challenges expected',q:'weak',fb:'Every plan has challenges. A strong plan names one realistic challenge.'}]}],
     tests:[
      {n:'Boats are delayed for five days',pass:s=>s.a===0||s.a===1,ok:'Stock was moved closer before the delay, so shelves hold out longer.',fail:'Nothing in your plan moves stock before the boats stop. Shelves still run empty.'},
      {n:'The internet is down for a week on two islands',pass:s=>s.a===0||s.b===2||s.c===2,ok:'Your plan still works without the app.',fail:'Your plan leans on the app or dashboard. Think about islands with weak internet.'},
@@ -839,7 +839,7 @@ soneva:{
      {k:'r',label:'Main risk and how to manage it',opts:[
       {t:'High airport rent → start with a small kiosk and review sales after one year',q:'good',fb:'A realistic risk with a practical response.'},
       {t:'Breakage → strong gift packing and an option to ship pieces home',q:'good',fb:'Protects fragile, expensive products and the guest’s experience.'},
-      {t:'No real risks',q:'weak',fb:'Every retail decision has risks. Examiners expect one realistic risk.'},
+      {t:'No real risks',q:'weak',fb:'Every retail decision has risks. A strong answer names one realistic risk.'},
       {t:'Low sales → cut prices by half',q:'weak',fb:'Heavy discounts would harm the luxury brand.'}]}]}],
    paper:['Name the retail decisions you will use: location, product assortment and store atmosphere.','Compare at least two of the managers’ options, with case evidence.','Recommend one option and explain why it fits Soneva’s brand and guests.','Explain the main risk of your choice and how Soneva could manage it.'],
    think:['Location: the airport reaches thousands of travellers, including Soneva guests on their way home. Souvenir shops in Malé reach the wrong customers.','Product assortment: a small range of handmade pieces fits a luxury brand better than a wide range of cheap items.','Store atmosphere: soft lighting, few pieces, trained staff and the story of the glass studio support the price. A duty-free style with crowded shelves sends mixed signals.','The online shop costs less but loses the experience, and shipping fragile glass is a risk.','A strong answer picks one option, weighs the cost (rent, staff, breakage) against the benefit, and manages the main risk.']},
@@ -986,7 +986,7 @@ function renderHome(){
  <section class="hero">
   <div class="kick">${TERM.code} ${TERM.name} · ${TERM.term}</div>
   <h1>Practise for your exam</h1>
-  <p class="lead">Read each question on your phone and write your answer on paper, just like the real exam. Then open the model answer and mark your own work. Your progress is saved in this browser.</p>
+  <p class="lead">Read each question on your phone and write your answer on paper. Then open the model answer and mark your own work. Your progress is saved in this browser.</p>
   ${signedHTML()}
  </section>
  <h2 class="h2s">Practice papers</h2>
@@ -995,13 +995,13 @@ function renderHome(){
   <a class="btn primary" href="#/paper/${pid}" style="text-decoration:none;text-align:center">Open ${esc(P.name)} paper →</a></div>`
   :`<div class="pcard off"><div class="kick">Practice paper</div><h2>${esc(P.name)}</h2><p>${esc(P.blurb)}</p></div>`).join('')}</div>
  <h2 class="h2s">Case studies</h2>
- <p class="intro">Study these cases before the exam. Each one has activities to build your ideas, and an exam practice tab with Section C style questions.</p>
+ <p class="intro">Study both cases. Each one has activities to build your ideas, and a writing practice tab with longer questions and model answers.</p>
  <div class="cases" style="margin-top:0">${ORDER.map(id=>{const c=CASES[id];const d=c.acts.filter((a,i)=>dm[id+'-'+(i+1)]).length;
   return `<a class="ccard c-${id}" href="#/${id}">${logo(c)}<div class="body"><div class="chips" style="margin-bottom:10px">${c.topics.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div><h2>${esc(c.title)}</h2><p>${esc(c.blurb)}</p><span class="chip n">${d} of ${c.acts.length} activities done</span></div><span class="go">Open case →</span></a>`}).join('')}</div>
  <h2 class="h2s" style="margin-top:0">How to use this page</h2>
  <div class="steps">
   <div class="step"><b>1. Read and explore</b><span>Read the cases. Use the activities to work out your ideas.</span></div>
-  <div class="step"><b>2. Write on paper</b><span>Follow “How to build your answer”. Time yourself, just like the exam.</span></div>
+  <div class="step"><b>2. Write on paper</b><span>Follow “How to build your answer”. Time yourself.</span></div>
   <div class="step"><b>3. Check and mark</b><span>Open the model answer only after you write. Give yourself a mark.</span></div>
  </div>
  ${footHTML()}`;
@@ -1031,7 +1031,7 @@ const topicName=t=>`Topic ${t} · ${TERM.topics[t]}`;
 /* ---------- case exam practice (Section C) ---------- */
 function renderExam(c,el,inPaper){
  const ex=EXAM[c.id];const key=i=>exKey(c.id,i);
- el.innerHTML=`<div class="note">Section C practice: 5 questions, 6 marks each, 30 marks. Write your answers on paper. In the real exam the case is shorter, about 650 words, and has none of the managers’ ideas. You must think of the ideas yourself, so practise finding the key facts quickly.</div>
+ el.innerHTML=`<div class="note">Section C practice: 5 questions, 6 marks each, 30 marks. Write your answers on paper. Practise finding the key facts in the case quickly.</div>
  ${timerHTML('c-'+c.id,54,'Suggested time for Section C')}
  <details class="think casebox"><summary>Show the case</summary>${caseHTML(c)}</details>
  ${ex.map((x,i)=>{const a=c.acts[i];return `<section class="eq"><div class="qbox"><div class="ql">Question ${i+1} · ${esc(a.bloom)}</div><p>${esc(a.q)}</p><div class="mk">6 marks · about 10 minutes · ${esc(a.topic)}</div></div>
@@ -1073,7 +1073,7 @@ function renderPaper(pid,sk,sub,sub2){
   <div class="part" style="margin-top:22px"><h3>How it works</h3><ul style="margin:6px 0 0;padding-left:20px">
    <li><b>Section A:</b> tap your answer. You see right or wrong at once, with a short reason. Each set of ${P.mcqCount} is new and covers every topic.</li>
    <li><b>${P.sections.slice(1).map(s=>s.n).join(' and ')}:</b> write on paper. Each question has a guide to help you plan. Open the model answer only after you finish, then give yourself a mark.</li>
-   <li>Use the timer to practise working at exam speed.</li>${notesOf(pid)?`<li><b>Study notes:</b> read the key ideas for each topic before you practise.</li>`:''}</ul></div>
+   <li>Use the timer to practise working to time.</li>${notesOf(pid)?`<li><b>Study notes:</b> read the key ideas for each topic before you practise.</li>`:''}</ul></div>
   <div class="part"><h3>Topics in this paper</h3><ul style="margin:6px 0 0;padding-left:20px">${P.topics.map(t=>`<li>${notesOf(pid)?`<a href="#/paper/${pid}/notes/${t}">${esc(topicName(t))}</a>`:esc(topicName(t))}</li>`).join('')}</ul></div>${paperFoot(P,'')}${footHTML()}`;
  }else if(sk==='notes')renderNotes(P,el,sub,sub2);else if(sk==='a')renderMCQ(P,sec,el);else if(sk==='b')renderEssays(P,sec,el);else renderSecC(P,sec,el,sub);
 }
@@ -1153,7 +1153,7 @@ function renderSecC(P,sec,el,cid){const m=getMk();
 function renderCase(cid,tab,n){
  const c=CASES[cid];document.body.dataset.case=cid;switcher(cid);document.title=c.short+' case · MKT101 Practice';
  const dm=doneMap();const dn=c.acts.filter((a,i)=>dm[cid+'-'+(i+1)]).length;
- const T=[['read','Read the case'],['terms','Key terms'],['act',`Activities ${dn}/${c.acts.length}`],['exam','Exam practice'],['tips','Writing tips']];
+ const T=[['read','Read the case'],['terms','Key terms'],['act',`Activities ${dn}/${c.acts.length}`],['exam','Writing practice'],['tips','Writing tips']];
  $('#app').innerHTML=`
  <section class="chead">${logo(c)}<div><div class="kick">Case study</div><h1>${esc(c.title)}</h1>
   <div class="chips">${c.topics.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}${c.los.map(l=>`<span class="chip n">${l}</span>`).join('')}</div></div></section>
@@ -1166,7 +1166,7 @@ function renderCase(cid,tab,n){
 function renderRead(c,el){
  const all=c.sections.flatMap(s=>s.ps).join(' ');const w=words(all);
  el.innerHTML=`<div class="note">${esc(c.note)}</div>
- <div class="note"><b>How to use this case.</b> This practice case is longer than the case in the exam. In it, managers suggest different ideas. Some are strong and some are weak. Practise choosing the ideas that fit the theory, and say why. The exam case is about 650 words and has no managers’ ideas, so in the exam you must come up with the ideas yourself.</div>
+ <div class="note"><b>How to use this case.</b> In this case, managers suggest different ideas. Some are strong and some are weak. Practise choosing the ideas that fit the theory, and say why. Then try to come up with better ideas of your own.</div>
  <div class="readbar"><span>About ${Math.round(w/10)*10} words · ${Math.max(1,Math.round(w/200))} minute read</span><button class="btn" id="prt">Print the case</button></div>
  ${caseHTML(c)}
  <div class="row"><a class="btn primary" href="#/${c.id}/act/1" style="text-decoration:none">Start the activities →</a></div>`;
@@ -1211,8 +1211,8 @@ function renderAct(c,el,n){
  <div id="parts"></div>
  <div class="paper"><h3>✍ Write it on paper</h3><ol>${a.paper.map(p=>`<li>${esc(p)}</li>`).join('')}</ol></div>
  <details class="think"><summary>Check your thinking</summary><ul>${a.think.map(p=>`<li>${esc(p)}</li>`).join('')}</ul><p class="intro">Compare with what you wrote. Add anything you missed.</p></details>
- ${a.ex?`<h3 class="h2s">Write it as an exam answer</h3>${guideHTML(a.ex.guide)}${modelHTML(a.ex.model,a.ex.rub,6)}`:''}
- ${n<=EXAM[c.id].length?`<p class="intro" style="margin-top:12px"><a href="#/${c.id}/exam">Ready? Write this as an exam answer, with a full model answer →</a></p>`:''}
+ ${a.ex?`<h3 class="h2s">Write a full answer</h3>${guideHTML(a.ex.guide)}${modelHTML(a.ex.model,a.ex.rub,6)}`:''}
+ ${n<=EXAM[c.id].length?`<p class="intro" style="margin-top:12px"><a href="#/${c.id}/exam">Ready? Write a full answer, then compare it with the model answer →</a></p>`:''}
  <div class="anext">
   <a class="btn" href="#/${c.id}/act/${n-1}" ${n===1?'style="visibility:hidden"':''}>← Previous</a>
   <button class="btn done" id="done" aria-pressed="${!!dm[dk]}">${dm[dk]?'✓ Done':'Mark as done'}</button>
@@ -1413,9 +1413,9 @@ function renderLanding(){
  $('#app').innerHTML=`<section class="land">${logoHTML()}
   <div class="kick" style="margin-top:20px">${TERM.school} · ${TERM.term}</div>
   <h1>${TERM.code} ${TERM.name}<br>Exam Practice</h1>
-  <p class="lead">Practise for your exams on your phone. Read each question, write your answer on paper like the real exam, then check it against the model answer.</p></section>
+  <p class="lead">Practise on your phone. Read each question, write your answer on paper, then check it against the model answer.</p></section>
  <div class="feats">
-  <div class="feat"><b>Practice papers</b><span>${esc(live.join(' and '))}, with the same sections as the real exams.</span></div>
+  <div class="feat"><b>Practice papers</b><span>${esc(live.join(' and '))} practice papers, with multiple choice and written questions.</span></div>
   <div class="feat"><b>Instant MCQ feedback</b><span>A fresh set every time, with a reason for each answer and your score by topic.</span></div>
   <div class="feat"><b>Guides and model answers</b><span>Plan your answer with the guide, then mark your work with the model answer.</span></div>
   <div class="feat"><b>Case studies</b><span>${ORDER.map(id=>esc(CASES[id].org)).join(' and ')}, with activities and Section C practice.</span></div>
@@ -1489,7 +1489,7 @@ function diagramHTML(d){
 const listHTML=l=>`<ul>${l.map(x=>`<li>${Array.isArray(x)?`<b>${esc(x[0])}:</b> ${esc(x[1])}`:esc(x)}</li>`).join('')}</ul>`;
 function ideaHTML(c,k){const ps=[].concat(c.p||[]);
  return `<section class="part concept" id="n-i${k}"><h3>${esc(c.h)}</h3>${ps.map(x=>`<p>${esc(x)}</p>`).join('')}${c.l?listHTML(c.l):''}${c.dia?diagramHTML(c.dia):''}${c.more?[].concat(c.more).map(x=>`<p>${esc(x)}</p>`).join(''):''}
-  ${c.eg?`<p class="eg"><b>Maldives example:</b> ${esc(c.eg)}</p>`:''}${c.tip?`<p class="tip"><b>Exam tip:</b> ${esc(c.tip)}</p>`:''}</section>`}
+  ${c.eg?`<p class="eg"><b>Maldives example:</b> ${esc(c.eg)}</p>`:''}${c.tip?`<p class="tip"><b>Tip:</b> ${esc(c.tip)}</p>`:''}</section>`}
 
 /* ---------- study notes (data in notes.js) ---------- */
 const GEMINI='https://gemini.google.com/app';
@@ -1511,7 +1511,7 @@ function renderNotes(P,el,sub,sub2){
  el.innerHTML=`<nav class="anav nnav" aria-label="Topics">${tps.map(x=>`<a href="${base}/${x}" ${x===t?'aria-current="page"':''} aria-label="Topic ${x}">${x}</a>`).join('')}<a href="${base}">All topics</a></nav>
   <div class="ahead"><div class="kick">Topic ${t}</div><h2>${esc(TERM.topics[t])}</h2></div>
   <div class="jump" aria-label="On this page">${jumps.map(([id,n])=>`<button type="button" class="opt" data-jump="${id}">${esc(n)}</button>`).join('')}</div>
-  <div class="lo" id="n-min"><h3>In one minute</h3>${listHTML(T.min)}<h3>What you need to be able to do</h3><p>${esc(T.lo)}</p><h3>What the exam asks</h3>${listHTML(T.exam)}</div>
+  <div class="lo" id="n-min"><h3>In one minute</h3>${listHTML(T.min)}<h3>What you need to be able to do</h3><p>${esc(T.lo)}</p></div>
   <h3 class="h2s" id="n-ideas">Key ideas</h3>
   <p class="intro">Read one card at a time. Look at each diagram and try to say it in your own words.</p>
   ${T.ideas.map(ideaHTML).join('')}

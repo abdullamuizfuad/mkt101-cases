@@ -29,17 +29,17 @@ const TERM={
   11:"Retailing and wholesaling",12:"IMC, advertising and public relations",
   13:"Personal selling and sales promotion",14:"Sustainable marketing"
  },
- /* Each paper copies the real exam's structure. Set live:false to hide a paper.
-    hours: exam length; mins: suggested time per section (about the same minutes per mark). */
+ /* The structure of each practice paper. Set live:false to hide a paper.
+    hours: paper length; mins: suggested time per section (about the same minutes per mark). */
  papers:{
   midterm:{name:"Midterm",live:true,topics:[1,2,3,4,5,6,7],hours:1.5,marks:60,weight:"20%",
-   blurb:"Topics 1 to 7. The same two sections as the real paper.",
+   blurb:"Topics 1 to 7. Two sections: multiple choice and short answers.",
    sections:[
     {k:"a",n:"Section A",t:"Multiple choice",d:"20 questions. Answer all. 1 mark each.",marks:20,mins:30},
     {k:"b",n:"Section B",t:"Short answers",d:"10 questions. Answer any EIGHT. 5 marks each.",marks:40,mins:60}],
    mcqCount:20,essayOffer:10,essayAnswer:8,essayMarks:5},
   final:{name:"Final Exam",live:true,topics:[8,9,10,11,12,13,14],hours:3,marks:100,weight:"60%",
-   blurb:"Topics 8 to 14. The same three sections as the real paper.",
+   blurb:"Topics 8 to 14. Three sections: multiple choice, short essays and a case study.",
    sections:[
     {k:"a",n:"Section A",t:"Multiple choice",d:"30 questions. Answer all. 1 mark each.",marks:30,mins:54},
     {k:"b",n:"Section B",t:"Short essays",d:"5 questions. Answer any FOUR. 10 marks each.",marks:40,mins:72},
