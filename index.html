@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <script>try{var t=localStorage.getItem("mkt101_theme");if(t)document.documentElement.dataset.theme=JSON.parse(t)}catch(e){}</script>
 <title>MKT101 Practice</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <style>
 :root{
   --bg:#f6f4ef;--card:#ffffff;--ink:#1c2328;--mute:#5a6670;--line:#e2ddd2;--soft:#eef2f1;
@@ -76,6 +78,9 @@ h1{font-size:clamp(1.7rem,4.5vw,2.5rem);line-height:1.15;margin:.35rem 0 .5rem;l
 .step b{display:block;margin-bottom:2px}
 .step span{color:var(--mute);font-size:.92rem}
 .foot{color:var(--mute);font-size:.85rem;border-top:1px solid var(--line);padding:18px 0 40px}
+.outbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding:14px 16px 40px;color:var(--mute);font-size:.9rem}
+.outbar:empty{display:none}
+.outbar b{color:var(--ink)}
 
 /* case head */
 .chead{display:grid;grid-template-columns:96px 1fr;gap:18px;align-items:center;padding:28px 0 6px}
@@ -260,6 +265,7 @@ details.think li{margin:5px 0}
 .timer .tt{font-weight:800;font-size:1.3rem;font-variant-numeric:tabular-nums;min-width:4.5ch;color:var(--acc)}
 .timer .tl{color:var(--mute);font-size:.88rem;margin-right:auto}
 .timer.over .tt{color:var(--bad)}
+.timer.paused .tt{color:var(--mute)}
 .eq{border-top:2px solid var(--line);padding-top:6px;margin-top:26px}
 .eq:first-of-type{border-top:0;margin-top:0}
 details.model{margin-top:12px}
@@ -408,7 +414,7 @@ details.chk p{color:var(--ink)}
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media print{
-  .bar,.tabs,.chead .chips,.readbar button,.note,.foot,.timer,.selfmk,.tot{display:none!important}
+  .bar,.tabs,.chead .chips,.readbar button,.note,.foot,.outbar,.timer,.selfmk,.tot{display:none!important}
   body{background:#fff;color:#000}
   .exhibit{break-inside:avoid}
 }
@@ -421,6 +427,7 @@ details.chk p{color:var(--ink)}
   <button id="theme" type="button" aria-label="Switch light or dark mode">Dark</button>
 </div></header>
 <main class="wrap" id="app"></main>
+<div class="wrap outbar" id="outbar"></div>
 
 <script src="bank.js"></script>
 <script src="notes.js"></script>
@@ -1018,14 +1025,19 @@ const getMk=()=>S.get('mk',{});
 function selfMarkHTML(key,max){const v=getMk()[key];return `<div class="selfmk" data-key="${key}"><span>My mark:</span>${Array.from({length:max+1},(_,i)=>`<button class="opt" data-mk="${i}" aria-pressed="${v===i}">${i}</button>`).join('')}<span class="of">out of ${max}</span></div>`}
 function bindMarks(el,onChange){el.addEventListener('click',e=>{const b=e.target.closest('[data-mk]');if(!b)return;const box=b.closest('.selfmk');const k=box.dataset.key;const m=getMk();const v=+b.dataset.mk;
  if(m[k]===v)delete m[k];else m[k]=v;S.set('mk',m);$$('.opt',box).forEach(x=>x.setAttribute('aria-pressed',m[k]===+x.dataset.mk));onChange&&onChange();})}
-function timerHTML(key,mins,label){return `<div class="timer" data-key="${key}" data-m="${mins}"><span class="tt">${mins}:00</span><span class="tl">${esc(label)}</span><button class="btn primary" data-t="go">Start</button><button class="btn" data-t="rs">Reset</button></div>`}
+function timerHTML(key,mins,label){return `<div class="timer" data-key="${key}" data-m="${mins}"><span class="tt">${mins}:00</span><span class="tl">${esc(label)}</span><button class="btn primary" data-t="go">Start</button><button class="btn" data-t="stop">Stop</button></div>`}
 let tmr=null;
+/* Timer state in storage: nothing = not started; a number = running, ends at that time; {p:ms} = paused with ms left. */
 function bindTimer(el){const t=$('.timer',el);if(!t)return;const k='tm_'+t.dataset.key,m=+t.dataset.m;
- const tick=()=>{const end=S.get(k,null);const left=end?Math.max(0,end-Date.now()):m*60000;const s=Math.ceil(left/1000);
-  $('.tt',t).textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;t.classList.toggle('over',!!end&&left===0);
-  const go=$('[data-t=go]',t);go.disabled=!!end;go.textContent=end?(left?'Running':'Time is up'):'Start';};
+ const tick=()=>{const v=S.get(k,null),run=typeof v==='number',pau=!!v&&!run;
+  const left=run?Math.max(0,v-Date.now()):pau?v.p:m*60000;const s=Math.ceil(left/1000);
+  $('.tt',t).textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;t.classList.toggle('over',run&&left===0);t.classList.toggle('paused',pau);
+  const go=$('[data-t=go]',t);go.disabled=run&&left===0;go.textContent=run?(left?'Pause':'Time is up'):pau?'Resume':'Start';
+  $('[data-t=stop]',t).disabled=!v;};
  tick();clearInterval(tmr);tmr=setInterval(tick,1000);
- t.onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.t==='go')S.set(k,Date.now()+m*60000);else{try{localStorage.removeItem('mkt101_'+k)}catch(e){}}tick();};}
+ t.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;const v=S.get(k,null);
+  if(b.dataset.t==='go'){if(typeof v==='number')S.set(k,{p:Math.max(0,v-Date.now())});else S.set(k,Date.now()+(v?v.p:m*60000));}
+  else{try{localStorage.removeItem('mkt101_'+k)}catch(e){}}tick();};}
 const topicName=t=>`Topic ${t} · ${TERM.topics[t]}`;
 
 /* ---------- case exam practice (Section C) ---------- */
@@ -1103,13 +1115,14 @@ function renderMCQ(P,sec,el){
  const draw=()=>{const n=Object.keys(set.ans).length,sc=set.ids.filter(id=>set.ans[id]===0).length,all=n===set.ids.length;
   el.innerHTML=`${timerHTML(P.id+'-a',sec.mins,'Suggested time for Section A')}${all?results():''}
   ${set.ids.map(qHTML).join('')}
-  <div class="tot"><span>Answered <b>${n} / ${set.ids.length}</b> · Score <b>${sc}</b></span><button class="btn" data-a="new">New set</button></div>
+  <div class="tot"><span>Answered <b>${n} / ${set.ids.length}</b> · Score <b>${sc}</b></span><span class="row" style="margin:0"><button class="btn" data-a="clr" ${n?'':'disabled'}>Clear answers</button><button class="btn" data-a="new">New set</button></span></div>
   ${paperFoot(P,'a',all?'<button class="btn" data-a="res">See your results ↑</button>':'')}`;bindTimer(el);};
  draw();
  el.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;
   if(b.dataset.oi!==undefined){const id=b.closest('.mcq').dataset.id;set.ans[id]=+b.dataset.oi;S.set('mcq_'+P.id,set);
    const y=scrollY;draw();scrollTo(0,y);if(Object.keys(set.ans).length===set.ids.length)$('#res').scrollIntoView({behavior:'smooth'});}
   else if(b.dataset.a==='res'){$('#res').scrollIntoView({behavior:'smooth'});}
+  else if(b.dataset.a==='clr'){if(!confirm('Clear all your answers? You keep the same questions.'))return;set.ans={};S.set('mcq_'+P.id,set);draw();scrollTo(0,0);}
   else if(b.dataset.a==='new'){if(Object.keys(set.ans).length<set.ids.length&&!confirm('Start a new set? Your answers in this set will be cleared.'))return;
    set=newMCQSet(P);try{localStorage.removeItem('mkt101_tm_'+P.id+'-a')}catch(e){}draw();scrollTo(0,0);}};
 }
@@ -1555,12 +1568,13 @@ function renderDrill(P,t,el){
   el.innerHTML=`<div class="incase"><a href="#/paper/${P.id}/notes/${t}">← Topic ${t} notes</a><span>·</span><b>${esc(topicName(t))}</b></div>
   ${all?`<div class="res" id="res"><div class="kick">Your result</div><div class="big">${sc} / ${set.ids.length}</div><p class="intro" style="margin:6px 0 0">${sc/set.ids.length>=.7?'Well done. Try a new set, or move on to the next topic.':'Read the notes for this topic again, then try a new set.'}</p></div>`:''}
   ${set.ids.map((id,i)=>mcqHTML(byId[id],set,i)).join('')}
-  <div class="tot"><span>Answered <b>${a} / ${set.ids.length}</b> · Score <b>${sc}</b></span><button class="btn" data-a="new">New set</button></div>
+  <div class="tot"><span>Answered <b>${a} / ${set.ids.length}</b> · Score <b>${sc}</b></span><span class="row" style="margin:0"><button class="btn" data-a="clr" ${a?'':'disabled'}>Clear answers</button><button class="btn" data-a="new">New set</button></span></div>
   ${paperFoot(P,'notes')}`;};
  draw();
  el.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;
   if(b.dataset.oi!==undefined){const id=b.closest('.mcq').dataset.id;set.ans[id]=+b.dataset.oi;S.set(k,set);
    const y=scrollY;draw();scrollTo(0,y);if(Object.keys(set.ans).length===set.ids.length)$('#res').scrollIntoView({behavior:'smooth'});}
+  else if(b.dataset.a==='clr'){if(!confirm('Clear all your answers? You keep the same questions.'))return;set.ans={};S.set(k,set);draw();scrollTo(0,0);}
   else if(b.dataset.a==='new'){set=fresh();draw();scrollTo(0,0);}};
 }
 
@@ -1568,7 +1582,9 @@ function renderDrill(P,t,el){
 function route(){
  const h=location.hash.replace(/^#\/?/,'').split('/');const cid=h[0];
  clearInterval(tmr);
- if(!me()){
+ const ob=$('#outbar'),r=me();
+ ob.innerHTML=r?`<span>Signed in as <b>${esc(r.name)}</b> · ${esc(r.sid)}</span><button type="button" class="btn" data-signout>Sign out</button>`:'';
+ if(!r){
   if(cid==='verify')renderVerify();
   else{if(cid){try{sessionStorage.setItem('mkt101-next',location.hash)}catch(e){}history.replaceState(null,'','#/')}renderLanding();}
   window.scrollTo(0,0);return;
