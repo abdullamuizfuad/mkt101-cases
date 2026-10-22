@@ -230,6 +230,15 @@ td.num{font-variant-numeric:tabular-nums;font-weight:700}
 .sec:first-of-type{border-top:0;padding-top:0}
 .sec h4{margin:0 0 8px;font-size:.95rem}
 
+/* argument builder */
+.sec h4 small{font-weight:500;color:var(--mute);font-size:.82rem}
+.arg .opt.ok{background:var(--good-soft);border-color:var(--good);color:var(--ink)}
+.arg .opt.no{background:var(--warn-soft);border-color:var(--warn);color:var(--ink)}
+.arg .plan p.no{color:var(--mute)}
+.arg .res{margin:14px 0 0}
+.arg .res .big.good{color:var(--good)}.arg .res .big.warn{color:var(--warn)}.arg .res .big.bad{color:var(--bad)}
+.stars{color:var(--acc);letter-spacing:2px;font-size:1.05rem}
+
 /* paper + think */
 .paper{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin:18px 0 12px;background-image:repeating-linear-gradient(transparent 0 27px,color-mix(in srgb,var(--acc) 12%,transparent) 27px 28px)}
 .paper h3{margin:0 0 6px;font-size:1rem}
@@ -579,7 +588,40 @@ sto:{
       {t:'Commission only on order size: representatives would chase large buyers and small shops would feel ignored',q:'good',fb:'Correct. Pay shapes behaviour, and this pay plan rewards the wrong behaviour.'},
       {t:'Replacing visits with calls: owners would lose the face-to-face contact they trust',q:'good',fb:'Also strong. The case says owners trust STO because they deal with the same person.'},
       {t:'Fixed islands with targets for small shops',q:'weak',fb:'This idea helps relationships. Choose an idea that would harm them.'},
-      {t:'Help with monsoon stock planning',q:'weak',fb:'This idea builds value for shop owners. Choose an idea that would harm them.'}]}]}],
+      {t:'Help with monsoon stock planning',q:'weak',fb:'This idea builds value for shop owners. Choose an idea that would harm them.'}]}]},
+    {type:'argue',title:'3. Build your argument',intro:'Build a short answer from parts of the case. Tap chips in each step, then check. You get a result for each part of the answer. Some chips are weak, so choose with care.',
+     rows:[
+      {n:'Key ideas',tip:['Define both ideas: personal selling and sales promotion. Read the Topic 13 notes if you are not sure.','One definition is missing or not quite right. Check both.','Both ideas are defined correctly.']},
+      {n:'Case evidence',tip:['Use facts from the case, not opinions. Read “The island sales team” again.','Use at least two specific case facts, and take out any vague or off-topic ones.','Strong, specific evidence from the case.']},
+      {n:'Analysis',tip:['Choose ideas that help shop owners, and give a reason about trust or value.','Nearly there. Check that every reason is about the shop owners, not only about STO.','Clear analysis. Each reason links the idea to the relationship.']}],
+     bands:[[5,'Excellent','good'],[3,'Moderate','warn'],[0,'Needs work','bad']],
+     steps:[
+      {label:'Name the key ideas',row:0,need:2,max:2,opts:[
+       {t:'Personal selling is when a company’s salespeople present in person to make sales and build customer relationships.',s:'good',fb:'Correct definition of personal selling.'},
+       {t:'Sales promotion is short-term rewards that encourage people to buy now.',s:'good',fb:'Correct definition of sales promotion.'},
+       {t:'Personal selling is any way a company tells customers about its products.',s:'weak',fb:'Too broad. That is promotion in general. Personal selling is a salesperson, in person.'},
+       {t:'Sales promotion is a long-term plan to build a strong brand.',s:'weak',fb:'Sales promotion is short-term. Building a brand over years is not its main job.'},
+       {t:'Advertising is paid messages that reach many people at once.',s:'weak',fb:'True, but the question asks about personal selling and sales promotion.'}]},
+      {label:'Choose your case evidence',row:1,need:2,max:3,opts:[
+       {t:'Before landing, the representative checks the shop’s past orders on her tablet (pre-approach).',s:'good',fb:'A specific case fact, linked to a selling step.'},
+       {t:'When the owner says he has no room, she suggests smaller orders more often (handling objections).',s:'good',fb:'A specific case fact, linked to a selling step.'},
+       {t:'A week after the goods arrive, she phones to check that nothing was damaged (follow-up).',s:'good',fb:'A specific case fact, linked to a selling step.'},
+       {t:'Many owners say they trust STO because they deal with the same person on every visit.',s:'good',fb:'Strong evidence that the relationship depends on the visits.'},
+       {t:'Owners of very small shops feel that the best offers only go to shops that can order a lot.',s:'good',fb:'Strong evidence of a problem in the relationship.'},
+       {t:'STO cares a lot about its island customers.',s:'weak',fb:'Too vague. This is an opinion, not a fact from the case.'},
+       {t:'The representatives work very hard.',s:'weak',fb:'The case does not say this. Use facts the case gives you.'},
+       {t:'A bag of rice costs MVR 28 in Malé and MVR 45 on a southern island.',s:'weak',fb:'A real case fact, but it is about the price gap, not the sales team.'}]},
+      {label:'Choose two ideas that build relationships',row:2,need:2,max:2,opts:[
+       {t:'The Regional Sales Manager’s idea builds relationships: the same trusted person keeps visiting, and small shops get attention too.',s:'good',fb:'Good. It keeps trust and answers the small shops’ complaint.'},
+       {t:'The senior representative’s idea builds relationships: helping owners plan stock before the monsoon solves a real problem for them.',s:'good',fb:'Good. This is value selling, so owners see STO as a partner.'},
+       {t:'The Head of Retail’s “Shop of the Year” contest and free display stand reward good partners without cutting prices.',s:'good',fb:'Good. Trade promotions that help shops sell and reward loyalty.'},
+       {t:'The Head of Sales’ idea builds relationships, because phone calls save travel costs.',s:'weak',fb:'Saving cost helps STO, not the relationship. Owners trust the person who visits.'},
+       {t:'The big discount for shops that double their order builds relationships, because shops get more stock.',s:'weak',fb:'Small shops have little storage, and the effect is short-term.'}]},
+      {label:'Choose one idea that could harm relationships',row:2,need:1,max:1,opts:[
+       {t:'However, the Finance Manager’s idea could harm relationships: if pay depends only on order size, representatives will chase large buyers and small shops will feel even more ignored.',s:'good',fb:'Strong. Pay shapes behaviour, and this plan rewards the wrong behaviour.'},
+       {t:'However, the Head of Sales’ idea could harm relationships: owners would lose the face-to-face contact they trust, and the internet is weak on some islands.',s:'good',fb:'Strong. You use two case facts to explain the harm.'},
+       {t:'However, the Finance Manager’s idea could harm relationships, because representatives would earn more money.',s:'weak',fb:'Say what changes for shop owners. Who would the representatives spend their time with?'},
+       {t:'However, the Regional Sales Manager’s idea could harm relationships, because it costs more.',s:'weak',fb:'This idea helps relationships. The case gives no sign that it would hurt trust.'}]}]}],
    paper:['Define personal selling and sales promotion, and say how they differ.','Use the case: match two or three moments of a representative’s visit to steps of the selling process.','Choose two managers’ ideas that build long-term relationships. Explain how each one does it.','Choose ONE idea that could harm relationships. Explain why, using case evidence.'],
    think:['Personal selling is personal presentation by the sales force to make sales and build customer relationships. Sales promotion gives short-term incentives to buy now.','The visit in the case shows the steps: pre-approach (checking past orders), approach (greeting by name), presentation (smaller oil packs), handling objections (storage space), closing (twenty packs) and follow-up (a call after delivery).','Bulk discounts, free transport and longer time to pay are trade promotions, because they are aimed at resellers.','Relationship builders: the same representative on every visit, targets for small shops, and value selling such as monsoon stock planning.','Risks: commission only on order size pushes attention to large buyers, and replacing visits with calls loses the trust owners place in a familiar face.']},
 
@@ -1398,6 +1440,39 @@ R.claims=(el,cfg,st,save)=>{
   if(b.dataset.k!==undefined){const i=b.closest('.claim').dataset.i;const t=st.t[i]=st.t[i]||[0,0,0,0];t[+b.dataset.k]=t[+b.dataset.k]?0:1;save();draw();}
   else if(b.dataset.a==='show'){st.show=!st.show;save();draw();}
   else if(b.dataset.a==='rst'){st.t={};st.show=false;save();draw();}};
+};
+
+/* argument builder: pick chips in each step to build an answer. Each step scores one rubric row
+   (cfg.rows) from 0 to 2: full marks need `need` good chips and no weak ones. The total gives a band.
+   Stars: 1 for the middle band, 2 for the top band, 3 for the top band on the first check. */
+R.argue=(el,cfg,st,save)=>{
+ st.p=st.p||{};st.best=st.best||0;st.tries=st.tries||0;
+ const picks=si=>st.p[si]||[];
+ const rowScore=ri=>{const ss=cfg.steps.map((s,si)=>[s,si]).filter(([s])=>s.row===ri);const need=ss.reduce((a,[s])=>a+s.need,0);let g=0,w=0;
+  ss.forEach(([s,si])=>picks(si).forEach(oi=>s.opts[oi].s==='good'?g++:w++));return g>=need&&!w?2:g>=Math.ceil(need/2)?1:0};
+ const max=cfg.rows.length*2,band=t=>cfg.bands.find(x=>t>=x[0]);
+ const stars=n=>`<span class="stars" aria-label="${n} of 3 stars">${'★'.repeat(n)}${'☆'.repeat(3-n)}</span>`;
+ const draw=(chk,msg)=>{const sc=cfg.rows.map((r,ri)=>rowScore(ri)),tot=sc.reduce((a,x)=>a+x,0),bd=band(tot);
+  el.innerHTML=head(cfg)+`<div class="arg">${cfg.steps.map((s,si)=>`<div class="sec" data-si="${si}"><h4>${si+1}. ${esc(s.label)} <small>${s.max===1?'pick one':'pick up to '+s.max}</small></h4>
+   <div class="opts col">${mixed(s.opts).map(([o,oi])=>{const on=picks(si).includes(oi);return `<button class="opt ${chk&&on?(o.s==='good'?'ok':'no'):''}" data-oi="${oi}" aria-pressed="${on}">${esc(o.t)}</button>`}).join('')}</div>
+   ${msg&&msg[0]===si?`<p class="fbk info">${esc(msg[1])}</p>`:''}
+   ${chk?picks(si).map(oi=>{const o=s.opts[oi];return `<p class="fbk ${o.s==='good'?'good':'warn'}">${o.s==='good'?'✓ ':'⚠ '}${esc(o.fb)}</p>`}).join(''):''}</div>`).join('')}
+  <div class="plan" aria-live="polite"><h4>Your answer so far</h4>${cfg.steps.map((s,si)=>picks(si).length?`<p>${picks(si).map(oi=>esc(s.opts[oi].t)).join(' ')}</p>`:`<p class="no">${si+1}. ${esc(s.label)}: not chosen yet</p>`).join('')}</div>
+  ${chk?`<div class="res" id="argres"><div class="kick">Your argument</div><div class="big ${bd[2]}">${esc(bd[1])}</div><p class="intro" style="margin:4px 0 10px">${tot} / ${max} · ${stars(st.last)}</p>
+   ${cfg.rows.map((r,ri)=>`<p class="fbk ${['bad','warn','good'][sc[ri]]}"><b>${esc(r.n)} ${sc[ri]}/2.</b> ${esc(r.tip[sc[ri]])}</p>`).join('')}
+   <p class="intro" style="margin:12px 0 0">${tot===max?'Now write this answer on paper in your own words. Add one more detail from the case.':'Change some chips and check again. Can you reach '+esc(cfg.bands[0][1])+'?'}</p></div>`:''}
+  <div class="row"><button class="btn primary" data-a="chk">Check my argument</button><button class="btn" data-a="rst">Start again</button><span class="score">Best: ${stars(st.best)}</span></div></div>`;};
+ draw();
+ el.onclick=e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.oi!==undefined){const si=+b.closest('.sec').dataset.si,s=cfg.steps[si],oi=+b.dataset.oi;const p=picks(si).slice(),i=p.indexOf(oi);
+   if(i>=0)p.splice(i,1);else if(s.max===1)p.splice(0,1,oi);else if(p.length>=s.max){draw(false,[si,`You can pick up to ${s.max}. Tap a chosen chip to remove it first.`]);return}else p.push(oi);
+   st.p[si]=p;save();const y=scrollY;draw();scrollTo(0,y);}
+  else if(b.dataset.a==='rst'){st.p={};save();draw();}
+  else if(b.dataset.a==='chk'){const miss=cfg.steps.findIndex((s,si)=>!picks(si).length);
+   if(miss>=0){draw(false,[miss,'Pick at least one chip here first.']);$(`.sec[data-si="${miss}"]`,el).scrollIntoView({behavior:'smooth',block:'center'});return}
+   st.tries++;const tot=cfg.rows.reduce((a,r,ri)=>a+rowScore(ri),0),top=tot>=cfg.bands[0][0];
+   st.last=top?(st.tries===1?3:2):tot>=cfg.bands[1][0]?1:0;st.best=Math.max(st.best,st.last);save();draw(true);$('#argres',el).scrollIntoView({behavior:'smooth',block:'start'});}
+ };
 };
 
 /* ---------- student sign-in ----------
