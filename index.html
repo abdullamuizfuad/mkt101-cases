@@ -130,7 +130,7 @@ td.num{font-variant-numeric:tabular-nums;font-weight:700}
 .ahead h2{margin:.15rem 0 .4rem;font-size:1.35rem}
 .qbox{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin:16px 0}
 .qbox .ql{font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
-.qbox p{margin:.3rem 0 .2rem;font-size:1.02rem}
+.qbox p{margin:.4rem 0 .3rem;font-size:1.2rem;font-weight:700;line-height:1.4}
 .qbox .mk{font-size:.82rem;color:var(--mute)}
 .part{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:14px 0}
 .part h3{margin:0 0 4px;font-size:1.05rem}
@@ -292,7 +292,13 @@ details.casebox .reading{padding-bottom:10px}
 .selfmk .of{margin-left:4px}
 .tot{position:sticky;bottom:0;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:10px 0;margin-top:22px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;font-size:.95rem}
 .mcq{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin:0 0 12px}
-.mcq .stem{margin:6px 0 10px;font-weight:500}
+.mcq .stem{margin:6px 0 10px;font-weight:700;font-size:1.08rem;line-height:1.4}
+.qclock{font-weight:700;font-size:.9rem;color:var(--acc);margin:0 0 6px;font-variant-numeric:tabular-nums}
+.qclock.over{color:var(--warn)}
+.spd{margin:6px 0 0;font-size:.85rem;color:var(--mute)}
+.qtime{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;margin:0 0 14px}
+.qtime .qt{font-weight:800;font-size:1.2rem;font-variant-numeric:tabular-nums;min-width:4.5ch;color:var(--acc);margin-right:auto}
+.qtime .fbk{flex-basis:100%;margin:0}
 .mcq .stem b{margin-right:4px}
 .mcq .opt{display:grid;grid-template-columns:auto 1fr;gap:8px;width:100%;padding:10px 12px;font-size:.95rem}
 .mcq .opt b{min-width:1.2em}
@@ -440,6 +446,7 @@ details.chk p{color:var(--ink)}
 
 <script src="bank.js"></script>
 <script src="notes.js"></script>
+<script src="args.js"></script>
 <script src="roster.js"></script>
 <script>
 /* ---------- helpers ---------- */
@@ -588,40 +595,7 @@ sto:{
       {t:'Commission only on order size: representatives would chase large buyers and small shops would feel ignored',q:'good',fb:'Correct. Pay shapes behaviour, and this pay plan rewards the wrong behaviour.'},
       {t:'Replacing visits with calls: owners would lose the face-to-face contact they trust',q:'good',fb:'Also strong. The case says owners trust STO because they deal with the same person.'},
       {t:'Fixed islands with targets for small shops',q:'weak',fb:'This idea helps relationships. Choose an idea that would harm them.'},
-      {t:'Help with monsoon stock planning',q:'weak',fb:'This idea builds value for shop owners. Choose an idea that would harm them.'}]}]},
-    {type:'argue',title:'3. Build your argument',intro:'Build a short answer from parts of the case. Tap chips in each step, then check. You get a result for each part of the answer. Some chips are weak, so choose with care.',
-     rows:[
-      {n:'Key ideas',tip:['Define both ideas: personal selling and sales promotion. Read the Topic 13 notes if you are not sure.','One definition is missing or not quite right. Check both.','Both ideas are defined correctly.']},
-      {n:'Case evidence',tip:['Use facts from the case, not opinions. Read “The island sales team” again.','Use at least two specific case facts, and take out any vague or off-topic ones.','Strong, specific evidence from the case.']},
-      {n:'Analysis',tip:['Choose ideas that help shop owners, and give a reason about trust or value.','Nearly there. Check that every reason is about the shop owners, not only about STO.','Clear analysis. Each reason links the idea to the relationship.']}],
-     bands:[[5,'Excellent','good'],[3,'Moderate','warn'],[0,'Needs work','bad']],
-     steps:[
-      {label:'Name the key ideas',row:0,need:2,max:2,opts:[
-       {t:'Personal selling is when a company’s salespeople present in person to make sales and build customer relationships.',s:'good',fb:'Correct definition of personal selling.'},
-       {t:'Sales promotion is short-term rewards that encourage people to buy now.',s:'good',fb:'Correct definition of sales promotion.'},
-       {t:'Personal selling is any way a company tells customers about its products.',s:'weak',fb:'Too broad. That is promotion in general. Personal selling is a salesperson, in person.'},
-       {t:'Sales promotion is a long-term plan to build a strong brand.',s:'weak',fb:'Sales promotion is short-term. Building a brand over years is not its main job.'},
-       {t:'Advertising is paid messages that reach many people at once.',s:'weak',fb:'True, but the question asks about personal selling and sales promotion.'}]},
-      {label:'Choose your case evidence',row:1,need:2,max:3,opts:[
-       {t:'Before landing, the representative checks the shop’s past orders on her tablet (pre-approach).',s:'good',fb:'A specific case fact, linked to a selling step.'},
-       {t:'When the owner says he has no room, she suggests smaller orders more often (handling objections).',s:'good',fb:'A specific case fact, linked to a selling step.'},
-       {t:'A week after the goods arrive, she phones to check that nothing was damaged (follow-up).',s:'good',fb:'A specific case fact, linked to a selling step.'},
-       {t:'Many owners say they trust STO because they deal with the same person on every visit.',s:'good',fb:'Strong evidence that the relationship depends on the visits.'},
-       {t:'Owners of very small shops feel that the best offers only go to shops that can order a lot.',s:'good',fb:'Strong evidence of a problem in the relationship.'},
-       {t:'STO cares a lot about its island customers.',s:'weak',fb:'Too vague. This is an opinion, not a fact from the case.'},
-       {t:'The representatives work very hard.',s:'weak',fb:'The case does not say this. Use facts the case gives you.'},
-       {t:'A bag of rice costs MVR 28 in Malé and MVR 45 on a southern island.',s:'weak',fb:'A real case fact, but it is about the price gap, not the sales team.'}]},
-      {label:'Choose two ideas that build relationships',row:2,need:2,max:2,opts:[
-       {t:'The Regional Sales Manager’s idea builds relationships: the same trusted person keeps visiting, and small shops get attention too.',s:'good',fb:'Good. It keeps trust and answers the small shops’ complaint.'},
-       {t:'The senior representative’s idea builds relationships: helping owners plan stock before the monsoon solves a real problem for them.',s:'good',fb:'Good. This is value selling, so owners see STO as a partner.'},
-       {t:'The Head of Retail’s “Shop of the Year” contest and free display stand reward good partners without cutting prices.',s:'good',fb:'Good. Trade promotions that help shops sell and reward loyalty.'},
-       {t:'The Head of Sales’ idea builds relationships, because phone calls save travel costs.',s:'weak',fb:'Saving cost helps STO, not the relationship. Owners trust the person who visits.'},
-       {t:'The big discount for shops that double their order builds relationships, because shops get more stock.',s:'weak',fb:'Small shops have little storage, and the effect is short-term.'}]},
-      {label:'Choose one idea that could harm relationships',row:2,need:1,max:1,opts:[
-       {t:'However, the Finance Manager’s idea could harm relationships: if pay depends only on order size, representatives will chase large buyers and small shops will feel even more ignored.',s:'good',fb:'Strong. Pay shapes behaviour, and this plan rewards the wrong behaviour.'},
-       {t:'However, the Head of Sales’ idea could harm relationships: owners would lose the face-to-face contact they trust, and the internet is weak on some islands.',s:'good',fb:'Strong. You use two case facts to explain the harm.'},
-       {t:'However, the Finance Manager’s idea could harm relationships, because representatives would earn more money.',s:'weak',fb:'Say what changes for shop owners. Who would the representatives spend their time with?'},
-       {t:'However, the Regional Sales Manager’s idea could harm relationships, because it costs more.',s:'weak',fb:'This idea helps relationships. The case gives no sign that it would hurt trust.'}]}]}],
+      {t:'Help with monsoon stock planning',q:'weak',fb:'This idea builds value for shop owners. Choose an idea that would harm them.'}]}]}],
    paper:['Define personal selling and sales promotion, and say how they differ.','Use the case: match two or three moments of a representative’s visit to steps of the selling process.','Choose two managers’ ideas that build long-term relationships. Explain how each one does it.','Choose ONE idea that could harm relationships. Explain why, using case evidence.'],
    think:['Personal selling is personal presentation by the sales force to make sales and build customer relationships. Sales promotion gives short-term incentives to buy now.','The visit in the case shows the steps: pre-approach (checking past orders), approach (greeting by name), presentation (smaller oil packs), handling objections (storage space), closing (twenty packs) and follow-up (a call after delivery).','Bulk discounts, free transport and longer time to pay are trade promotions, because they are aimed at resellers.','Relationship builders: the same representative on every visit, targets for small shops, and value selling such as monsoon stock planning.','Risks: commission only on order size pushes attention to large buyers, and replacing visits with calls loses the trust owners place in a familiar face.']},
 
@@ -1088,12 +1062,34 @@ function renderExam(c,el,inPaper){
  el.innerHTML=`<div class="note">Section C practice: 5 questions, 6 marks each, 30 marks. Write your answers on paper. Practise finding the key facts in the case quickly.</div>
  ${timerHTML('c-'+c.id,54,'Suggested time for Section C')}
  <details class="think casebox"><summary>Show the case</summary>${caseHTML(c)}</details>
- ${ex.map((x,i)=>{const a=c.acts[i];return `<section class="eq"><div class="qbox"><div class="ql">Question ${i+1} · ${esc(a.bloom)}</div><p>${esc(a.q)}</p><div class="mk">6 marks · about 10 minutes · ${esc(a.topic)}</div></div>
-  ${guideHTML(x.guide)}${modelHTML(x.model,x.rub,6)}${selfMarkHTML(key(i),6)}
+ <p class="intro">Time each answer: tap <b>Start writing</b> when you begin and <b>Finish</b> when you stop. You get time points for each answer.</p>
+ ${ex.map((x,i)=>{const a=c.acts[i];return `<section class="eq"><div class="qbox"><div class="ql">Question ${i+1} · ${esc(a.bloom)}</div><p>${esc(a.q)}</p><div class="mk">6 marks · about ${QMINS} minutes · ${esc(a.topic)}</div></div>
+  ${qTimeHTML(i)}${guideHTML(x.guide)}${modelHTML(x.model,x.rub,6)}${selfMarkHTML(key(i),6)}
   <p class="intro" style="margin-top:10px"><a href="#/${c.id}/act/${i+1}">Stuck? Try activity ${i+1} first →</a></p></section>`}).join('')}
- <div class="tot"><span>Section C total: <b id="ctot"></b></span>${inPaper?'':`<a class="btn" href="#/paper/final/c/${c.id}" style="text-decoration:none">Final practice paper →</a>`}</div>`;
+ <div class="tot"><span>Section C total: <b id="ctot"></b><br>Time: <b id="ttot"></b></span>${inPaper?'':`<a class="btn" href="#/paper/final/c/${c.id}" style="text-decoration:none">Final practice paper →</a>`}</div>`;
  const upd=()=>{const m=getMk();const done=ex.filter((x,i)=>m[key(i)]!==undefined).length;$('#ctot').textContent=`${ex.reduce((s,x,i)=>s+(m[key(i)]||0),0)} / 30 (${done} of 5 marked)`};
- upd();bindMarks(el,upd);bindTimer(el);
+ upd();bindMarks(el,upd);bindTimer(el);bindQTime(el,'qt_'+c.id,ex.length);
+}
+
+/* Per-question writing timer. Storage: {i:{s:start ms, e:end ms}}. Time points per answer:
+   3 within QMINS minutes, 2 a little over, 1 much slower or suspiciously fast (under QFAST minutes). */
+const QMINS=10,QFAST=3;
+const qTimeHTML=i=>`<div class="qtime" data-i="${i}"><span class="qt">0:00</span><button class="btn primary" data-qt="go">Start writing</button><button class="btn" data-qt="end" disabled>Finish</button><button class="btn" data-qt="rs" hidden>Redo</button><p class="fbk" hidden></p></div>`;
+const mmss=ms=>{const s=Math.floor(ms/1000);return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`};
+const timePts=ms=>{const m=ms/60000;return m<QFAST?[1,'warn',`Very fast. Did you write a full answer?`]:m<=QMINS?[3,'good','On time. Well done.']:m<=QMINS*1.3?[2,'warn','A little slow. Plan for 1 to 2 minutes, then write.']:[1,'bad','Too slow. Practise planning faster, then write.']};
+let qtmr=null;
+function bindQTime(el,k,n){
+ const draw=()=>{const st=S.get(k,{});let tot=0,pts=0,fin=0;
+  $$('.qtime',el).forEach(box=>{const v=st[box.dataset.i]||{},run=v.s&&!v.e,f=$('.fbk',box);
+   $('.qt',box).textContent=mmss(v.s?(v.e||Date.now())-v.s:0);box.querySelector('.qt').style.color=run&&Date.now()-v.s>QMINS*60000?'var(--warn)':'';
+   $('[data-qt=go]',box).hidden=!!v.s;$('[data-qt=end]',box).disabled=!run;$('[data-qt=end]',box).hidden=!!v.e;$('[data-qt=rs]',box).hidden=!v.e;
+   if(v.e){const p=timePts(v.e-v.s);tot+=v.e-v.s;pts+=p[0];fin++;f.hidden=false;f.className='fbk '+p[1];f.textContent=`⏱ ${mmss(v.e-v.s)} · ${p[0]} time point${p[0]>1?'s':''}. ${p[2]}`}else f.hidden=true;});
+  const t=$('#ttot',el);if(t)t.textContent=fin?`${mmss(tot)} for ${fin} of ${n} answers · time points ${pts} / ${n*3}`:'tap Start writing on a question';};
+ draw();clearInterval(qtmr);qtmr=setInterval(()=>{if(!document.contains(el))clearInterval(qtmr);else draw()},1000);
+ el.addEventListener('click',e=>{const b=e.target.closest('[data-qt]');if(!b||b.disabled)return;const i=b.closest('.qtime').dataset.i,st=S.get(k,{});
+  if(b.dataset.qt==='go')st[i]={s:Date.now()};else if(b.dataset.qt==='end')st[i].e=Date.now();
+  else{if(!confirm('Time this answer again? The old time will be cleared.'))return;delete st[i];}
+  S.set(k,st);draw();});
 }
 
 /* ---------- practice papers ---------- */
@@ -1141,30 +1137,41 @@ function newMCQSet(P){
  hist.push(ids);S.set('seen_'+P.id,hist.slice(-TERM.avoidLast));
  const set={ids,ord:Object.fromEntries(ids.map(id=>[id,shuffle([0,1,2,3])])),ans:{}};S.set('mcq_'+P.id,set);return set;
 }
-function mcqHTML(q,set,i){const id=q.id,a=set.ans[id];const done=a!==undefined;
-  return `<div class="mcq" data-id="${id}"><div class="chips"><span class="chip n">Topic ${q.t}</span></div><p class="stem"><b>${i+1}.</b>${esc(q.q)}</p>
+/* Speed points: each MCQ has a SPEED-second clock, counted from the last answer (or from opening the page).
+   Correct within half the time: 3 points; within the time: 2; later: 1; wrong: 0. set.tm keeps seconds per question. */
+const SPEED=30;let qClock=Date.now(),qtick=null;
+const speedPts=(set,id)=>{if(set.ans[id]!==0)return 0;const t=(set.tm||{})[id];return t===undefined?2:t<=SPEED/2?3:t<=SPEED?2:1};
+const speedTot=set=>set.ids.reduce((a,id)=>a+speedPts(set,id),0);
+const speedNote=`<p class="intro">Each question has a ${SPEED}-second clock. Answer correctly and quickly for more speed points: 3 points within ${SPEED/2} seconds, 2 within ${SPEED}, 1 after that. You can still answer when the time is up.</p>`;
+function answerMCQ(set,id,oi){set.ans[id]=oi;set.tm=set.tm||{};set.tm[id]=Math.round((Date.now()-qClock)/1000)}
+function startQClock(el){qClock=Date.now();clearInterval(qtick);
+ const tick=()=>{const c=$('.qclock',el);if(!c||!document.contains(c)){clearInterval(qtick);return}const left=Math.max(0,SPEED-Math.floor((Date.now()-qClock)/1000));
+  c.classList.toggle('over',!left);c.textContent=left?`⏱ ${left} seconds`:'⏱ Time is up. You can still answer, for fewer points.'};
+ tick();qtick=setInterval(tick,250);}
+function mcqHTML(q,set,i){const id=q.id,a=set.ans[id];const done=a!==undefined;const cur=!done&&set.ids.find(x=>set.ans[x]===undefined)===id;const t=(set.tm||{})[id];
+  return `<div class="mcq" data-id="${id}"><div class="chips"><span class="chip n">Topic ${q.t}</span></div>${cur?'<p class="qclock" aria-live="off"></p>':''}<p class="stem"><b>${i+1}.</b>${esc(q.q)}</p>
   <div class="opts col">${set.ord[id].map((oi,pos)=>`<button class="opt ${done&&oi===0?'ok':''} ${done&&a===oi&&oi!==0?'no':''}" data-oi="${oi}" ${done?'disabled':''}><b>${LET[pos]}.</b><span>${esc(q.o[oi])}</span></button>`).join('')}</div>
-  ${done?`<p class="fbk ${a===0?'good':'bad'}">${a===0?'✓ Correct. ':`✗ The answer is ${LET[set.ord[id].indexOf(0)]}. `}${esc(q.why)}</p>`:''}</div>`}
+  ${done?`<p class="fbk ${a===0?'good':'bad'}">${a===0?'✓ Correct. ':`✗ The answer is ${LET[set.ord[id].indexOf(0)]}. `}${esc(q.why)}</p>${t!==undefined?`<p class="spd">⏱ ${t} seconds · ${speedPts(set,id)} speed point${speedPts(set,id)===1?'':'s'}</p>`:''}`:''}</div>`}
 function renderMCQ(P,sec,el){
  let set=S.get('mcq_'+P.id,null);const byId=Object.fromEntries(BANK.mcq.map(q=>[q.id,q]));
  if(!set||!set.ids.every(id=>byId[id]&&released(byId[id])))set=newMCQSet(P);
  const qHTML=(id,i)=>mcqHTML(byId[id],set,i);
  const results=()=>{const per={};set.ids.forEach(id=>{const q=byId[id];per[q.t]=per[q.t]||[0,0];per[q.t][1]++;if(set.ans[id]===0)per[q.t][0]++});
   const sc=set.ids.filter(id=>set.ans[id]===0).length;
-  return `<div class="res" id="res"><div class="kick">Your result</div><div class="big">${sc} / ${set.ids.length}</div><p class="intro">Score by topic. Red bars show topics to revise first.</p>
+  return `<div class="res" id="res"><div class="kick">Your result</div><div class="big">${sc} / ${set.ids.length}</div><p class="intro" style="margin:4px 0 10px">Speed points: <b>${speedTot(set)} / ${set.ids.length*3}</b></p><p class="intro">Score by topic. Red bars show topics to revise first.</p>
   <div class="bars" style="max-width:none">${Object.entries(per).map(([t,[c,n]])=>`<div class="barr ${c/n<.5?'lo':''}"><span>${esc(topicName(t))}</span><i><b style="width:${c/n*100}%"></b></i><em>${c}/${n}</em></div>`).join('')}</div>
   <div class="row"><button class="btn primary" data-a="new">Start a new set of ${P.mcqCount}</button></div></div>`};
  const draw=()=>{const n=Object.keys(set.ans).length,sc=set.ids.filter(id=>set.ans[id]===0).length,all=n===set.ids.length;
-  el.innerHTML=`${timerHTML(P.id+'-a',sec.mins,'Suggested time for Section A')}${all?results():''}
+  el.innerHTML=`${timerHTML(P.id+'-a',sec.mins,'Suggested time for Section A')}${all?results():''}${speedNote}
   ${set.ids.map(qHTML).join('')}
-  <div class="tot"><span>Answered <b>${n} / ${set.ids.length}</b> · Score <b>${sc}</b></span><span class="row" style="margin:0"><button class="btn" data-a="clr" ${n?'':'disabled'}>Clear answers</button><button class="btn" data-a="new">New set</button></span></div>
-  ${paperFoot(P,'a',all?'<button class="btn" data-a="res">See your results ↑</button>':'')}`;bindTimer(el);};
+  <div class="tot"><span>Answered <b>${n} / ${set.ids.length}</b> · Score <b>${sc}</b> · Speed <b>${speedTot(set)} / ${set.ids.length*3}</b></span><span class="row" style="margin:0"><button class="btn" data-a="clr" ${n?'':'disabled'}>Clear answers</button><button class="btn" data-a="new">New set</button></span></div>
+  ${paperFoot(P,'a',all?'<button class="btn" data-a="res">See your results ↑</button>':'')}`;bindTimer(el);startQClock(el);};
  draw();
  el.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;
-  if(b.dataset.oi!==undefined){const id=b.closest('.mcq').dataset.id;set.ans[id]=+b.dataset.oi;S.set('mcq_'+P.id,set);
+  if(b.dataset.oi!==undefined){const id=b.closest('.mcq').dataset.id;answerMCQ(set,id,+b.dataset.oi);S.set('mcq_'+P.id,set);
    const y=scrollY;draw();scrollTo(0,y);if(Object.keys(set.ans).length===set.ids.length)$('#res').scrollIntoView({behavior:'smooth'});}
   else if(b.dataset.a==='res'){$('#res').scrollIntoView({behavior:'smooth'});}
-  else if(b.dataset.a==='clr'){if(!confirm('Clear all your answers? You keep the same questions.'))return;set.ans={};S.set('mcq_'+P.id,set);draw();scrollTo(0,0);}
+  else if(b.dataset.a==='clr'){if(!confirm('Clear all your answers? You keep the same questions.'))return;set.ans={};set.tm={};S.set('mcq_'+P.id,set);draw();scrollTo(0,0);}
   else if(b.dataset.a==='new'){if(Object.keys(set.ans).length<set.ids.length&&!confirm('Start a new set? Your answers in this set will be cleared.'))return;
    set=newMCQSet(P);try{localStorage.removeItem('mkt101_tm_'+P.id+'-a')}catch(e){}draw();scrollTo(0,0);}};
 }
@@ -1276,6 +1283,9 @@ function renderAct(c,el,n){
  $$('.anext a',el).forEach(x=>x.style.textDecoration='none');
  $('#done').onclick=e=>{const m=doneMap();m[dk]=!m[dk];S.set('done',m);renderCase(c.id,'act',n);};
  const box=$('#parts');
+ const arg=a.arg||typeof ARGS!=='undefined'&&(ARGS[c.id]||[])[n-1];
+ if(arg){const d=document.createElement('div');d.className='part';box.appendChild(d);const k=partKey(c.id,a.key||n,'arg');const st=getPart(k);
+  R.argue(d,Object.assign({title:'Start here: build your argument'},ARGUE,arg),st,()=>setPart(k,st));}
  a.parts.forEach((p,pi)=>{const d=document.createElement('div');d.className='part';box.appendChild(d);
   const k=partKey(c.id,a.key||n,pi);const st=getPart(k);const save=()=>setPart(k,st);
   R[p.type](d,p,st,save);});
@@ -1442,6 +1452,14 @@ R.claims=(el,cfg,st,save)=>{
   else if(b.dataset.a==='rst'){st.t={};st.show=false;save();draw();}};
 };
 
+/* Defaults for every activity's argument builder (a.arg). An activity gives its own steps, and may override rows or intro. */
+const ARGUE={intro:'Build a short answer from parts of the case. Tap chips in each step, then check. Some chips are weak, so choose with care.',
+ bands:[[5,'Excellent','good'],[3,'Moderate','warn'],[0,'Needs work','bad']],
+ rows:[
+  {n:'Key ideas',tip:['Name and define the marketing idea. Read the notes for this topic if you are not sure.','One idea is missing or not quite right. Check the definitions.','The key ideas are named and defined correctly.']},
+  {n:'Case evidence',tip:['Use facts from the case, not opinions. Read the case again.','Use at least two specific case facts, and take out any vague or off-topic ones.','Strong, specific evidence from the case.']},
+  {n:'Analysis',tip:['Choose points that answer the question, and give a reason for each.','Nearly there. Check that every reason links back to the question.','Clear analysis. Each reason links the idea to the case.']}]};
+
 /* argument builder: pick chips in each step to build an answer. Each step scores one rubric row
    (cfg.rows) from 0 to 2: full marks need `need` good chips and no weak ones. The total gives a band.
    Stars: 1 for the middle band, 2 for the top band, 3 for the top band on the first check. */
@@ -1460,7 +1478,8 @@ R.argue=(el,cfg,st,save)=>{
   <div class="plan" aria-live="polite"><h4>Your answer so far</h4>${cfg.steps.map((s,si)=>picks(si).length?`<p>${picks(si).map(oi=>esc(s.opts[oi].t)).join(' ')}</p>`:`<p class="no">${si+1}. ${esc(s.label)}: not chosen yet</p>`).join('')}</div>
   ${chk?`<div class="res" id="argres"><div class="kick">Your argument</div><div class="big ${bd[2]}">${esc(bd[1])}</div><p class="intro" style="margin:4px 0 10px">${tot} / ${max} · ${stars(st.last)}</p>
    ${cfg.rows.map((r,ri)=>`<p class="fbk ${['bad','warn','good'][sc[ri]]}"><b>${esc(r.n)} ${sc[ri]}/2.</b> ${esc(r.tip[sc[ri]])}</p>`).join('')}
-   <p class="intro" style="margin:12px 0 0">${tot===max?'Now write this answer on paper in your own words. Add one more detail from the case.':'Change some chips and check again. Can you reach '+esc(cfg.bands[0][1])+'?'}</p></div>`:''}
+   <p class="intro" style="margin:12px 0 0">${tot===max?'Now write this answer on paper in your own words. Add one more detail from the case.':'Change some chips and check again. Can you reach '+esc(cfg.bands[0][1])+'?'}</p>
+   ${tot===max&&document.body.dataset.case?`<p style="margin:10px 0 0"><a class="btn primary" style="text-decoration:none" href="#/${document.body.dataset.case}/exam">Next: write and time your answers →</a></p>`:''}</div>`:''}
   <div class="row"><button class="btn primary" data-a="chk">Check my argument</button><button class="btn" data-a="rst">Start again</button><span class="score">Best: ${stars(st.best)}</span></div></div>`;};
  draw();
  el.onclick=e=>{const b=e.target.closest('button');if(!b)return;
@@ -1641,15 +1660,15 @@ function renderDrill(P,t,el){
  let set=S.get(k,null);if(!set||!set.ids.every(id=>byId[id]&&released(byId[id])))set=fresh();
  const draw=()=>{const a=Object.keys(set.ans).length,sc=set.ids.filter(id=>set.ans[id]===0).length,all=a===set.ids.length;
   el.innerHTML=`<div class="incase"><a href="#/paper/${P.id}/notes/${t}">← Topic ${t} notes</a><span>·</span><b>${esc(topicName(t))}</b></div>
-  ${all?`<div class="res" id="res"><div class="kick">Your result</div><div class="big">${sc} / ${set.ids.length}</div><p class="intro" style="margin:6px 0 0">${sc/set.ids.length>=.7?'Well done. Try a new set, or move on to the next topic.':'Read the notes for this topic again, then try a new set.'}</p></div>`:''}
-  ${set.ids.map((id,i)=>mcqHTML(byId[id],set,i)).join('')}
-  <div class="tot"><span>Answered <b>${a} / ${set.ids.length}</b> · Score <b>${sc}</b></span><span class="row" style="margin:0"><button class="btn" data-a="clr" ${a?'':'disabled'}>Clear answers</button><button class="btn" data-a="new">New set</button></span></div>
-  ${paperFoot(P,'notes')}`;};
+  ${all?`<div class="res" id="res"><div class="kick">Your result</div><div class="big">${sc} / ${set.ids.length}</div><p class="intro" style="margin:4px 0 0">Speed points: <b>${speedTot(set)} / ${set.ids.length*3}</b></p><p class="intro" style="margin:6px 0 0">${sc/set.ids.length>=.7?'Well done. Try a new set, or move on to the next topic.':'Read the notes for this topic again, then try a new set.'}</p></div>`:''}
+  ${speedNote}${set.ids.map((id,i)=>mcqHTML(byId[id],set,i)).join('')}
+  <div class="tot"><span>Answered <b>${a} / ${set.ids.length}</b> · Score <b>${sc}</b> · Speed <b>${speedTot(set)} / ${set.ids.length*3}</b></span><span class="row" style="margin:0"><button class="btn" data-a="clr" ${a?'':'disabled'}>Clear answers</button><button class="btn" data-a="new">New set</button></span></div>
+  ${paperFoot(P,'notes')}`;startQClock(el);};
  draw();
  el.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;
-  if(b.dataset.oi!==undefined){const id=b.closest('.mcq').dataset.id;set.ans[id]=+b.dataset.oi;S.set(k,set);
+  if(b.dataset.oi!==undefined){const id=b.closest('.mcq').dataset.id;answerMCQ(set,id,+b.dataset.oi);S.set(k,set);
    const y=scrollY;draw();scrollTo(0,y);if(Object.keys(set.ans).length===set.ids.length)$('#res').scrollIntoView({behavior:'smooth'});}
-  else if(b.dataset.a==='clr'){if(!confirm('Clear all your answers? You keep the same questions.'))return;set.ans={};S.set(k,set);draw();scrollTo(0,0);}
+  else if(b.dataset.a==='clr'){if(!confirm('Clear all your answers? You keep the same questions.'))return;set.ans={};set.tm={};S.set(k,set);draw();scrollTo(0,0);}
   else if(b.dataset.a==='new'){set=fresh();draw();scrollTo(0,0);}};
 }
 
