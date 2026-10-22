@@ -38,7 +38,7 @@ const TERM={
     {k:"a",n:"Section A",t:"Multiple choice",d:"20 questions. Answer all. 1 mark each.",marks:20,mins:30},
     {k:"b",n:"Section B",t:"Short answers",d:"10 questions. Answer any EIGHT. 5 marks each.",marks:40,mins:60}],
    mcqCount:20,essayOffer:10,essayAnswer:8,essayMarks:5},
-  final:{name:"Final Exam",live:true,topics:[8,9,10,11,12,13,14],hours:3,marks:100,weight:"60%",
+  final:{name:"Final",live:true,topics:[8,9,10,11,12,13,14],hours:3,marks:100,weight:"60%",
    blurb:"Topics 8 to 14. Three sections: multiple choice, short essays and a case study.",
    sections:[
     {k:"a",n:"Section A",t:"Multiple choice",d:"30 questions. Answer all. 1 mark each.",marks:30,mins:54},

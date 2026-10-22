@@ -992,7 +992,7 @@ function renderHome(){
  $('#app').innerHTML=`
  <section class="hero">
   <div class="kick">${TERM.code} ${TERM.name} · ${TERM.term}</div>
-  <h1>Practise for your exam</h1>
+  <h1>Practise and revise</h1>
   <p class="lead">Read each question on your phone and write your answer on paper. Then open the model answer and mark your own work. Your progress is saved in this browser.</p>
   ${signedHTML()}
  </section>
@@ -1080,7 +1080,7 @@ function renderPaper(pid,sk,sub,sub2){
  document.body.dataset.case='';switcher('paper-'+pid);document.title=P.name+' practice · MKT101 Practice';
  $('#app').innerHTML=paperHead(P,sec);const el=$('#tab');
  if(!sec){
-  el.innerHTML=`<p class="lead" style="margin-bottom:18px">This paper has the same structure as your real ${esc(P.name)}. Do one section at a time, or the whole paper in one sitting (${P.hours} hours).</p>
+  el.innerHTML=`<p class="lead" style="margin-bottom:18px">Do one section at a time, or the whole paper in one sitting (${P.hours} hours).</p>
   <div class="slinks">${P.sections.map(s=>`<a class="slink" href="#/paper/${pid}/${s.k}"><b>${s.n.replace('Section ','')}</b><div>${esc(s.t)}<br><span>${esc(s.d)} About ${s.mins} minutes.</span></div><i>${s.marks} marks</i></a>`).join('')}</div>
   <div class="part" style="margin-top:22px"><h3>How it works</h3><ul style="margin:6px 0 0;padding-left:20px">
    <li><b>Section A:</b> tap your answer. You see right or wrong at once, with a short reason. Each set of ${P.mcqCount} is new and covers every topic.</li>
@@ -1421,11 +1421,11 @@ const signedHTML=()=>{const r=me();return r?`<p class="signed">Signed in as <b>$
 document.addEventListener('click',e=>{if(e.target.closest('[data-signout]'))signOut()});
 
 function renderLanding(){
- document.body.dataset.case='';$('#sw').innerHTML='';document.title='MKT101 Exam Practice · MNU';
+ document.body.dataset.case='';$('#sw').innerHTML='';document.title='MKT101 Practice · MNU';
  const live=Object.values(TERM.papers).filter(P=>P.live).map(P=>P.name);
  $('#app').innerHTML=`<section class="land">${logoHTML()}
   <div class="kick" style="margin-top:20px">${TERM.school} · ${TERM.term}</div>
-  <h1>${TERM.code} ${TERM.name}<br>Exam Practice</h1>
+  <h1>${TERM.code} ${TERM.name}<br>Practice and revision</h1>
   <p class="lead">Practise on your phone. Read each question, write your answer on paper, then check it against the model answer.</p></section>
  <div class="feats">
   <div class="feat"><b>Practice papers</b><span>${esc(live.join(' and '))} practice papers, with multiple choice and written questions.</span></div>
@@ -1438,7 +1438,7 @@ function renderLanding(){
 }
 
 function renderVerify(){
- document.body.dataset.case='';$('#sw').innerHTML='';document.title='Sign in · MKT101 Exam Practice';
+ document.body.dataset.case='';$('#sw').innerHTML='';document.title='Sign in · MKT101 Practice';
  $('#app').innerHTML=`<div class="gate"><section class="land">${logoHTML(true)}<h1>Sign in</h1><p class="lead" style="font-size:.98rem">${TERM.code} ${TERM.name} · ${TERM.term}</p></section>
  <form class="gcard" id="gate" novalidate autocomplete="off">
   <label for="gName">Full name</label>
