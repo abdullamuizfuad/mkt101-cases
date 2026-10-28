@@ -289,7 +289,8 @@ async screentime(){const p=await page({sid:STUDENT,clock:true});await p.evaluate
   await poke();await p.clock.runFor(30000);ok(await p.evaluate(()=>PR.pendx)<1&&await p.evaluate(()=>PR.pend)>0,'live-session time counted towards bonus blocks');
   await p.evaluate(()=>{PR.sess=null;PR.sessOn=false;PR.joined=false;presBar()});
   await p.evaluate(()=>{U.stArch=5*3600;stFlush(true)});ok((await p.U()).badges.includes('hrs5'),'5 Hours Logged badge missing');
-  await p.go('#/');ok((await p.textContent('#stcard')).includes('GOAL MET'),'Home card does not show the goal met');await shot(p,'st-card');
+  await p.go('#/');ok((await p.textContent('#stcard')).includes('GOAL MET'),'Home card does not show the goal met');
+  await p.evaluate(()=>{document.querySelectorAll('.toast').forEach(t=>t.remove());document.querySelector('#stcard').scrollIntoView({block:'center'})});await shot(p,'st-card');
   await p.go('#/badges');ok((await p.textContent('main')).includes('every 20 active minutes'),'How to earn XP row missing');await p.done()},
 
 /* break reminder: after 20 focused minutes; Not now = 10 more minutes; a break pauses screen time; deferred during a timer or an MCQ question; never in a live session */
