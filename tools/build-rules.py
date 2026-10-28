@@ -6,10 +6,14 @@ Only students on the class list (plus the lecturer, S000001) can save progress o
 leaderboard. The rules file contains student emails, so it is NOT committed (see .gitignore):
 paste it into Firebase console > Firestore > Rules > Publish.
 
-Usage (same inputs as build-roster.py):
-    python3 tools/build-rules.py ClassList_MKT101_*.xls        (or a CSV of IDs)
+Usage:
+    python3 tools/build-rules.py ClassList_MKT101_*.xls          (the class list export)
+    python3 tools/build-rules.py ids.csv                         (a CSV with one student ID per row)
+    python3 tools/build-rules.py participants.csv                (a Moodle participants export:
+                                                                  uses the "Email address" column, skips staff emails)
+    add  -o path/to/firestore.rules  to choose where the file goes (default: ./firestore.rules)
 """
-import importlib.util, sys
+import csv, importlib.util, re, sys
 from pathlib import Path
 
 here = Path(__file__).resolve().parent
@@ -69,17 +73,38 @@ __EMAILS__
 }
 """
 
-def main(files):
+STUDENT_MAIL = re.compile(r"^(s0\d{5})@" + re.escape(DOMAIN) + r"$", re.I)
+
+def ids_from_any_csv(path):
+    """A plain CSV of IDs, or a Moodle participants CSV with an "Email address" column."""
+    with open(path, newline="", encoding="utf-8-sig") as f:
+        rows = [r for r in csv.reader(f) if r]
+    if not rows: return set()
+    head = [h.strip().lower() for h in rows[0]]
+    if "email address" in head:
+        col = head.index("email address")
+        out = set()
+        for r in rows[1:]:
+            m = STUDENT_MAIL.match(r[col].strip()) if len(r) > col else None
+            if m: out.add(m.group(1).upper())
+        return out
+    return roster.ids_from_csv(path)[0]
+
+def main(argv):
+    out = Path.cwd() / "firestore.rules"
+    if "-o" in argv:
+        i = argv.index("-o"); out = Path(argv[i + 1]); argv = argv[:i] + argv[i + 2:]
+    files = argv
     if not files: sys.exit(__doc__)
     active = set(roster.ALWAYS)
     for f in files:
-        a, _ = roster.ids_from_csv(f) if f.lower().endswith(".csv") else roster.ids_from_classlist(f)
+        a = ids_from_any_csv(f) if f.lower().endswith(".csv") else roster.ids_from_classlist(f)[0]
+        print(f"{Path(f).name}: {len(a)} student IDs")
         active |= a
     emails = sorted(s.lower() + "@" + DOMAIN for s in active)
-    out = Path.cwd() / "firestore.rules"
     out.write_text(TEMPLATE.replace("__EMAILS__", ",\n".join("      '" + e + "'" for e in emails))
                    .replace("__LECTURER__", LECTURER).replace("__DOMAIN__", DOMAIN), encoding="utf-8")
-    print(f"firestore.rules: {len(emails)} emails (including the lecturer). Paste it into Firestore > Rules and Publish.")
+    print(f"{out}: {len(emails)} emails (including the lecturer). Paste it into Firestore > Rules and Publish.")
 
 if __name__ == "__main__":
     main(sys.argv[1:])
