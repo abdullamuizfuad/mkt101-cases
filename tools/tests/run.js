@@ -178,7 +178,7 @@ async notesMastery(){const p=await page({sid:STUDENT,clock:true});const topics=a
   u=await p.U();ok(topics.every(t=>u.badges.includes('mt'+t)),'topic mastery badges missing: '+u.badges.join(','));
   await p.go('#/');ok((await p.textContent('main')).includes('7/7'),'home does not show 7/7 mastered');await p.done()},
 
-async antiFarming(){const p=await page({sid:STUDENT,clock:true});await p.go('#/case/sto/practice');
+async antiFarming(){const p=await page({sid:STUDENT,clock:true});await p.evaluate(()=>{U.sets.sto=['st2a','st1b','st3c','st4a','st5b'];save()});await p.go('#/case/sto/practice');
   for(let r=0;r<6;r++){await plan(p);if(r<5)await p.click('[data-a="replan"]')}
   let u=await p.U();ok(u.n.plans===1&&u.n.perfect===1,'re-planning inflated counters: '+JSON.stringify(u.n));const x1=u.xp;
   await p.click('[data-a="restart"]');await p.waitForTimeout(60);u=await p.U();ok(u.xp===x1-25&&u.n.plans===0,'restart did not refund plan XP/counters');
