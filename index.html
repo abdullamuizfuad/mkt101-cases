@@ -282,7 +282,7 @@ footer{border-top:1px solid var(--line);padding:18px 0 28px;color:var(--muted);f
 footer .row{justify-content:space-between}
 /* ---- MKT101 additions ---- */
 .btn{box-shadow:var(--glow)}.btn.ghost,.btn.gold,.btn.red{box-shadow:none}
-.intro h1 span{background:linear-gradient(90deg,var(--teal),var(--blue),var(--violet))!important;-webkit-background-clip:text;background-clip:text}
+.intro h1 span{background-image:linear-gradient(90deg,var(--teal),var(--blue),var(--violet))}
 .brand img{filter:drop-shadow(0 0 6px color-mix(in srgb,var(--teal) 50%,transparent))}
 .kick{font:700 .75rem Lexend;letter-spacing:.08em;text-transform:uppercase;color:var(--teal)}
 .subnav a.sbtn{flex:none;border:1px solid var(--line);background:var(--card);color:var(--ink2);padding:8px 14px;border-radius:12px;font:600 .88rem Lexend;text-decoration:none}
@@ -319,6 +319,7 @@ td.num{font-variant-numeric:tabular-nums;font-weight:700}
 .apaper ol{margin:0;padding-left:20px}.apaper li{margin:3px 0}
 a.dot{display:grid;place-items:center}
 @media (max-width:440px){.mopt{font-size:.95rem;padding:11px 12px}.tcells{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.reader>*,.grid>*{min-width:0}
 
 /* activities */
 .anav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}

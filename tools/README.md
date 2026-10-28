@@ -7,7 +7,7 @@ The class list is stored in `roster.js` as **scrambled IDs only** (SHA-256 hashe
 ## Update the class list (each term, or when students add or drop)
 
 1. Download the class lists from the MNU system (for example `ClassList_MKT101_H012026T2.xls` and `ClassList_MKT101_H022026T2.xls`).
-2. For a new term, change `TERM` at the top of `tools/build-roster.py` (for example `"T3 2026"`). Also update `TERM.term` in `bank.js`.
+2. For a new term, change `TERM` at the top of `tools/build-roster.py` (for example `"T3 2026"`). Also update `TERM.term` in `bank.js` (the term shown on the site).
 3. In the `mkt101-cases` folder, run:
 
    ```bash
@@ -23,4 +23,5 @@ The class list is stored in `roster.js` as **scrambled IDs only** (SHA-256 hashe
 
 - **If `roster.js` is empty or missing,** any correctly formatted ID (S0 + 5 digits) can sign in.
 - **This is a light check, not real security.** Someone technical could work out which IDs are on the list, but never the names. That's fine for a practice site.
-- **Google Apps Script (optional, not in use).** `mkt101-signin-apps-script.gs` and `TERM.signin.checkUrl` in `bank.js` are kept in case a Google account that allows outside visitors becomes available. If `roster.js` has IDs, it is used first.
+- **Google Apps Script (not in use).** `mkt101-signin-apps-script.gs` is kept for reference only; the arena checks IDs against `roster.js`.
+- **Firebase rules.** `tools/build-rules.py` takes the same class list files (or a Moodle participants CSV) and writes `firestore.rules`. See the main README.
