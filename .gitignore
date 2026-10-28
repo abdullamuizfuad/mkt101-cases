@@ -10,3 +10,4 @@ tools/marking/pending.json
 tools/marking/marks.json
 tools/marking/.token
 node_modules/
+__pycache__/
