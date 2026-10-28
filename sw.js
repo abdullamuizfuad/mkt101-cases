@@ -1,7 +1,7 @@
 /* MKT101 Arena service worker (scope: /mkt101-cases/): works offline, but always tries the network first so updates arrive.
    Bump CACHE when the list of files changes; old MKT101 caches are deleted on activate (other sites' caches are left alone). */
-const CACHE='mkt101-arena-v1';
-const CORE=['./','index.html','app.js','bank.js','bank-x.js','bank-s.js','notes.js','cases-data.js','case-extend.js','args.js','acts.js','concepts.js',
+const CACHE='mkt101-arena-v2';
+const CORE=['./','index.html','app.js','install.js','bank.js','bank-x.js','bank-s.js','notes.js','cases-data.js','case-extend.js','args.js','acts.js','concepts.js',
   'roster.js','leaderboard.js','cloud-config.js','cloud.js','manifest.webmanifest','assets/favicon.svg','assets/icon-192.png','assets/icon-512.png','assets/apple-touch-icon.png'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k.startsWith('mkt101-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

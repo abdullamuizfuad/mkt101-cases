@@ -27,7 +27,7 @@ async function page(opts={}){
   if(opts.clock)await p.clock.install();if(opts.init)await p.addInitScript(opts.init);
   await p.goto(URL0);
   if(opts.sid){await p.evaluate(([sid,theme,tour])=>{localStorage.setItem('mkt101_session',JSON.stringify({sid,name:'Test Student'}));
-      if(tour)localStorage.setItem('mkt101_u_'+sid,JSON.stringify({tour:1,migrated:1}));if(theme)localStorage.setItem('mkt101_theme',JSON.stringify(theme))},[opts.sid,opts.theme,opts.tour!==false]);
+      if(tour)localStorage.setItem('mkt101_u_'+sid,JSON.stringify({tour:1,inst:1,migrated:1}));if(theme)localStorage.setItem('mkt101_theme',JSON.stringify(theme))},[opts.sid,opts.theme,opts.tour!==false]);
     await p.reload();await p.waitForTimeout(300)}
   p.go=async h=>{await p.goto(URL0+h);await p.waitForTimeout(200)};
   p.U=()=>p.evaluate(()=>({xp:U.xp,n:U.n,day:U.day,badges:Object.keys(U.badges)}));
@@ -253,8 +253,15 @@ async contrast(){const p=await page({sid:STUDENT});const r=[];for(const theme of
       if(ratio('--on','--teal')<4.5)out.push('button text '+ratio('--on','--teal').toFixed(2));return out}))}
   ok(!r.length,'contrast below AA: '+r.join('; '));await p.done()},
 
+async install(){const p=await page({sid:STUDENT,tour:false});await p.waitForTimeout(1200);ok(await p.$('#tn'),'tour should open for a new student');
+  for(let n=0;n<8&&await p.$('#tn');n++){await p.click('#tn');await p.waitForTimeout(120)}
+  await p.waitForTimeout(700);ok(await p.$('[aria-label="Install the app"]'),'install popup should follow the tour');
+  ok(/COMPUTER|THIS BROWSER/.test(await p.textContent('.modal .card')),'desktop steps expected');
+  await p.click('#idone');await p.reload();await p.waitForTimeout(1600);ok(!await p.$('[aria-label="Install the app"]'),'install popup should show only once');
+  await p.click('#inst');await p.waitForTimeout(200);ok(await p.$('[aria-label="Install the app"]'),'footer link should reopen it');await p.done()},
+
 async offline(){const p=await page({sid:STUDENT,sw:true});const s=await p.evaluate(async()=>{const r=await navigator.serviceWorker.ready;return {a:!!r.active,scope:r.scope}});ok(s.a,'service worker not active');
-  const keys=await p.evaluate(()=>caches.keys());ok(keys.includes('mkt101-arena-v1')&&!keys.some(k=>/mkt301/.test(k)),'cache name: '+keys);
+  const keys=await p.evaluate(()=>caches.keys());ok(keys.some(k=>/^mkt101-arena-v\d+$/.test(k))&&!keys.some(k=>/mkt301/.test(k)),'cache name: '+keys);
   const man=await p.evaluate(async()=>(await (await fetch('manifest.webmanifest')).json()).name);ok(man==='MKT101 Arena','manifest');await p.done()}
 };
 async function p320(g){await g.waitForTimeout(200);return (await g.evaluate(()=>document.documentElement.scrollWidth))<=320}

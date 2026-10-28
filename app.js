@@ -198,8 +198,8 @@ function shell(active,body){
   const nav=NAV.concat(ME.sid===LECTURER?[['#/lecturer','Lecturer']]:[]).map(n=>`<a href="${n[0]}" class="${n[0]===active?'on':''}">${n[1]}</a>`).join('');
   app.innerHTML=`<div class="wrap"><nav class="tabs">${nav}</nav><main>${body}</main>
   <footer><div class="row"><span>Signed in as <b>${esc(ME.name)}</b> · ${esc(ME.sid)}</span><button class="btn ghost sm" id="so">Sign out</button></div>
-  <p style="margin-top:10px">Practice material only. Write your full answers on paper. · <a href="javascript:void 0" id="help">? How it works</a></p></footer></div>`;
-  $('#so').onclick=signOut;$('#help').onclick=()=>tour(0);scrollTo(0,0)}
+  <p style="margin-top:10px">Practice material only. Write your full answers on paper. · <a href="javascript:void 0" id="help">? How it works</a> · <a href="javascript:void 0" id="inst">📲 Install the app</a></p></footer></div>`;
+  $('#so').onclick=signOut;$('#help').onclick=()=>tour(0);$('#inst').onclick=()=>installPop(0);scrollTo(0,0)}
 
 /* ---------- restart: remove a question's progress and the XP it earned ---------- */
 const XP_DEFAULT={typed:20,plan:15,perfect:10,timed:30,check:0,ltimed:40,lmark:0};
@@ -238,7 +238,7 @@ const TOUR=[['⚡','Quick-fire MCQs','Section A gives you one question at a time
  ['✨','XP, missions and badges','Earn XP for answering, reading, planning and writing. Three daily missions change every day and get tougher as you level up. Unlock badges and climb the leaderboard.'],
  ['💾','Keep your progress safe','Your progress lives on this device. Tap <b>💾 Save</b> in the top bar to email a copy to your lecturer or download it.']];
 function tour(n){closeModal();const t=n===TOUR.length-1&&cloudOn()?['☁️','Your progress follows you','You signed in with your PIN, so your progress saves to your account automatically. Carry on from any phone or laptop. Tap <b>💾 Save</b> any time for an extra backup copy.']:TOUR[n],m=document.createElement('div');m.className='modal';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');m.setAttribute('aria-label','How it works');
-  const done=()=>{U.tour=1;save();closeModal()};
+  const done=()=>{U.tour=1;save();closeModal();setTimeout(()=>installPop(1),350)};
   m.innerHTML=`<div class="card" style="text-align:center"><button class="x" aria-label="Close">✕</button><div style="font-size:2.6rem;margin-top:6px">${t[0]}</div>
   <p class="muted" style="font:700 .75rem Lexend;letter-spacing:.08em;margin:6px 0 2px">STEP ${n+1} OF ${TOUR.length}</p><h2 style="margin:0 0 8px">${t[1]}</h2><p style="color:var(--ink2)">${t[2]}</p>
   <div class="dots" style="justify-content:center;margin:6px 0 14px">${TOUR.map((_,j)=>`<span class="dot ${j===n?'on':j<n?'done':''}" style="width:12px;height:12px"></span>`).join('')}</div>
@@ -1038,7 +1038,7 @@ async function actionPage(a){
       box(`<div style="font-size:2.4rem">✅</div><h2>${a.mode==='verifyEmail'?'Email confirmed':'Email restored'}</h2><p class="muted">${a.mode==='verifyEmail'?'Thanks, your student email is confirmed.':'Your account email has been changed back'+(info&&info.data&&info.data.email?' to '+esc(info.data.email):'')+'. If you did not ask for a change, reset your PIN to be safe.'}</p><button class="btn" id="ab">Go to sign in</button>`);
       $('#ab').onclick=()=>signInWith('')}catch(e){fail(e)}return}
   box(`<h2>Unknown link</h2><p class="muted">This link isn't one the MKT101 Arena understands.</p><button class="btn" id="ab">Go to sign in</button>`);$('#ab').onclick=()=>signInWith('')}
-function start(){if(ACT&&!start.done){start.done=1;return actionPage(ACT)}migrateSession();ME=me();if(!ME)return gate();load();migrateProgress();if(!U.badges.boarding){checkBadges();save()}hud();route();if(ME.cloud)cloudSync();if(!U.tour)setTimeout(()=>{if(ME&&!U.tour&&!document.querySelector('.modal'))tour(0)},700)}
+function start(){if(ACT&&!start.done){start.done=1;return actionPage(ACT)}migrateSession();ME=me();if(!ME)return gate();load();migrateProgress();if(!U.badges.boarding){checkBadges();save()}hud();route();if(ME.cloud)cloudSync();if(!U.tour)setTimeout(()=>{if(ME&&!U.tour&&!document.querySelector('.modal'))tour(0)},700);else if(!U.inst)setTimeout(()=>{if(ME&&!document.querySelector('.modal'))installPop(1)},1200)}
 /* upgrade from the original MKT101 practice site: keep the signed-in student and their activity work (never wipe) */
 function migrateSession(){if(LS.get('session',null))return;try{const r=JSON.parse(localStorage.getItem('mkt101-student')||sessionStorage.getItem('mkt101-student')||'null');
   if(r&&/^S0\d{5}$/.test(r.sid||'')&&r.name)LS.set('session',{sid:r.sid,name:r.name})}catch(e){}}

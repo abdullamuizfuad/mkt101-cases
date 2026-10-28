@@ -550,6 +550,7 @@ details.chk p{color:var(--ink)}
 <script>/* the Firebase SDK loads only when the cloud is switched on (cloud-config.js), or for emulator tests on localhost (?emu=1) */
 if((typeof CLOUD_ON!=='undefined'&&CLOUD_ON===true&&CLOUD_CONFIG&&CLOUD_CONFIG.apiKey)||(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)&&/[?&]emu=1\b/.test(location.search)))document.write('<script src="vendor/firebase.js"><\/script>')</script>
 <script src="cloud.js"></script>
+<script src="install.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
