@@ -16,7 +16,7 @@ A gamified practice portal for **MKT101 Introduction to Marketing** at MNU, Topi
 MCQ sets can mix any topics: students tick one or more of Topics 8–14 (or All topics); the choice is remembered, and the set header, results and history name the topics.
 ## Live tutorial sessions (lecturer)
 
-On the Lecturer tab, pick the week (**Week 11 to Week 14 tutorial**; the earliest week without a past session is preselected; the list is `SESS_WEEKS` in `presence.js`) and tap **▶ Start session**; it ends with **■ End session** or automatically after 3 hours. Students see a red banner and tap **Join**, after a note that explains exactly what is shared: whether the portal is on screen and which section they're on, nothing else, and only until the session ends. While joined, the portal reports 🟢 on screen / 🟡 idle (2+ minutes untouched) / 🔴 left the app (switched app or tab, locked screen), plus the current section; the lecturer's **live board** (`#/live`) adds ⚫ offline (no check-in for 5+ minutes), on-screen %, times left, longest time away and a "not joined" list, sortable. Ending saves a **report** (attendance, on-screen %, switches, what was practised) under **Past sessions** and in each student's profile, with a CSV download. Students on screen 85%+ of at least 10 joined minutes get **+20 XP**, claimed by their own portal.
+On the Lecturer tab, pick the week (**Week 11 to Week 14 tutorial**; the earliest week without a past session is preselected; the list is `SESS_WEEKS` in `engine/presence.js`) and tap **▶ Start session**; it ends with **■ End session** or automatically after 3 hours. Students see a red banner and tap **Join**, after a note that explains exactly what is shared: whether the portal is on screen and which section they're on, nothing else, and only until the session ends. While joined, the portal reports 🟢 on screen / 🟡 idle (2+ minutes untouched) / 🔴 left the app (switched app or tab, locked screen), plus the current section; the lecturer's **live board** (`#/live`) adds ⚫ offline (no check-in for 5+ minutes), on-screen %, times left, longest time away and a "not joined" list, sortable. Ending saves a **report** (attendance, on-screen %, switches, what was practised) under **Past sessions** and in each student's profile, with a CSV download. Students on screen 85%+ of at least 10 joined minutes get **+20 XP**, claimed by their own portal.
 
 Writes: only on a status change, a section change (at most every 30 s) and a heartbeat every 2 minutes: about 60–80 per student per 2-hour session, roughly 4,500 for 56 students (the free plan allows 20,000 a day). Data: `sessions/{id}` `{name,startedAt,endsAt,active,endedAt,rep}` (lecturer only) and `sessions/{id}/p/{SID}` `{st,sec,pr,on,idle,away,left,longest,ch,joinedAt,t}` (that student only, only while the session is open). Until the rules with these blocks are published, the session features stay hidden and everything else works.
 
@@ -37,19 +37,19 @@ Messages are stored in `reviews/{SID}.m` under keys starting `note_`. The site a
 
 | File | What it holds |
 |---|---|
-| `index.html` | Page shell and all styles |
-| `app.js` | The engine: sign-in, XP, missions, badges, MCQ, written answers, cases, notes, lecturer tools, cloud sync |
+| `index.html` | Page shell: loads the course files and the engine |
+| `engine/` | The shared engine, identical in MKT101 and MKT301 (`node tools/sync-engine.mjs` keeps them in step): `core.js` (sign-in, XP, missions, badges, backups, lecturer tools, cloud sync), `boot.js`, `cloud.js` (Firebase), `concepts.js` (automatic concept check), `presence.js` (screen time, breaks, live sessions), `coverage.js`, `install.js`, `engine.css` |
+| `course-config.js` | This course's settings for the engine (`CRS`: name, colours, storage prefix, course-only fields) |
+| `course.js`, `course.css` | This course's pages, content hooks and styles |
+| `cloud-config.js`, `vendor/firebase.js` | Firebase web config and switch (`CLOUD_ON`); the SDK |
 | `bank.js`, `bank-x.js` | MCQs (30 per topic) and long answers |
 | `bank-s.js` | Short-answer questions with plan chips |
 | `notes.js` | Study notes for Topics 8–14 |
 | `cases-data.js` | The original case text, activities and model answers |
 | `case-extend.js` | Arena additions per case: new sections and exhibits, people, Boardroom, practice questions, review notes |
 | `args.js`, `acts.js` | Case activity data and renderers |
-| `concepts.js` | Automatic concept check for typed answers |
 | `roster.js` | Class list as scrambled IDs (`tools/build-roster.py`) |
 | `cloud-config.js` | **The one place for the Firebase config and the on/off switch** |
-| `cloud.js`, `vendor/firebase.js` | Cloud layer (only loaded when the switch is on) |
-| `presence.js` | Screen time, break reminders and live tutorial sessions (the same file as MKT301's) |
 | `sw.js`, `manifest.webmanifest` | Install as an app, offline support (cache `mkt101-arena-v3`) |
 | `tools/` | Class list, rules, marking and test tools |
 

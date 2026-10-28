@@ -315,7 +315,7 @@ async breaks(){const p=await page({sid:STUDENT,clock:true,breaks:true});const br
   await p.evaluate(()=>{PR.fc=1250;const t=document.createElement('button');t.dataset.a='tgo';t.textContent='Pause';t.id='fk';document.querySelector('main').append(t)});await poke();await p.clock.runFor(5000);ok(!await brk(),'reminder during a writing timer');
   await p.evaluate(()=>document.getElementById('fk').remove());await poke();await p.clock.runFor(3000);ok(await brk(),'deferred reminder not shown after the timer');await p.click('#brn');
   await p.evaluate(()=>{PR.sess={id:'x',name:'t',active:true,endsAt:Date.now()+3600e3};PR.sessOn=true;PR.fc=5000;PR.next=1200});await poke();await p.clock.runFor(3000);ok(!await brk(),'reminder during a live session');
-  await p.evaluate(()=>{PR.sess=null;PR.sessOn=false;presBar()});
+  await p.evaluate(()=>{PR.sess=null;PR.sessOn=false;PR.fc=0;presBar()});
   await p.go('#/mcq');await p.click('#mgo');await p.waitForSelector('.mopt');await p.evaluate(()=>{PR.fc=5000;PR.next=1200});await poke();await p.clock.runFor(3000);ok(!await brk(),'reminder in the middle of an MCQ question');
   await p.clock.runFor(8000);await p.click('.mopt[data-oi="0"]');await p.clock.runFor(2000);ok(await brk(),'reminder not shown after answering');await p.done()},
 
@@ -326,6 +326,8 @@ async install(){const p=await page({sid:STUDENT,tour:false});await p.waitForTime
   await p.click('#idone');await p.reload();await p.waitForTimeout(1600);ok(!await p.$('[aria-label="Install the app"]'),'install popup should show only once');
   await p.click('#inst');await p.waitForTimeout(200);ok(await p.$('[aria-label="Install the app"]'),'footer link should reopen it');await p.done()},
 
+async engine(){const r=require('child_process').spawnSync(process.execPath,[path.join(ROOT,'tools','sync-engine.mjs'),'--check'],{encoding:'utf8'});ok(r.status===0,'shared engine out of sync:\n'+r.stdout+r.stderr)},
+
 async offline(){const p=await page({sid:STUDENT,sw:true});const s=await p.evaluate(async()=>{const r=await navigator.serviceWorker.ready;return {a:!!r.active,scope:r.scope}});ok(s.a,'service worker not active');
   const keys=await p.evaluate(()=>caches.keys());ok(keys.some(k=>/^mkt101-arena-v\d+$/.test(k))&&!keys.some(k=>/mkt301/.test(k)),'cache name: '+keys);
   const man=await p.evaluate(async()=>(await (await fetch('manifest.webmanifest')).json()).name);ok(man==='MKT101 Arena','manifest');await p.done()}
@@ -335,5 +337,5 @@ async function p320(g){await g.waitForTimeout(200);return (await g.evaluate(()=>
 (async()=>{const server=spawn('python3',['-m','http.server',String(PORT)],{cwd:ROOT,stdio:'ignore'});await new Promise(r=>setTimeout(r,800));
   browser=await chromium.launch({headless:!ARGS.headed});
   for(const [name,fn] of Object.entries(T)){if(ARGS.only&&!ARGS.only.split(',').includes(name))continue;const t0=Date.now();
-    try{await fn();passes++;console.log(`PASS ${name} (${((Date.now()-t0)/1000).toFixed(1)}s)`)}catch(e){fails++;console.log(`FAIL ${name}: ${e.message.split('\n').slice(0,4).join(' | ')}`)}}
+    try{await fn();passes++;console.log(`PASS ${name} (${((Date.now()-t0)/1000).toFixed(1)}s)`)}catch(e){fails++;console.log(`FAIL ${name}: ${e.message.split("\n").slice(0,4).join(" | ")}`);if(ARGS.verbose)console.log(e.message)}}
   await browser.close();server.kill();console.log(`\n${passes} passed, ${fails} failed`);process.exit(fails?1:0)})();

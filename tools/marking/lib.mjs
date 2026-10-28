@@ -1,5 +1,6 @@
 /* Shared helpers for the Claude marking workflow (fetch.mjs, apply.mjs). See CLAUDE.md at the repo root.
-   Talks to Firebase over its REST APIs, signed in as the lecturer (S000001) with MKT101_LECTURER_PIN.
+   Talks to Firebase over its REST APIs, signed in as the lecturer (S000001) with MKT101_LECTURER_PIN
+   (falling back to MKT301_LECTURER_PIN: the lecturer uses the same PIN on both sites).
    Set MKT101_EMU=1 to use the local emulators (tests). The PIN is only ever read from the environment. */
 import {readFileSync,writeFileSync,existsSync} from 'fs';
 import path from 'path';import vm from 'vm';import {spawnSync} from 'child_process';import {fileURLToPath} from 'url';
@@ -20,8 +21,8 @@ const FS=(EMU?'http://127.0.0.1:8085':'https://firestore.googleapis.com')+`/v1/p
 export const LECTURER_EMAIL='s000001@student.mnu.edu.mv';
 export function die(m){console.error('✗ '+m);process.exit(1)}
 
-export async function signIn(){const pin=process.env.MKT101_LECTURER_PIN;if(!API_KEY||!PROJECT)die('No Firebase config in cloud-config.js.');
-  if(!pin)die('MKT101_LECTURER_PIN is not set. Add it as an environment secret (see CLAUDE.md).');
+export async function signIn(){const pin=process.env.MKT101_LECTURER_PIN||process.env.MKT301_LECTURER_PIN;if(!API_KEY||!PROJECT)die('No Firebase config in cloud-config.js.');
+  if(!pin)die('MKT101_LECTURER_PIN (or MKT301_LECTURER_PIN) is not set. Add it as an environment secret (see CLAUDE.md).');
   let r;try{r=await fetch(`${AUTH}/accounts:signInWithPassword?key=${API_KEY}`,{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({email:LECTURER_EMAIL,password:pin,returnSecureToken:true})})}catch(e){die('Cannot reach Firebase sign-in: '+e.message)}
   const j=await r.json().catch(()=>({}));if(!r.ok)die('Lecturer sign-in failed: '+((j.error&&j.error.message)||r.status)+'. Check MKT101_LECTURER_PIN.');return j.idToken}

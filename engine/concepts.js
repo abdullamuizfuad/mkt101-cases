@@ -1,4 +1,4 @@
-/* MKT101 Arena: automatic concept check for typed answers.
+/* MKT Arena engine: automatic concept check for typed answers.
    Each key idea (a question's good chips) becomes weighted terms taken from the chip text, widened with
    synonyms (SYN) and, where the chip wording is a formula or label, hand-tuned patterns (OVER).
    checkAnswer(q,text,names) → {found,missing,struct,band,xp,words}. Runs in the browser and in Node (tests, marking tools). */
@@ -7,15 +7,11 @@ const CONCEPT=(()=>{
     'each every one two three both any all more most less than then into about over under per not no can could should would will may might must '+
     'do does did done use using used make makes made get gets got very also only just own same other others such which who whom what when where why how '+
     'define definition explain evaluate example decision recommend recommendation option options clear clearly answer case point points idea ideas key '+
-    'sto soneva fushi firm company business companies firms').split(' '));
+    'firm company business companies firms '+CRS.conceptStop).split(' '));
   /* common marketing words count half: they appear in almost every answer */
   const SOFT=new Set('brand market marketing price pricing product products customer customers country countries local sale sales cost costs'.split(' ').map(w=>stem(w)));
   /* synonyms: stem → alternative stems or phrases (phrases are matched as whole word sequences) */
-  const SYN={
-    intermediar:['middleman','distributor','agent','wholesaler','stockist','retailer'],channel:['route','distribution'],
-    atmospher:['atmosphere','ambience','mood','feel','lighting','music','scent'],sampl:['tasting','free trial','try'],
-    promot:['offer','deal','discount','promotion'],loyal:['repeat','return','come back','regular'],greenwash:['green wash','misleading','vague claim'],
-    sustainab:['green','eco','environment','future generation'],skim:['high price','premium'],penetrat:['low price','cheap'],
+  const SYN=Object.assign({},CRS.conceptSyn,{
     cheap:['low','cheaper','inexpens','afford','budget'],expens:['costly','high','premium','pricey'],afford:['cheap','low'],
     halal:['islam','muslim','halaal'],muslim:['islam','halal'],islam:['muslim','halal'],
     control:['oversight','manag','in charge','say over'],risk:['danger','threat','exposure','risky','uncertain'],
@@ -44,11 +40,11 @@ const CONCEPT=(()=>{
     freight:['shipping','transport','sea','air'],shipment:['consignment','container','load','order'],
     takeaway:['take away','grab and go','to go'],evidence:['data','figure','percent','%','show'],
     ownership:['owned','own','wholly'],venture:['partner','jv','joint'],shared:['share','split','both']
-  };
-  /* hand-tuned patterns for chips whose wording is a formula, a label or very short (question id → chip index → alternatives) */
-  const OVER={};
-  /* how many key ideas make a complete answer, where the question asks for fewer than the chips cover */
-  const NEED={};
+  });
+  /* hand-tuned patterns for chips whose wording is a formula, a label or very short: per course, in course-config.js */
+  const OVER=CRS.conceptOver||{};
+  /* how many key ideas make a complete answer, where the question asks for fewer than the chips cover (e.g. "choose ONE country") */
+  const NEED=CRS.conceptNeed||{};
   function norm(t){return String(t||'').toLowerCase().replace(/[’']/g,'').replace(/(\d)\.(\d)/g,'$1_$2').replace(/[^a-z0-9_%]+/g,' ').trim()}
   function stem(w){w=String(w).toLowerCase();if(/^\d/.test(w))return w;
     w=w.replace(/(is)(e|ed|es|ing|ation|ations)$/,'iz$2').replace(/^grey/,'gray').replace(/licenc/,'licens').replace(/colour/,'color');
