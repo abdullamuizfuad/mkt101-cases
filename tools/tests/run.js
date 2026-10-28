@@ -253,6 +253,10 @@ async contrast(){const p=await page({sid:STUDENT});const r=[];for(const theme of
       if(ratio('--on','--teal')<4.5)out.push('button text '+ratio('--on','--teal').toFixed(2));return out}))}
   ok(!r.length,'contrast below AA: '+r.join('; '));await p.done()},
 
+async profileLocal(){const p=await page({sid:'S000001'});await p.go('#/student/S081441');await p.waitForTimeout(300);
+  ok((await p.textContent('main')).includes('need the live connection'),'device-only profile note missing');
+  const s=await page({sid:STUDENT});await s.go('#/student/S081441');await s.waitForTimeout(300);ok(!(await s.textContent('main')).includes('live connection')&&!!await s.$('.hero'),'student reached a profile');await s.done();await p.done()},
+
 async install(){const p=await page({sid:STUDENT,tour:false});await p.waitForTimeout(1200);ok(await p.$('#tn'),'tour should open for a new student');
   for(let n=0;n<8&&await p.$('#tn');n++){await p.click('#tn');await p.waitForTimeout(120)}
   await p.waitForTimeout(700);ok(await p.$('[aria-label="Install the app"]'),'install popup should follow the tour');

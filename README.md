@@ -10,6 +10,13 @@ A gamified practice portal for **MKT101 Introduction to Marketing** at MNU, Topi
 - **Study notes** for every topic, with "I've studied this topic".
 - XP, nine levels (Intern → Marketing Consultant), streaks, three daily missions a day (tiered), 40 badges (levels, streaks, topic mastery, MCQ "prove it" badges, case badges and more), weak-spot practice, restart with exact XP refunds, a save/backup popup, a first-time tour, light and dark themes.
 
+
+## Student profiles (lecturer)
+
+Signed in as `S000001` with the cloud on, tap any student on the **Leaderboard** or in the **Class dashboard** table (there is a search box above it) to open their full profile at `#/student/<ID>`. It updates live and shows: level, XP and streak; badges with dates; an 8-week practice calendar and recent activity; MCQ record; progress, mastery and weak spots by topic (decoys picked, key ideas missed); case progress; integrity flags; and every typed answer with its automatic check and mark. From the profile you can mark or re-mark an answer, **send a message** (it appears on the student's Home page; no XP), send a **PIN reset email**, or download the student's data as JSON.
+
+Messages are stored in `reviews/{SID}.m` under keys starting `note_`. The site and the marking tools never treat them as marks.
+
 ## Files
 
 | File | What it holds |
