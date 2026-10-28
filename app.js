@@ -692,12 +692,13 @@ const noTimeXP=t=>toast('⏱️','No XP this time','Write for at least '+minMins
    A question answered faster than its reading time (about 1 s per 30 characters, at least 3 s) is "rushed": no XP, no speed points.
    End of set: speed bonus = half the speed points × an accuracy factor (0 at 60% or below, full at 90%+),
    cancelled if more than 30% of answers were rushed; plus a finish bonus of 5 / 10 / 15 for 10 / 20 / 30 answers
-   (needs at least 10 fresh answers and 50% accuracy). "Retry my mistakes": +1 XP per correct answer, no bonuses. */
+   (needs at least 10 fresh answers that were not rushed, no more than 30% rushed, and 50% accuracy). "Retry my mistakes": +1 XP per correct answer, no bonuses. */
 const MCQ_BY=Object.fromEntries(BANK.mcq.map(q=>[q.id,q]));
 const minRead=q=>Math.max(3,Math.round((q.q.length+q.o.join('').length)/30));
 const MQ_SIZES=[10,20,30];
-function drawMcq(topic,size){const prev=new Set(U.mlast||[]),pool=BANK.mcq.filter(q=>!topic||q.t===topic);
-  const pick=list=>{const fresh=shuffle(list.filter(q=>!prev.has(q.id))),old=shuffle(list.filter(q=>prev.has(q.id)));return fresh.concat(old)};
+function drawMcq(topic,size){const prev=new Set(U.mlast||[]),seen=U.mday&&U.mday.d===today()?U.mday.ids:{},pool=BANK.mcq.filter(q=>!topic||q.t===topic);
+  /* questions not seen today first, then ones seen today but not in the last set, then the last set */
+  const rank=q=>prev.has(q.id)?2:seen[q.id]?1:0,pick=list=>[0,1,2].flatMap(r=>shuffle(list.filter(q=>rank(q)===r)));
   let ids;if(topic)ids=pick(pool).slice(0,size).map(q=>q.id);
   else{const by=TOPICS.map(t=>pick(pool.filter(q=>q.t===t)));ids=[];let k=0;while(ids.length<size&&by.some(l=>l.length)){const l=by[k++%by.length];if(l.length)ids.push(l.shift().id)}ids=shuffle(ids)}
   return ids}
@@ -766,7 +767,7 @@ function mcqFinish(){const S=U.mq;clearInterval(MQT);document.onkeydown=null;if(
   const ans=S.ids.filter(id=>S.ans[id]!==undefined),n=ans.length,c=ans.filter(id=>S.ans[id]===0).length,acc=n?c/n:0;
   const fresh=ans.filter(id=>S.fr[id]).length,rushed=ans.filter(id=>S.rs[id]).length,sp=mcqSpeed(S),secs=ans.reduce((t,id)=>t+(S.tm[id]||0),0);
   const f=Math.max(0,Math.min(1,(acc-.6)/.3)),speedBonus=S.retry||rushed>n*.3?0:Math.round(sp/2*f);
-  const fin=S.retry||fresh<10||acc<.5?0:n>=30?15:n>=20?10:n>=10?5:0,bonus=speedBonus+fin;
+  const fin=S.retry||ans.filter(id=>S.fr[id]&&!S.rs[id]).length<10||rushed>n*.3||acc<.5?0:n>=30?15:n>=20?10:n>=10?5:0,bonus=speedBonus+fin;
   S.done=1;S.end=Date.now();S.bonus={speed:speedBonus,fin,f:Math.round(f*100)};
   if(n>=10&&!S.retry){U.n.mcqSets=(U.n.mcqSets||0)+1;if(n>=20)countOnce('mset20:'+S.sid,'mset20');if(n>=20&&acc>=.8)countOnce('mset80:'+S.sid,'mset80')}
   const clean=ans.filter(id=>!S.rs[id]),avg=clean.length?clean.reduce((t,id)=>t+S.tm[id],0)/clean.length:99;
@@ -799,7 +800,7 @@ function badgesPage(){shell('#/badges',`<h1>Badges</h1><p class="muted">${Object
  <h2 style="margin-top:26px">How to earn XP</h2><div class="card"><div class="tablewrap"><table>
  <tr><td>Read a case section</td><td>+5</td></tr><tr><td>Read a whole case</td><td>+30</td></tr><tr><td>Judge a boardroom argument</td><td>+10 if you agree with our reading, +3 otherwise</td></tr>
  <tr><td>Build an answer plan</td><td>+15 (+10 bonus for a flawless plan). Choosing <b>Plan only</b> keeps this XP and moves on.</td></tr><tr><td>Type (or speak) an answer and check it</td><td>+10, plus +3 for each key idea and +2 for each structure point the automatic check finds, up to +32. Needs at least 40 words, at least one key idea, and your own typing or speech: pasting is turned off.</td></tr><tr><td>Answer marked by your lecturer</td><td>Up to +30, depending on the mark. It stays even if you restart the question.</td></tr><tr><td>Finish a timed answer on paper</td><td>+30 (write for at least 4 of the 10 minutes; any timed task needs 40% of its time on the clock)</td></tr><tr><td>Practise the same question again</td><td>XP and badge progress count once per question per day</td></tr><tr><td>Self-check</td><td>+3 per check met</td></tr>
- <tr><td>MCQ: correct answer</td><td>+2 (each question counts once a day). Answers given before you could read the question earn nothing.</td></tr><tr><td>MCQ: speed bonus</td><td>Speed points for correct answers (3 within 15 s, 2 within 30 s, 1 after). At the end you get half your speed points, scaled by accuracy: nothing at 60% or below, the full amount at 90% or better.</td></tr><tr><td>MCQ: finish bonus</td><td>+5 for 10 questions, +10 for 20, +15 for 30 (needs at least 10 new questions and 50% accuracy)</td></tr><tr><td>MCQ: retry my mistakes</td><td>+1 per correct answer</td></tr>
+ <tr><td>MCQ: correct answer</td><td>+2 (each question counts once a day). Answers given before you could read the question earn nothing.</td></tr><tr><td>MCQ: speed bonus</td><td>Speed points for correct answers (3 within 15 s, 2 within 30 s, 1 after). At the end you get half your speed points, scaled by accuracy: nothing at 60% or below, the full amount at 90% or better.</td></tr><tr><td>MCQ: finish bonus</td><td>+5 for 10 questions, +10 for 20, +15 for 30 (needs at least 10 new questions read properly and 50% accuracy)</td></tr><tr><td>MCQ: retry my mistakes</td><td>+1 per correct answer</td></tr>
  <tr><td>Study a topic in the notes</td><td>+20</td></tr><tr><td>Finish a case activity</td><td>+15 (+10 for a top-band argument)</td></tr><tr><td>Crack a case (all read, all judged, 5 questions finished)</td><td>+50</td></tr>
  <tr><td>Long answer written on paper (about 18 minutes)</td><td>+40 (write for at least 40% of the time)</td></tr><tr><td>Long answer self-marked</td><td>+2 per mark you give yourself</td></tr>
  <tr><td>Practise on a new day</td><td>+10</td></tr><tr><td>Complete the daily mission</td><td>+25 Starter · +35 Pro · +50 Elite (missions get tougher as you level up)</td></tr></table></div></div>`)}

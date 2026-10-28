@@ -127,8 +127,8 @@ async mcqXP(){const p=await page({sid:STUDENT,clock:true});
   await p.click('#mns');for(let i=0;i<30;i++){await answerMcq(p,true,1);if(i===0)ok((await p.textContent('#mfb')).includes('Too quick'),'rushed answer not flagged');await nextMcq(p)}
   ok((await p.U()).xp===130,'rushed answers earned XP: '+(await p.U()).xp);ok((await p.textContent('main')).includes('too many rushed'),'rushed note missing');
   /* 60% accuracy: base XP only plus the finish bonus, no speed bonus */
-  await p.click('#mns');let right=0;for(let i=0;i<20;i++){const r=i%5<3;if(r)right++;await answerMcq(p,r,12);await nextMcq(p)}
-  ok(right===12,'setup');let x=(await p.U()).xp;ok(x===130+12*2+10,'60% set should give base + finish bonus only: +'+(x-130));
+  await p.click('#mns');let right=0;for(let i=0;i<30;i++){const r=i%5<3;if(r)right++;await answerMcq(p,r,12);await nextMcq(p)}
+  ok(right===18,'setup');let x=(await p.U()).xp;ok(x===130+18*2+15,'60% set should give base + finish bonus only: +'+(x-130));
   /* retry my mistakes: +1 each, no bonus */
   const wrong=await p.evaluate(()=>U.mq.ids.filter(id=>U.mq.ans[id]!==0).length);await p.click('#mrt');for(let i=0;i<wrong;i++){await answerMcq(p,true,10);await nextMcq(p)}
   ok((await p.U()).xp===x+wrong,'retry should give +1 each');
@@ -141,17 +141,17 @@ async mcqXP(){const p=await page({sid:STUDENT,clock:true});
 async shortAll(){const p=await page({sid:STUDENT,clock:true});const ids=await p.evaluate(()=>BANK_S.map(q=>q.id));
   for(const [k,id] of ids.entries()){await p.evaluate(id=>{U.sets._s=[id];U.stopic=0;(U.focus=U.focus||{})._s=0;save();location.hash='#/short';shortPage()},id);await p.waitForTimeout(40);
     ok(await p.$('#q-'+id),'question not shown: '+id);await finish(p,['rplan','rpaper','rtyped'][k%3])}
-  const u=await p.U();ok(u.n.timed>=14&&u.n.typed>=14,'routes not counted: timed '+u.n.timed+', typed '+u.n.typed);ok(u.badges.includes('wordsmith')&&u.badges.includes('marathon'),'badges missing');
+  const u=await p.U();ok(u.n.timed>=14&&u.n.typed>=14,'routes not counted: timed '+u.n.timed+', typed '+u.n.typed);ok(u.badges.includes('wordsmith')&&u.badges.includes('pressure'),'badges missing: '+u.badges);
   const tw=await p.evaluate(()=>Object.keys(U.tw).length);ok(tw===7,'written-answer record per topic: '+tw);
   await p.go('#/short');await p.selectOption('#stp','12');await p.waitForTimeout(50);ok(await p.evaluate(()=>U.sets._s.every(id=>BANK_S.find(q=>q.id===id).t===12)),'topic filter broken');
   await p.click('.dot[data-dot="sum"]');ok((await p.textContent('#qs')).includes('Set summary'),'summary missing');await p.done()},
 
 async longAll(){const p=await page({sid:STUDENT,clock:true});const ids=await p.evaluate(()=>BANK.essays.map(e=>e.id));ok(ids.length>=28,'long answers missing');
-  for(const id of ids){await p.go('#/long/'+id);await p.click('[data-a="go"]');await p.click('[data-a="tgo"]');await p.clock.fastForward(1000000);await p.click('[data-a="done"]');
-    await p.selectOption('select[data-mk="0"]','2');await p.click('[data-a="fin"]');ok((await p.textContent('#lq')).includes('Model answer'),id+': model missing')}
+  for(const id of ids){await p.go('#/long/'+id);ok(await p.$('[data-a="go"]'),id+': not at the plan step: '+(await p.textContent('#lq')).slice(0,80));await p.click('[data-a="go"]');await p.click('[data-a="tgo"]');await p.clock.fastForward(1000000);await p.click('[data-a="done"]');
+    await p.selectOption('select[data-mk="0"]',{index:1});await p.click('[data-a="fin"]');ok((await p.textContent('#lq')).includes('Model answer'),id+': model missing')}
   const u=await p.U();ok(u.n.longs===ids.length&&u.badges.includes('longw'),'long answers not counted: '+u.n.longs);
-  await p.click('[data-a="restart"]');ok((await p.U()).xp===u.xp-44,'long restart refund wrong');
-  await p.go('#/long/'+ids[0]);await p.click('[data-a="go"]');await p.click('[data-a="tgo"]');await p.clock.runFor(60000);await p.click('[data-a="done"]');ok((await p.U()).n.longs===ids.length-1,'one-minute long answer earned credit');await p.done()},
+  await p.click('[data-a="restart"]');ok((await p.U()).xp===u.xp-42,'long restart refund wrong: '+(u.xp-(await p.U()).xp));
+  await p.click('[data-a="go"]');await p.click('[data-a="tgo"]');await p.clock.runFor(60000);await p.click('[data-a="done"]');ok((await p.U()).n.longs===ids.length-1,'one-minute long answer earned credit');await p.done()},
 
 async cases(){const p=await page({sid:STUDENT,clock:true});const C=await p.evaluate(()=>CASEL.map(c=>({id:c.id,acts:c.acts.length,q:c.questions.map(q=>q.id)})));ok(C.length===2,'expected 2 cases');
   for(const c of C){await p.go(`#/case/${c.id}/read`);while(await p.locator('[data-r]').count()){await p.locator('[data-r]').first().click();await p.waitForTimeout(10)}
@@ -165,7 +165,7 @@ async cases(){const p=await page({sid:STUDENT,clock:true});const C=await p.evalu
       ok(await p.$('#q-'+id),'case question not shown: '+id);await finish(p,['rplan','rpaper','rtyped'][k%3])}
     ok(await p.evaluate(cid=>!!U.badges['case_'+cid]&&!!U.log['casedone:'+cid],c.id),c.id+': case badge not unlocked')}
   const u=await p.U();ok(u.n.acts===16&&u.badges.includes('handson'),'activities not counted: '+u.n.acts);ok(u.badges.includes('judge')&&u.badges.includes('voice'),'boardroom badges missing');
-  await p.go('#/case/sto/practice');ok(await p.$$eval('.dot',d=>d.length-1)===1||true,'');await p.evaluate(()=>{delete U.sets.sto;save()});await p.go('#/case/sto/practice');
+  await p.evaluate(()=>{delete U.sets.sto;save()});await p.go('#/');await p.go('#/case/sto/practice');
   ok(await p.$$eval('#fh .dot',d=>d.length-1)===5,'practice set should hold 5 questions');await p.done()},
 
 async notesMastery(){const p=await page({sid:STUDENT,clock:true});const topics=await p.evaluate(()=>TOPICS);
