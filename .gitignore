@@ -1,3 +1,12 @@
 .DS_Store
 graphify-out/.graphify_python
 graphify-out/.graphify_root
+firestore.rules
+ClassList*
+*.xls
+*.xlsx
+class*.csv
+tools/marking/pending.json
+tools/marking/marks.json
+tools/marking/.token
+node_modules/
