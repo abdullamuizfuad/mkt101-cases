@@ -52,7 +52,8 @@ const BADGES=[
  {id:'marked',ico:'🧑‍🏫',name:'Marked by the Pro',d:'Get a typed answer marked by your lecturer',t:u=>(u.n.reviewed||0)>=1},
  {id:'handson',ico:'🛠️',name:'Hands-On',d:'Finish 8 case activities',t:u=>u.n.acts>=8},
  {id:'mission',ico:'✅',name:'Mission Ready',d:'Complete a daily mission',t:u=>u.n.missions>=1},
- {id:'mission10',ico:'🏅',name:'Mission Master',d:'Complete 10 daily missions',t:u=>u.n.missions>=10}];
+ {id:'mission10',ico:'🏅',name:'Mission Master',d:'Complete 10 daily missions',t:u=>u.n.missions>=10},
+ ...PRES_BADGES];
 /* daily missions: 3 a day from a pool, harder as the student levels up (tier 0: levels 1-3, tier 1: 4-6, tier 2: 7-9) */
 const MPOOL=[
  {id:'mcq10',t:0,k:'mcq',n:10,x:'Answer 10 new MCQs'},{id:'read2',t:0,k:'read',n:2,x:'Read 2 case sections'},{id:'verd3',t:0,k:'verdicts',n:3,x:'Judge 3 Boardroom arguments'},
@@ -64,7 +65,8 @@ const MPOOL=[
  {id:'timed2',t:1,k:'timed',n:2,x:'Finish 2 timed answers on paper'},{id:'typed2',t:1,k:'typed',n:2,x:'Type and check 2 answers'},
  {id:'mcq30',t:2,k:'mcq',n:30,x:'Answer 30 new MCQs'},{id:'right25',t:2,k:'mcqRight',n:25,x:'Get 25 new MCQs right'},{id:'mset80',t:2,k:'mset80',n:1,x:'Finish an MCQ set of 20+ with 80% or better'},
  {id:'vright6',t:2,k:'verdictsRight',n:6,x:'Make 6 Boardroom calls that match our reading'},{id:'perfect2',t:2,k:'perfect',n:2,x:'Build 2 flawless plans'},
- {id:'timed3',t:2,k:'timed',n:3,x:'Finish 3 timed answers on paper'},{id:'long1',t:2,k:'longs',n:1,x:'Write 1 long answer on paper, timed'}];
+ {id:'timed3',t:2,k:'timed',n:3,x:'Finish 3 timed answers on paper'},{id:'long1',t:2,k:'longs',n:1,x:'Write 1 long answer on paper, timed'},
+ ...PRES_MISSIONS];
 const MBONUS=[25,35,50],TIERS=['Starter','Pro','Elite'];
 function tier(xp){const i=level(xp).i;return i<=2?0:i<=5?1:2}
 
@@ -190,7 +192,7 @@ function pinStep(sid,name,mt,mode){mode=mode||'in';const card=document.querySele
     $('#pgo').disabled=true;$('#pgo').textContent=mode==='in'?'Signing in…':'Creating…';
     try{await (mode==='in'?CLOUD.signIn(sid,p):CLOUD.create(sid,p));clearInterval(mt);LS.set('session',{sid,name,cloud:true});start()}
     catch(e){$('#pgo').disabled=false;$('#pgo').textContent=mode==='in'?'Sign in':'Create PIN and start';er(CLOUD.say(e));if(CLOUD.isNetwork(e))offline()}}}
-async function signOut(){if(ME&&ME.cloud){await CLOUD.flush();await CLOUD.signOut()}LS.del('session');ME=null;U=null;hud();location.hash='#/';gate()}
+async function signOut(){if(ME&&U)presOff();if(ME&&ME.cloud){await CLOUD.flush();await CLOUD.signOut()}LS.del('session');ME=null;U=null;hud();location.hash='#/';gate()}
 
 /* ---------- layout ---------- */
 const NAV=[['#/','Home'],['#/mcq','Section A · MCQ'],['#/short','Section B · Written answers'],['#/cases','Section C · Cases'],['#/notes','Study notes'],['#/badges','Badges'],['#/board','Leaderboard']];
@@ -232,10 +234,19 @@ async function downloadBackup(){const a=document.createElement('a');a.href=URL.c
 async function emailBackup(){const c=await backupCode();markSaved();
   location.href='mailto:'+SCORE_EMAIL+'?subject='+encodeURIComponent('MKT101 progress backup: '+ME.name+' ('+ME.sid+')')+'&body='+encodeURIComponent(`Hello,\n\nHere is my MKT101 Arena progress backup (${U.xp} XP, ${level(U.xp).name}, ${today()}).\n\n${c}\n\nThank you,\n${ME.name}\n`);
   return c.length}
+/* screen time and live sessions (presence.js): where the student is, and when not to interrupt */
+function presWhere(){const h=location.hash.replace(/^#\/?/,'').split('/'),m=((document.querySelector('main')||{}).textContent||'').match(/Question (\d+) of \d+/),q=m?' · Q'+m[1]:'';
+  if(h[0]==='mcq'){const S=U&&U.mq;return S&&!S.done&&S.i<S.ids.length?'Section A · Q'+(S.i+1):'Section A · MCQ'}
+  if(h[0]==='short')return 'Section B · Short answers'+q;
+  if(h[0]==='long')return 'Section B · Long answers';
+  if(h[0]==='notes')return 'Notes'+(h[1]?' · Topic '+h[1]:'');
+  if(h[0]==='case'){const c=CASEL.find(x=>x.id===h[1]);return (c?c.short:'Case')+' · '+({read:'Read',board:'Boardroom',acts:'Activities',practice:'Practice',exhibits:'Exhibits',terms:'Terms'}[h[2]||'read']||'Read')+(h[2]==='practice'?q:'')}
+  return {'':'Home',cases:'Cases',badges:'Badges',board:'Leaderboard',lecturer:'Lecturer',live:'Lecturer',session:'Lecturer',student:'Lecturer'}[h[0]]||'Home'}
+function presBusy(){const S=U&&U.mq;return /^#\/mcq/.test(location.hash)&&!!S&&!S.done&&S.i<S.ids.length&&S.ans&&S.ans[S.ids[S.i]]===undefined}
 /* first-time tour: 4 steps, re-openable from the footer */
 const TOUR=[['⚡','Quick-fire MCQs','Section A gives you one question at a time with the reason straight away. Correct answers earn XP; fast <b>and</b> accurate sets earn a speed bonus. Answers given before you could read the question earn nothing.'],['🧩','Plan with chips','Every question starts with a plan. Tap the ideas you would use, then check your plan. Some chips are decoys, and the feedback explains why.'],
  ['🏁','Finish your way','After planning, choose: <b>📝 Plan only</b> to move on, <b>✍️ Write on paper</b> against the clock, or <b>⌨️ Type my answer</b> (or speak it with 🎤) for an automatic check of the key ideas. Your lecturer may mark typed answers too.'],
- ['✨','XP, missions and badges','Earn XP for answering, reading, planning and writing. Three daily missions change every day and get tougher as you level up. Unlock badges and climb the leaderboard.'],
+ ['✨','XP, missions and badges','Earn XP for answering, reading, planning and writing. Three daily missions change every day and get tougher as you level up. <b>⏱️ Screen time</b> counts your active minutes: 20 a day meets your daily goal. In class, tap <b>Join</b> when your lecturer starts a live session.'],
  ['💾','Keep your progress safe','Your progress lives on this device. Tap <b>💾 Save</b> in the top bar to email a copy to your lecturer or download it.']];
 function tour(n){closeModal();const t=n===TOUR.length-1&&cloudOn()?['☁️','Your progress follows you','You signed in with your PIN, so your progress saves to your account automatically. Carry on from any phone or laptop. Tap <b>💾 Save</b> any time for an extra backup copy.']:TOUR[n],m=document.createElement('div');m.className='modal';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');m.setAttribute('aria-label','How it works');
   const done=()=>{U.tour=1;save();closeModal();setTimeout(()=>installPop(1),350)};
@@ -286,7 +297,7 @@ function inboxHTML(){const N=U.notes||{},R=U.notesRead||{},ks=Object.keys(N).fil
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-noteread]');if(!b||!U)return;U.notesRead=U.notesRead||{};U.notesRead[b.dataset.noteread]=1;save();route()});
 function home(){
   rollDay();const L=level(U.xp),got=Object.keys(U.badges).length;
-  const GO={read:'#/cases',verdicts:'#/cases',verdictsRight:'#/cases',plans:'#/short',timed:'#/short',perfect:'#/short',typed:'#/short',mcq:'#/mcq',mcqRight:'#/mcq',mset20:'#/mcq',mset80:'#/mcq',notes:'#/notes',acts:'#/cases',longs:'#/long'};
+  const GO={read:'#/cases',verdicts:'#/cases',verdictsRight:'#/cases',plans:'#/short',timed:'#/short',perfect:'#/short',typed:'#/short',mcq:'#/mcq',mcqRight:'#/mcq',mset20:'#/mcq',mset80:'#/mcq',notes:'#/notes',acts:'#/cases',longs:'#/long',stgoal:'#/mcq'};
   const ms=missions().map(m=>{const v=Math.min(U.day.c[m.k]||0,m.n);return `<div class="mission"><span class="tick ${v>=m.n?'on':''}">${v>=m.n?'✓':''}</span><div style="flex:1">${esc(m.x)}<div class="bar" style="margin-top:6px"><i style="width:${v/m.n*100}%"></i></div></div><span class="muted">${v}/${m.n}</span>${v<m.n?`<a class="btn ghost sm" href="${GO[m.k]||'#/mcq'}" style="min-height:32px;padding:4px 10px">Go</a>`:''}</div>`}).join('');
   const caseCards=CASEL.map(c=>{const read=c.sections.filter(s=>U.log['read:'+c.id+':'+s.id]).length;return `<a class="card zone" href="#/case/${c.id}/read"><div class="em">${c.icon}</div><h3>${esc(c.short)}</h3><p class="muted" style="font-size:.9rem">${esc(c.title)}</p><div class="bar"><i style="width:${read/c.sections.length*100}%;background:var(--teal)"></i></div><p class="muted" style="font-size:.8rem;margin:6px 0 0">${read}/${c.sections.length} sections read${U.badges['case_'+c.id]?' · ✓ cracked':''}</p></a>`}).join('');
   const live=U.mq&&!U.mq.done&&U.mq.i<U.mq.ids.length;
@@ -298,6 +309,7 @@ function home(){
    <div class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Today's mission</h2><span class="tag">${TIERS[U.day.t]} · +${MBONUS[U.day.t]} XP</span></div><p class="muted" style="font-size:.9rem;margin-top:6px">${U.day.done?'✅ Done for today. New missions tomorrow.':'Complete all three for the bonus. New missions every day, and they get tougher as you level up.'}</p>${ms}</div>
    <a class="card zone quick" href="#/mcq"><div class="em">⚡</div><h2 style="margin:4px 0">${live?'Carry on with your MCQ set':'Quick MCQ round'}</h2><p class="muted" style="font-size:.92rem">${live?`Question ${U.mq.i+1} of ${U.mq.ids.length}. Pick up where you left off.`:'Up to 30 questions, one at a time, with instant feedback. Be quick and accurate for a speed bonus.'}</p><span class="btn" style="margin-top:6px">${live?'Resume →':'Start →'}</span></a>
   </div>
+  <div style="margin-top:16px">${stCardHTML()}</div>
   <h2 style="margin-top:26px">Topic mastery</h2><p class="muted" style="margin-top:-4px;font-size:.9rem">Each topic badge needs 📖 the notes studied, 🎯 80%+ on at least 15 MCQs, and ✍️ one written answer on the topic.</p>${topicGrid()}
   <h2 style="margin-top:26px">Practice</h2>
   <div class="grid g3">
@@ -817,6 +829,8 @@ function badgesPage(){shell('#/badges',`<h1>Badges</h1><p class="muted">${Object
  <tr><td>MCQ: correct answer</td><td>+2 (each question counts once a day). Answers given before you could read the question earn nothing.</td></tr><tr><td>MCQ: speed bonus</td><td>Speed points for correct answers (3 within 15 s, 2 within 30 s, 1 after). At the end you get half your speed points, scaled by accuracy: nothing at 60% or below, the full amount at 90% or better.</td></tr><tr><td>MCQ: finish bonus</td><td>+5 for 10 questions, +10 for 20, +15 for 30 (needs at least 10 new questions read properly and 50% accuracy)</td></tr><tr><td>MCQ: retry my mistakes</td><td>+1 per correct answer</td></tr>
  <tr><td>Study a topic in the notes</td><td>+20</td></tr><tr><td>Finish a case activity</td><td>+15 (+10 for a top-band argument)</td></tr><tr><td>Crack a case (all read, all judged, 5 questions finished)</td><td>+50</td></tr>
  <tr><td>Long answer written on paper (about 18 minutes)</td><td>+40 (write for at least 40% of the time)</td></tr><tr><td>Long answer self-marked</td><td>+2 per mark you give yourself</td></tr>
+ <tr><td>Screen time: daily goal (20 active minutes)</td><td>+15 once a day</td></tr><tr><td>Screen time: every 20 active minutes outside live sessions</td><td>+10, up to 6 times a day (+60). Only counts while the portal is on screen and you're active: it pauses after 2 minutes idle, except while a writing timer runs.</td></tr>
+ <tr><td>Live session: on screen 85%+ (at least 10 minutes joined)</td><td>+20 once per session</td></tr><tr><td>Hours logged</td><td>Badges at 5, 10 and 20 hours of active screen time</td></tr>
  <tr><td>Practise on a new day</td><td>+10</td></tr><tr><td>Complete the daily mission</td><td>+25 Starter · +35 Pro · +50 Elite (missions get tougher as you level up)</td></tr></table></div></div>`)}
 
 /* ---------- leaderboard (weekly, from score codes) ---------- */
@@ -919,23 +933,24 @@ function ago(d){if(!d)return '–';const m=Math.round((Date.now()-d)/60000);retu
 function classDash(){
   $('#cdash').innerHTML=`<div class="row" style="justify-content:space-between"><h2 style="margin:0">Class dashboard</h2><span class="live"><i></i>LIVE</span></div>
   <p class="muted" style="font-size:.88rem;margin:6px 0 8px">Tap a student to open their full profile.</p><input type="text" id="csq" placeholder="🔎 Search by name or ID" aria-label="Search students" style="max-width:340px"><div id="cdb"><p class="muted">Loading students…</p></div>`;
-  let LAST=null;$('#csq').oninput=()=>LAST&&drawDash(LAST);
+  let LAST=null,SORT={k:'xp',d:-1};$('#csq').oninput=()=>LAST&&drawDash(LAST);
   CLOUD.watchUsers(list=>{LAST=list;drawDash(list)},e=>{const el=$('#cdb');if(el)el.innerHTML=`<p class="err">${esc(CLOUD.say(e))}</p>`});
-  function drawDash(list){const el=$('#cdb');if(!el)return;const I=qIndex(),q=($('#csq')&&$('#csq').value||'').trim().toLowerCase();
+  function drawDash(list){const el=$('#cdb');if(!el)return;const sh=([k,l])=>`<th data-sk="${k}" class="click" aria-sort="${SORT.k===k?(SORT.d>0?'ascending':'descending'):'none'}">${l}${SORT.k===k?(SORT.d>0?' ▲':' ▼'):''}</th>`;const I=qIndex(),q=($('#csq')&&$('#csq').value||'').trim().toLowerCase();
     const st=list.filter(x=>x.id!==LECTURER&&x.u).map(x=>{const u=x.u,n=u.n||{};return {id:x.id,name:x.name||'',xp:u.xp|0,lv:level(u.xp|0).name,str:streak(Object.assign({days:[]},u)),ts:x.ts,
-      plans:n.plans|0,timed:n.timed|0,typed:n.typed|0,flags:((u.integ||{}).paste|0)+((u.integ||{}).big|0)+((u.integ||{}).fast|0),badges:Object.keys(u.badges||{}).length,weak:weakOf(u),done:practised(u),u}}).sort((a,b)=>b.xp-a.xp);
+      plans:n.plans|0,timed:n.timed|0,typed:n.typed|0,flags:((u.integ||{}).paste|0)+((u.integ||{}).big|0)+((u.integ||{}).fast|0),badges:Object.keys(u.badges||{}).length,weak:weakOf(u),done:practised(u),wk:stWeek(u),u}}).sort((a,b)=>{const k=SORT.k,va=k==='ts'?(a.ts||0):a[k],vb=k==='ts'?(b.ts||0):b[k];return (k==='name'?String(va).localeCompare(vb):(va>vb?1:va<vb?-1:0))*SORT.d||b.xp-a.xp});
     const day=864e5,now=Date.now(),act=d=>st.filter(x=>x.ts&&now-x.ts<d).length,total=(typeof ROSTER!=='undefined'?ROSTER.hashes.length-1:st.length);
     const dec={};st.forEach(x=>Object.entries(x.u.plansSaved||{}).forEach(([id,p])=>{const e=I[id];if(!e||!p.checked)return;(p.sel||[]).forEach(j=>{const c=e.q.chips[j];if(c&&!c.g){const k=id+'|'+j;dec[k]=dec[k]||{t:c.t,why:c.why,where:e.label,n:0};dec[k].n++}})}));
     const topDec=Object.values(dec).sort((a,b)=>b.n-a.n).slice(0,8);
     const areas=[...new Set(Object.values(I).map(e=>e.area))].map(a=>({a,label:a[0]==='t'?tkLabel(a):CASEL.find(c=>'c:'+c.id===a).short+' (case practice)',n:st.filter(x=>[...x.done].some(id=>I[id]&&I[id].area===a)).length})).sort((a,b)=>a.n-b.n).slice(0,6);
     el.innerHTML=`<div class="stats" style="margin:12px 0"><div class="stat"><b>${st.length}/${total}</b><span>signed up</span></div><div class="stat"><b>${act(day)}</b><span>active today</span></div><div class="stat"><b>${act(7*day)}</b><span>active this week</span></div><div class="stat"><b>${st.length?Math.round(st.reduce((t,x)=>t+x.xp,0)/st.length):0}</b><span>average XP</span></div></div>
-    <div class="tablewrap"><table class="wide"><tr><th>#</th><th>Name</th><th>ID</th><th>XP</th><th>Level</th><th>🔥</th><th>Last active</th><th>Plans</th><th>Timed</th><th>Typed</th><th title="Pastes blocked and too-fast answers. Large inserts kept (usually voice typing) are listed in each profile.">Flags</th><th>Badges</th><th>Weak topics</th></tr>
-    ${st.filter(x=>!q||x.name.toLowerCase().includes(q)||x.id.toLowerCase().includes(q)).map((x,i)=>`<tr class="click" data-sid="${esc(x.id)}" tabindex="0"><td>${i+1}</td><td>${esc(x.name)}</td><td>${esc(x.id)}</td><td><b>${x.xp}</b></td><td>${esc(x.lv)}</td><td>${x.str}</td><td>${ago(x.ts)}</td><td>${x.plans}</td><td>${x.timed}</td><td>${x.typed}</td><td>${x.flags?'<b style="color:var(--gold)">'+x.flags+'</b>':'0'}</td><td>${x.badges}</td><td style="font-size:.82rem">${esc(x.weak.join('; ')||'–')}</td></tr>`).join('')||'<tr><td colspan="13" class="muted">No students have signed in with a PIN yet.</td></tr>'}</table></div>
+    <div class="tablewrap"><table class="wide"><tr><th>#</th>${[['name','Name']].map(sh).join('')}<th>ID</th>${[['xp','XP']].map(sh).join('')}<th>Level</th><th>🔥</th>${[['ts','Last active'],['wk','This week']].map(sh).join('')}<th>Plans</th><th>Timed</th><th>Typed</th><th title="Pastes blocked and too-fast answers. Large inserts kept (usually voice typing) are listed in each profile.">Flags</th><th>Badges</th><th>Weak topics</th></tr>
+    ${st.filter(x=>!q||x.name.toLowerCase().includes(q)||x.id.toLowerCase().includes(q)).map((x,i)=>`<tr class="click" data-sid="${esc(x.id)}" tabindex="0"><td>${i+1}</td><td>${esc(x.name)}</td><td>${esc(x.id)}</td><td><b>${x.xp}</b></td><td>${esc(x.lv)}</td><td>${x.str}</td><td>${ago(x.ts)}</td><td>${stFmt(x.wk)}</td><td>${x.plans}</td><td>${x.timed}</td><td>${x.typed}</td><td>${x.flags?'<b style="color:var(--gold)">'+x.flags+'</b>':'0'}</td><td>${x.badges}</td><td style="font-size:.82rem">${esc(x.weak.join('; ')||'–')}</td></tr>`).join('')||'<tr><td colspan="14" class="muted">No students have signed in with a PIN yet.</td></tr>'}</table></div>
     <div class="grid g2" style="margin-top:16px"><div><h3>Decoys the class picks most</h3>${topDec.length?`<ol class="sumlist">${topDec.map(d=>`<li><b>${esc(d.t)}</b> <span class="tag">${d.n} student${d.n===1?'':'s'}</span><div class="muted" style="font-size:.82rem">${esc(d.where)}${d.why?' · '+esc(d.why):''}</div></li>`).join('')}</ol>`:'<p class="muted">No decoys picked yet.</p>'}</div>
     <div><h3>Practised by the fewest students</h3><ol class="sumlist">${areas.map(a=>`<li>${esc(a.label)} <span class="tag">${a.n}/${st.length||0}</span></li>`).join('')}</ol></div></div>
     <button class="btn ghost sm" id="csv" style="margin-top:12px">⬇ Download CSV</button>`;
-    $('#csv').onclick=()=>{const q=v=>'"'+String(v).replace(/"/g,'""')+'"',rows=[['Name','ID','XP','Level','Streak','Last active','Plans','Timed','Typed','Integrity flags','Badges','Weak topics']].concat(st.map(x=>[x.name,x.id,x.xp,x.lv,x.str,x.ts?x.ts.toISOString():'',x.plans,x.timed,x.typed,x.flags,x.badges,x.weak.join('; ')]));
+    $('#csv').onclick=()=>{const q=v=>'"'+String(v).replace(/"/g,'""')+'"',rows=[['Name','ID','XP','Level','Streak','Last active','Screen time this week (min)','Plans','Timed','Typed','Integrity flags','Badges','Weak topics']].concat(st.map(x=>[x.name,x.id,x.xp,x.lv,x.str,x.ts?x.ts.toISOString():'',Math.round(x.wk/60),x.plans,x.timed,x.typed,x.flags,x.badges,x.weak.join('; ')]));
       const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([rows.map(r=>r.map(q).join(',')).join('\n')],{type:'text/csv'}));a.download='mkt101-class-'+today()+'.csv';a.click()};
+    el.querySelectorAll('[data-sk]').forEach(h=>h.onclick=()=>{SORT=SORT.k===h.dataset.sk?{k:SORT.k,d:-SORT.d}:{k:h.dataset.sk,d:h.dataset.sk==='name'?1:-1};drawDash(list)});
     el.querySelectorAll('tr[data-sid]').forEach(r=>{r.onclick=()=>openStudent(r.dataset.sid);r.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();openStudent(r.dataset.sid)}}})}}
 /* marking: typed answers waiting for a mark, and marks already given (by Claude marking or by the lecturer) */
 function markQueue(){let US=null,RV=null,tab='q',open=null;const drafts={},I=qIndex();
@@ -1028,6 +1043,7 @@ function studentPage(sid){
       <details style="margin-top:8px"><summary class="muted" style="cursor:pointer">Not yet earned (${BADGES.filter(b=>!u.badges[b.id]).length})</summary>${BADGES.filter(b=>!u.badges[b.id]).map(b=>`<span class="bsm no" title="${esc(b.d)}">${b.ico} ${esc(b.name)}</span>`).join('')}</details>
       <h3 style="margin-top:14px">MCQ record</h3><p style="font-size:.9rem;margin:0">${n.mcqRight|0} right · best run ${n.bestRow|0} in a row · Perfect 30 ×${n.perfect30|0} · Speed Run ×${n.speedrun|0}</p>
       ${mh.length?`<div class="tablewrap"><table style="margin-top:8px"><tr><th>Date</th><th>Topic</th><th>Score</th><th>Time/Q</th><th>XP</th></tr>${mh.slice().reverse().slice(0,8).map(h=>`<tr><td>${esc(h.d)}</td><td>${h.topic?'T'+h.topic:'Mixed'}${h.retry?' (retry)':''}</td><td>${h.c}/${h.n} · ${h.acc}%</td><td>${h.n?Math.round(h.s/h.n)+' s':'–'}</td><td>${h.x|0}</td></tr>`).join('')}</table></div>`:'<p class="muted">No MCQ sets yet.</p>'}</div></div>
+    ${presProfileHTML(u,sid)}
     <div class="card psec"><h2>By topic</h2><p class="muted" style="font-size:.82rem;margin-top:-4px">Bar: MCQs answered towards the 15 needed for mastery (green once 80%+). ✍️ written questions practised. ⚠️ weak-spot score.</p>${topicRows}</div>
     <div class="grid g2"><div class="card psec"><h2>Weak spots</h2>${(()=>{const w=((u.wk||{}).t)||{},ks=Object.keys(w).filter(k=>w[k][1]>0).sort((a,b)=>w[b][1]/Math.max(1,w[b][0])-w[a][1]/Math.max(1,w[a][0])).slice(0,6);
       return (ks.length?`<ol class="sumlist">${ks.map(k=>`<li>${esc(tkLabel(k))} <span class="tag">${w[k][1]} pts over ${w[k][0]} tries</span></li>`).join('')}</ol>`:'<p class="muted">None recorded yet.</p>')
@@ -1060,19 +1076,19 @@ function studentPage(sid){
       try{await CLOUD.reset(sid);toast('🔑','Reset email sent',CLOUD.email(sid))}catch(e){$('#perr').textContent=CLOUD.say(e)}};
     $('#pdl').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({sid,name:X&&X.name,lastActive:X&&X.ts,progress:X&&X.u,reviews:RV},null,1)],{type:'application/json'}));a.download='mkt101-'+sid+'-'+today()+'.json';a.click()}}
   const err=e=>{const el=$('#prof');if(el)el.innerHTML=`<p class="err">${esc(CLOUD.say(e))}</p>`};
-  CLOUD.watchStudent(sid,x=>{X=x;draw()},err);CLOUD.watchReview(sid,r=>{RV=r;draw()},err)}
+  CLOUD.watchStudent(sid,x=>{X=x;draw()},err);CLOUD.watchReview(sid,r=>{RV=r;draw()},err);presProfileWatch(()=>draw())}
 let PFROM='';const openStudent=sid=>{PFROM=location.hash||'#/lecturer';location.hash='#/student/'+sid};
 function lecturer(){
   if(ME.sid!==LECTURER)return home();
   shell('#/lecturer',`<h1>Lecturer</h1>
-  ${cloudOn()?'<div class="card" id="cdash" style="margin-bottom:22px"></div><div class="card" id="mq" style="margin-bottom:22px"></div>':'<div class="callout" style="margin-bottom:18px">Sign in with your PIN to see the live class dashboard. In device-only mode, use the score-code tools at the bottom of this page.</div>'}
+  ${liveCardHTML()}${cloudOn()?'<div class="card" id="cdash" style="margin-bottom:22px"></div><div class="card" id="mq" style="margin-bottom:22px"></div>':'<div class="callout" style="margin-bottom:18px">Sign in with your PIN to see the live class dashboard. In device-only mode, use the score-code tools at the bottom of this page.</div>'}
   <div class="card" id="demo" style="margin-bottom:22px"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Show the class</h2><button class="btn ghost sm" id="fs">⛶ Full screen</button></div>
   <p class="muted" style="font-size:.9rem;margin:6px 0 12px">Example students only, made up to explain how scoring works. Real scores appear on the Leaderboard tab.</p>
   <div class="subnav"><button data-dm="board" class="on">🏆 Example leaderboard</button><button data-dm="vs">⚔️ Student 1 vs Student 2</button><button data-dm="tips">💡 How to climb</button></div><div id="dm"></div></div>
   <h2>Content review</h2><div class="card" id="rvw" style="margin-bottom:22px"></div>
   <details class="card"${cloudOn()?'':' open'}><summary class="lex" style="cursor:pointer;font-weight:700">Offline fallback: update the leaderboard from score codes</summary><p class="muted" style="font-size:.88rem">Only needed if the live leaderboard is unavailable.</p><ol style="padding-left:1.2em;margin-top:0"><li>Paste all the score emails or codes below (everything at once is fine).</li><li>Check the preview, then <b>Download leaderboard.js</b>.</li><li>On GitHub, open the <b>mkt101-cases</b> repo → <b>Add file → Upload files</b> → drop in <code>leaderboard.js</code> → <b>Commit changes</b>.</li></ol>
   <textarea id="tx" placeholder="Paste score emails or codes here"></textarea><div class="row" style="margin-top:12px"><button class="btn" id="go">Read codes</button></div><div id="out" style="margin-top:16px"></div></details>`);
-  if(cloudOn()){classDash();markQueue()}
+  if(cloudOn()){liveCardInit();classDash();markQueue()}
   demo();$('#rvw').innerHTML=reviewHTML();$('#rvw').querySelectorAll('[data-rv]').forEach(b=>b.onchange=()=>{const r=LS.get('review',{});r[b.dataset.rv]=b.checked;LS.set('review',r)});
   $('#go').onclick=async()=>{const found=$('#tx').value.match(/MKT101-[A-Za-z0-9_-]+-[0-9a-f]{8}/g)||[];const best={};let bad=0,off=0;
     for(const code of found){const m=code.match(/^MKT101-(.+)-([0-9a-f]{8})$/);if((await sha('mkt101-score|'+m[1])).slice(0,8)!==m[2]){bad++;continue}
@@ -1095,6 +1111,8 @@ function route(){CLOUD.unwatch();clearInterval(MQT);document.onkeydown=null;dele
   if(h[0]==='long')return h[1]?longView(h[1]):longPage();
   if(h[0]==='notes')return notesPage(h[1]);
   if(h[0]==='student')return studentPage(String(h[1]||'').toUpperCase());
+  if(h[0]==='live')return livePage();
+  if(h[0]==='session')return sessionReport(String(h[1]||''));
   ({'':home,cases:caseList,badges:badgesPage,board:boardPage,lecturer:lecturer}[h[0]]||home)()}
 /* ---------- cloud sync ---------- */
 const SYNC={synced:['ok','☁️ Saved to your account'],saving:['','⏳ Saving…'],syncing:['','⏳ Syncing…'],offline:['bad','📴 Offline: saves when you reconnect'],error:['bad','⚠️ Couldn\'t save, will retry'],off:['','']};
@@ -1110,7 +1128,7 @@ async function cloudSync(){const sid=ME.sid;
   if(!ME||ME.sid!==sid)return;const R=r&&r.u;
   if(R&&(R._t||0)>LOAD_T){U=Object.assign(blank(),R);U.n=Object.assign(blank().n,U.n);LS.set('u_'+sid,U);hud();route();toast('☁️','Progress loaded',U.xp+' XP from your account')}
   CLOUD.ready(sid,()=>ME&&ME.sid===sid?{sid,name:ME.name,U,row:rowOf(sid)}:null);CLOUD.flush();
-  if(sid!==LECTURER)CLOUD.watchMine(sid,m=>{if(ME&&ME.sid===sid)applyMarks(m)})}
+  if(sid!==LECTURER)CLOUD.watchMine(sid,m=>{if(ME&&ME.sid===sid)applyMarks(m)});presCloud()}
 /* integrity flags as the lecturer sees them */
 function flagText(f){f=f||{};return [f.paste?'paste blocked ×'+f.paste:'',f.bigKept?'large insert (kept) ×'+f.bigKept:'',f.big?'big insert removed ×'+f.big:'',f.fast?'too fast':''].filter(Boolean).join(' · ')}
 function flagEvHTML(f){const ev=(f&&f.ev)||[];return ev.length?`<ul class="sumlist" style="font-size:.82rem;margin:8px 0 0">${ev.map(x=>`<li><b>${x.k==='paste'?'Paste blocked':'Large insert (kept)'}</b> · ${esc(x.t)}${x.c?' · while composing':''} · ${esc(String(x.at).slice(0,16).replace('T',' '))}<div class="muted">“${esc(x.s)}${String(x.s).length>=120?'…':''}”</div></li>`).join('')}</ul>`:''}
@@ -1158,7 +1176,7 @@ async function actionPage(a){
       box(`<div style="font-size:2.4rem">✅</div><h2>${a.mode==='verifyEmail'?'Email confirmed':'Email restored'}</h2><p class="muted">${a.mode==='verifyEmail'?'Thanks, your student email is confirmed.':'Your account email has been changed back'+(info&&info.data&&info.data.email?' to '+esc(info.data.email):'')+'. If you did not ask for a change, reset your PIN to be safe.'}</p><button class="btn" id="ab">Go to sign in</button>`);
       $('#ab').onclick=()=>signInWith('')}catch(e){fail(e)}return}
   box(`<h2>Unknown link</h2><p class="muted">This link isn't one the MKT101 Arena understands.</p><button class="btn" id="ab">Go to sign in</button>`);$('#ab').onclick=()=>signInWith('')}
-function start(){if(ACT&&!start.done){start.done=1;return actionPage(ACT)}migrateSession();ME=me();if(!ME)return gate();load();migrateProgress();if(!U.badges.boarding){checkBadges();save()}hud();route();if(ME.cloud)cloudSync();if(!U.tour)setTimeout(()=>{if(ME&&!U.tour&&!document.querySelector('.modal'))tour(0)},700);else if(!U.inst)setTimeout(()=>{if(ME&&!document.querySelector('.modal'))installPop(1)},1200)}
+function start(){if(ACT&&!start.done){start.done=1;return actionPage(ACT)}migrateSession();ME=me();if(!ME)return gate();load();migrateProgress();if(!U.badges.boarding){checkBadges();save()}hud();route();presOn();if(ME.cloud)cloudSync();if(!U.tour)setTimeout(()=>{if(ME&&!U.tour&&!document.querySelector('.modal'))tour(0)},700);else if(!U.inst)setTimeout(()=>{if(ME&&!document.querySelector('.modal'))installPop(1)},1200)}
 /* upgrade from the original MKT101 practice site: keep the signed-in student and their activity work (never wipe) */
 function migrateSession(){if(LS.get('session',null))return;try{const r=JSON.parse(localStorage.getItem('mkt101-student')||sessionStorage.getItem('mkt101-student')||'null');
   if(r&&/^S0\d{5}$/.test(r.sid||'')&&r.name)LS.set('session',{sid:r.sid,name:r.name})}catch(e){}}
