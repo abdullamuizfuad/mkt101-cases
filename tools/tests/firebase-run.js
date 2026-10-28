@@ -16,5 +16,5 @@ fs.writeFileSync(path.join(dir,'firebase.json'),JSON.stringify({firestore:{rules
 const bin=process.env.FIREBASE_BIN||'npx -y firebase-tools@13';
 const test=JSON.stringify(path.join(__dirname,'firebase.js'))+' '+process.argv.slice(2).join(' ');
 const r=spawnSync(`${bin} emulators:exec --only auth,firestore --project demo-mkt101 "node ${test.replace(/"/g,'\\"')}"`,
-  {cwd:dir,shell:true,stdio:'inherit',env:Object.assign({},process.env,{MKT101_ROOT:ROOT})});
+  {cwd:dir,shell:true,stdio:'inherit',env:Object.assign({},process.env,{RULES2:/match \/meta\//.test(fs.readFileSync(path.join(dir,'firestore.rules'),'utf8'))?'1':'',MKT101_ROOT:ROOT})});
 fs.rmSync(dir,{recursive:true,force:true});process.exit(r.status==null?1:r.status);

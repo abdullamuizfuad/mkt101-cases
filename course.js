@@ -171,7 +171,7 @@ function longPage(){const L=U.long||{};
     return `<a class="card zone" href="#/long/${e.id}" style="padding:16px"><div class="chipline" style="margin:0 0 6px"><span class="tag">${e.b==='K'?'Explain':'Apply'}</span><span class="tag">${s.done?'✓ Marked '+s.total+'/10':s.step?'In progress':'10 marks'}</span></div><p style="margin:0;font-size:.95rem">${esc(e.q)}</p></a>`}).join('')}</div>`).join('')}`)}
 function longView(id){const e=BANK.essays.find(x=>x.id===id);if(!e)return longPage();U.long=U.long||{};const s=U.long[id]||(U.long[id]={step:0,mk:{}});
   const max=e.marks.reduce((t,r)=>t+r[1],0),tot=e.marks.reduce((t,r,i)=>t+Math.min(r[1],+(s.mk[i]||0)),0),re=()=>longView(id);
-  shell('#/short',`<p><a href="#/long">← Long answers</a></p><div class="card qcard" id="lq"><div class="qmeta"><span class="tag">${TOPIC_ICO[e.t]} Topic ${e.t}</span><span class="tag">${max} marks</span><span class="tag">About ${LMINS} min</span><button class="btn ghost sm rst" data-a="restart">↺ Restart</button></div>
+  shell('#/short',`<p><a href="#/long">← Long answers</a></p><div class="card qcard" id="lq"><div class="qmeta"><span class="tag">${TOPIC_ICO[e.t]} Topic ${e.t}</span><span class="tag">${max} marks</span><span class="tag">About ${LMINS} min</span><button class="btn ghost sm rst" data-a="restart">↺ Restart</button>${rptBtn(e.id,'Long answer (Topic '+e.t+')')}</div>
   <h2 style="font-weight:600">${esc(e.q)}</h2><div class="steps">${['1 · Plan','2 · Write','3 · Mark'].map((x,j)=>`<span class="${j===s.step?'on':j<s.step||s.done?'done':''}">${j<s.step?'✓ ':''}${x}</span>`).join('')}</div>
   ${s.step===0?`<details class="mine" open><summary>How to build your answer</summary><ol style="margin:8px 0 0;padding-left:1.2em">${e.guide.map(g=>`<li>${esc(g)}</li>`).join('')}</ol></details>
    <h4>How it is marked</h4><div class="tablewrap"><table><tr><th>Part</th><th>Marks</th><th>What earns them</th></tr>${e.marks.map(r=>`<tr><td>${esc(r[0])}</td><td>${r[1]}</td><td>${esc(r[2])}</td></tr>`).join('')}</table></div>
@@ -311,7 +311,7 @@ function qCard(q,i,o={}){
   const good=q.chips.map((c,j)=>c.g?j:-1).filter(j=>j>=0),planHTML=`<div class="plan"><b class="lex" style="font-size:.85rem">Your plan</b><ol>${st.sel.filter(j=>q.chips[j].g).map(j=>`<li>${esc(q.chips[j].t)}</li>`).join('')||'<li class="muted">No key ideas picked</li>'}</ol></div>`;
   const steps=st.route==='typed'?['1 · Plan','2 · Type','3 · Mark']:st.route==='plan'?['1 · Plan','✓ Plan only']:['1 · Plan','2 · Write','3 · Check'];
   const nextBtn=`<div class="row" style="margin-top:12px"><button class="btn" data-a="next">${o.last?'See set summary 🏁':'Next question →'}</button></div>`;
-  let h=`<div class="qmeta"><span class="tag">Question ${i+1}</span><span class="tag">${esc(q.skill||q.topic)}</span>${q.t?`<span class="tag">${TOPIC_ICO[q.t]||''} Topic ${q.t}</span>`:''}<span class="tag">${q.marks||6} marks</span><button class="btn ghost sm rst" data-a="restart" title="Restart this question">↺ Restart</button></div>
+  let h=`<div class="qmeta"><span class="tag">Question ${i+1}</span><span class="tag">${esc(q.skill||q.topic)}</span>${q.t?`<span class="tag">${TOPIC_ICO[q.t]||''} Topic ${q.t}</span>`:''}<span class="tag">${q.marks||6} marks</span><button class="btn ghost sm rst" data-a="restart" title="Restart this question">↺ Restart</button>${rptBtn(q.id,(qIndex()[q.id]||{}).label||q.skill||q.topic)}</div>
   <h3 style="font-weight:600">${esc(q.q)}</h3><div class="steps">${steps.map((s,j)=>`<span class="${st.done&&j===steps.length-1||j===st.step?'on':j<st.step||st.done?'done':''}">${j<st.step||st.done&&j<steps.length-1?'✓ ':''}${s}</span>`).join('')}</div>`;
   const fin=()=>{U.fin=U.fin||{};U.fin[q.id]=1;if(st.route!=='plan'){U.tw=U.tw||{};if(q.t)U.tw[q.t]=1}const cc=o.cid&&CASEL.find(x=>x.id===o.cid);if(cc)caseCheck(cc);checkBadges()};
   const modelH=q.model&&st.done?`<details class="mine"><summary>Model answer: compare it with yours</summary>${q.model.model.map(x=>`<p>${esc(x)}</p>`).join('')}${q.model.rub?`<div class="tablewrap"><table><tr><th>Part</th><th>Marks</th><th>What earns them</th></tr>${q.model.rub.map(r=>`<tr><td>${esc(r[0])}</td><td>${r[1]}</td><td>${esc(r[2])}</td></tr>`).join('')}</table></div>`:''}</details>`:'';
@@ -429,7 +429,7 @@ function mcqPlay(){const S=U.mq,id=S.ids[S.i],q=MCQ_BY[id];if(!q){S.i++;save();r
    <div class="mopts">${ord.map((oi,k)=>{let cls='';if(done){cls=oi===0?'good':oi===a?'bad':'dim'}return `<button class="mopt ${cls}" data-oi="${oi}" ${done?'disabled':''}><span class="ml">${'ABCD'[k]}</span><span>${esc(q.o[oi])}</span></button>`}).join('')}</div>
    <div id="mfb">${done?mcqFb(S,q):''}</div>
    <div class="row" style="justify-content:space-between;margin-top:14px"><span class="muted" style="font-size:.85rem">✓ ${right} right · ⚡ ${mcqSpeed(S)} speed points</span>
-   <span class="row" style="gap:8px"><button class="btn ghost sm" id="mqq">End set</button>${done?`<button class="btn" id="mnx">${S.i<S.ids.length-1?'Next →':'See results 🏁'}</button>`:''}</span></div></div>`);
+   <span class="row" style="gap:8px">${rptBtn(id,'MCQ (Topic '+q.t+'): '+q.q.slice(0,80))}<button class="btn ghost sm" id="mqq">End set</button>${done?`<button class="btn" id="mnx">${S.i<S.ids.length-1?'Next →':'See results 🏁'}</button>`:''}</span></div></div>`);
   clearInterval(MQT);const qc=$('#qc'),t0=S.shown;
   const paint=()=>{if(!document.body.contains(qc))return clearInterval(MQT);const s=done?S.tm[id]:Math.floor((Date.now()-t0)/1000);qc.textContent='⏱ '+s+' s';qc.className='qclock'+(done?'':s<=15?' fast':s<=30?'':' slow')};
   paint();if(!done)MQT=setInterval(paint,500);
@@ -578,7 +578,7 @@ function studentPage(sid){
     el.innerHTML=`<div class="card psec"><div class="prof-h"><div class="av">${esc((X.name||sid).trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase())}</div>
       <div><h1 style="margin:0">${esc(X.name||sid)}</h1><p class="muted" style="margin:2px 0 0">${LVL_ICO[L.i]} ${esc(L.name)} · <b>${u.xp|0} XP</b>${L.to?' · '+(L.to-(u.xp|0))+' XP to '+esc(LEVELS[L.i+1][1]):' · top level'}</p>
       <div class="bar" style="margin-top:8px"><i style="width:${L.pct}%;background:var(--teal)"></i></div></div></div>
-      <div class="kv"><div>ID<b>${esc(sid)}</b></div><div>Student email<b>${esc(CLOUD.email(sid))}</b></div><div>On the leaderboard<b>${u.hide?'Hidden player':esc(u.nick||defaultNick(X.name))}</b></div>
+      <div class="kv"><div>ID<b>${esc(sid)}</b></div><div>Student email<b>${esc(CLOUD.email(sid))}</b></div><div>Name (class list)<b>${u.dn?esc(u.dn):'not added yet'}</b></div><div>Username<b>${u.un?esc(u.un):'not picked yet'}</b></div>
       <div>Streak<b>🔥 ${streak(u)} day${streak(u)===1?'':'s'}</b></div><div>Last active<b>${ago(X.ts)}</b></div><div>First practised<b>${esc(first||'–')}</b></div></div></div>
     <div class="grid g2"><div class="card psec"><h2>Activity</h2>${heatHTML(u.days)}
       <div class="stats" style="grid-template-columns:repeat(3,1fr)"><div class="stat"><b>${n.mcq|0}</b><span>MCQs</span></div><div class="stat"><b>${n.mcqSets|0}</b><span>MCQ sets</span></div><div class="stat"><b>${n.plans|0}</b><span>plans</span></div>
@@ -600,7 +600,7 @@ function studentPage(sid){
       <p class="muted" style="font-size:.8rem">Flags are signals, not proof. Large inserts are usually voice typing; open an answer to see each flag's snippet.</p></div></div>
     <div class="card psec"><h2>Typed answers <span class="tag">${ans.length}</span> <span class="tag">${marked} marked</span></h2>${ans.length?ans.slice(0,30).map(ansItem).join(''):'<p class="muted">No typed answers yet.</p>'}${ans.length>30?'<p class="muted" style="font-size:.85rem">Showing the newest 30.</p>':''}</div>
     <div class="card psec"><h2>Messages you've sent</h2>${notes.length?notes.map(([k,v])=>`<div class="note" style="border-left:3px solid var(--teal);padding:6px 10px;margin-top:6px"><p style="margin:0">${esc(v.fb)}</p><span class="muted" style="font-size:.8rem">${esc(String(v.at).slice(0,16).replace('T',' '))} · ${u.notes&&u.notes[k]?(u.notesRead&&u.notesRead[k]?'read':'delivered'):'not opened yet'}</span></div>`).join(''):'<p class="muted">None yet.</p>'}</div>
-    ${actionsHTML()}`;
+    ${profileXHTML(sid,u)}${nameEditHTML(sid,u)}${actionsHTML()}`;
     bindActions();
     el.querySelectorAll('.mqi').forEach(box=>{const k=box.dataset.k,a=(u.ans||{})[k],r=RV[k];
       box.querySelector('[data-open]')&&(box.querySelector('[data-open]').onclick=()=>{open=k;draw(1)});
