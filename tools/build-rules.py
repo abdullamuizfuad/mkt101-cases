@@ -69,6 +69,40 @@ __EMAILS__
       allow update: if isOwner(sid) && validRow() && request.resource.data.x <= resource.data.x + 3000;
       allow delete: if isOwner(sid) || isLecturer();
     }
+
+    // Live tutorial sessions: only the lecturer starts and ends them; everyone on the class list can see them.
+    // rep = the report the lecturer saves at the end ({SID: {n, on, idle, away, left, lg, pct, pr}}).
+    match /sessions/{id} {
+      allow read: if onRoster();
+      allow create, update: if isLecturer()
+        && request.resource.data.keys().hasOnly(['name', 'startedAt', 'endsAt', 'active', 'endedAt', 'rep'])
+        && request.resource.data.name is string && request.resource.data.name.size() <= 80
+        && request.resource.data.active is bool
+        && request.resource.data.startedAt is timestamp && request.resource.data.endsAt is timestamp
+        && (!('rep' in request.resource.data) || (request.resource.data.rep is map && request.resource.data.rep.size() <= 200));
+      allow delete: if isLecturer();
+
+      // A joined student's presence: written only by that student, only while the session is running.
+      match /p/{sid} {
+        allow read: if isOwner(sid) || isLecturer();
+        allow create, update: if isOwner(sid) && sessionOpen(id) && validPresence();
+        allow delete: if isLecturer();
+      }
+    }
+    function sessionOpen(id) {
+      let s = get(/databases/$(database)/documents/sessions/$(id)).data;
+      return s.active == true && request.time < s.endsAt;
+    }
+    function validPresence() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['st', 'sec', 'pr', 'on', 'idle', 'away', 'left', 'longest', 'ch', 'joinedAt', 't'])
+        && d.st in ['on', 'idle', 'away', 'off']
+        && d.sec is string && d.sec.size() <= 60 && d.pr is string && d.pr.size() <= 200
+        && d.on is int && d.on >= 0 && d.idle is int && d.idle >= 0 && d.away is int && d.away >= 0
+        && d.left is int && d.left >= 0 && d.longest is int && d.longest >= 0 && d.ch is int && d.ch >= 0
+        && d.on + d.idle + d.away <= 43200
+        && d.joinedAt is timestamp && d.t == request.time;
+    }
   }
 }
 """

@@ -241,7 +241,7 @@ function presWhere(){const h=location.hash.replace(/^#\/?/,'').split('/'),m=((do
   if(h[0]==='long')return 'Section B · Long answers';
   if(h[0]==='notes')return 'Notes'+(h[1]?' · Topic '+h[1]:'');
   if(h[0]==='case'){const c=CASEL.find(x=>x.id===h[1]);return (c?c.short:'Case')+' · '+({read:'Read',board:'Boardroom',acts:'Activities',practice:'Practice',exhibits:'Exhibits',terms:'Terms'}[h[2]||'read']||'Read')+(h[2]==='practice'?q:'')}
-  return {'':'Home',cases:'Cases',badges:'Badges',board:'Leaderboard',lecturer:'Lecturer',live:'Lecturer',session:'Lecturer',student:'Lecturer'}[h[0]]||'Home'}
+  const lect=typeof ME!=='undefined'&&ME&&ME.sid===LECTURER;return ({'':'Home',cases:'Cases',badges:'Badges',board:'Leaderboard'}[h[0]])||(lect&&['lecturer','live','session','student'].includes(h[0])?'Lecturer':'Home')}
 function presBusy(){const S=U&&U.mq;return /^#\/mcq/.test(location.hash)&&!!S&&!S.done&&S.i<S.ids.length&&S.ans&&S.ans[S.ids[S.i]]===undefined}
 /* first-time tour: 4 steps, re-openable from the footer */
 const TOUR=[['⚡','Quick-fire MCQs','Section A gives you one question at a time with the reason straight away. Correct answers earn XP; fast <b>and</b> accurate sets earn a speed bonus. Answers given before you could read the question earn nothing.'],['🧩','Plan with chips','Every question starts with a plan. Tap the ideas you would use, then check your plan. Some chips are decoys, and the feedback explains why.'],

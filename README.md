@@ -9,6 +9,14 @@ A gamified practice portal for **MKT101 Introduction to Marketing** at MNU, Topi
 - **Section C · Cases**: STO and Soneva Fushi, extended with new sections and exhibits. Read (sections marked read), Boardroom verdicts, hands-on activities, practice sets in focus mode with model answers, exhibits and key terms.
 - **Study notes** for every topic, with "I've studied this topic".
 - XP, nine levels (Intern → Marketing Consultant), streaks, three daily missions a day (tiered), 40 badges (levels, streaks, topic mastery, MCQ "prove it" badges, case badges and more), weak-spot practice, restart with exact XP refunds, a save/backup popup, a first-time tour, light and dark themes.
+- **⏱️ Screen time** on Home: today, this week, total, a 7-day chart and the 20-minute daily goal. It counts only while the portal is on screen and the student is active (it pauses after 2 minutes without a tap, key or scroll, except while a writing timer runs or 🎤 dictation is on). XP: +15 once a day for 20 minutes; +10 for every 20 minutes outside live sessions, up to 6 a day; "Hours logged" badges at 5, 10 and 20 hours; a daily-goal mission in every tier.
+- **Break reminder** after 20 minutes of continuous focus (a break = 3+ minutes without activity): *Start 5-min break* (screen time pauses) or *Not now* (asks again 10 minutes later). Never during a live session; held back while a writing timer runs or an MCQ question is open, and shown at the next pause.
+
+## Live tutorial sessions (lecturer)
+
+On the Lecturer tab, **▶ Start session** (default name "Week N tutorial"); it ends with **■ End session** or automatically after 3 hours. Students see a red banner and tap **Join**, after a note that explains exactly what is shared: whether the portal is on screen and which section they're on, nothing else, and only until the session ends. While joined, the portal reports 🟢 on screen / 🟡 idle (2+ minutes untouched) / 🔴 left the app (switched app or tab, locked screen), plus the current section; the lecturer's **live board** (`#/live`) adds ⚫ offline (no check-in for 5+ minutes), on-screen %, times left, longest time away and a "not joined" list, sortable. Ending saves a **report** (attendance, on-screen %, switches, what was practised) under **Past sessions** and in each student's profile, with a CSV download. Students on screen 85%+ of at least 10 joined minutes get **+20 XP**, claimed by their own portal.
+
+Writes: only on a status change, a section change (at most every 30 s) and a heartbeat every 2 minutes: about 60–80 per student per 2-hour session, roughly 4,500 for 56 students (the free plan allows 20,000 a day). Data: `sessions/{id}` `{name,startedAt,endsAt,active,endedAt,rep}` (lecturer only) and `sessions/{id}/p/{SID}` `{st,sec,pr,on,idle,away,left,longest,ch,joinedAt,t}` (that student only, only while the session is open). Until the rules with these blocks are published, the session features stay hidden and everything else works.
 
 
 ## Student profiles (lecturer)
@@ -33,7 +41,8 @@ Messages are stored in `reviews/{SID}.m` under keys starting `note_`. The site a
 | `roster.js` | Class list as scrambled IDs (`tools/build-roster.py`) |
 | `cloud-config.js` | **The one place for the Firebase config and the on/off switch** |
 | `cloud.js`, `vendor/firebase.js` | Cloud layer (only loaded when the switch is on) |
-| `sw.js`, `manifest.webmanifest` | Install as an app, offline support (cache `mkt101-arena-v1`) |
+| `presence.js` | Screen time, break reminders and live tutorial sessions (the same file as MKT301's) |
+| `sw.js`, `manifest.webmanifest` | Install as an app, offline support (cache `mkt101-arena-v3`) |
 | `tools/` | Class list, rules, marking and test tools |
 
 Progress lives in `localStorage` under keys starting `mkt101_` (progress from the old practice site is carried over automatically).
@@ -49,7 +58,7 @@ Progress lives in `localStorage` under keys starting `mkt101_` (progress from th
 3. In Firebase Authentication, enable Email/Password.
 4. Set `CLOUD_ON=true` in `cloud-config.js` and push.
 
-With `CLOUD_ON=false` the site runs device-only: the Firebase SDK is never requested. The data model is the same as MKT301's: `users/{SID}` `{name,u,xp,ts}`, `board/{SID}` `{n,x,l,b,s,t}`, `reviews/{SID}` `{m}`.
+With `CLOUD_ON=false` the site runs device-only: the Firebase SDK is never requested. The data model is the same as MKT301's: `users/{SID}` `{name,u,xp,ts}`, `board/{SID}` `{n,x,l,b,s,t}`, `reviews/{SID}` `{m}`, plus `sessions/{id}` and `sessions/{id}/p/{SID}` for live sessions.
 
 ## Tests
 

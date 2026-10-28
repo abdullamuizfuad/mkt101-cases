@@ -61,7 +61,7 @@ function presTick(){if(typeof ME==='undefined'||!ME||!U)return;const now=Date.no
   if(active){const a=Math.min(dt,5);PR.pend+=a;if(!inSess)PR.pendx+=a;PR.fc+=a;PR.gap=0}
   else{PR.gap+=dt;if(PR.gap>=ST.GAP){PR.fc=0;PR.next=ST.BRK}}
   if(PR.pend>=60||now-PR.lastSave>300000)stFlush(now-PR.lastSave>300000);
-  if(!PR.brk&&PR.fc>=PR.next&&!sessLive()&&!document.querySelector('.modal')&&!presBusyNow())presBreakAsk();
+  if(!PR.brk&&PR.fc>=PR.next&&!window.__presNoBreak&&!sessLive()&&!document.querySelector('.modal')&&!presBusyNow())presBreakAsk();
   if(PR.joined)presSessTick(now,dt,vis,active)}
 
 /* move counted seconds into U, award goal and block XP; full=true also saves (and syncs) */

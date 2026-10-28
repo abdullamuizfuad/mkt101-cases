@@ -25,6 +25,7 @@ async function page(opts={}){
   p.on('console',m=>{if(m.type()==='error'&&!/mailto|favicon|fonts\.g/.test(m.text()))p.errs.push('console: '+m.text())});
   p.on('dialog',d=>d.accept());
   if(opts.clock)await p.clock.install();if(opts.init)await p.addInitScript(opts.init);
+  if(!opts.breaks)await p.addInitScript(()=>{window.__presNoBreak=1});/* break reminders only in the breaks test */
   await p.goto(URL0);
   if(opts.sid){await p.evaluate(([sid,theme,tour])=>{localStorage.setItem('mkt101_session',JSON.stringify({sid,name:'Test Student'}));
       if(tour)localStorage.setItem('mkt101_u_'+sid,JSON.stringify({tour:1,inst:1,migrated:1}));if(theme)localStorage.setItem('mkt101_theme',JSON.stringify(theme))},[opts.sid,opts.theme,opts.tour!==false]);
@@ -99,7 +100,7 @@ async migration(){const p=await page();await p.evaluate(()=>{localStorage.setIte
 
 async tour(){const p=await page({sid:STUDENT,tour:false});await p.waitForTimeout(900);ok(await p.$('.modal'),'tour not shown on first sign-in');
   for(let i=0;i<5;i++){await p.click('#tn');await p.waitForTimeout(60)}ok(!await p.$('.modal'),'tour did not close');
-  await p.reload();await p.waitForTimeout(900);ok(!await p.$('.modal'),'tour shown again');await p.click('#help');ok(await p.$('.modal'),'help link does not open tour');await p.done()},
+  await p.reload();await p.waitForTimeout(900);ok(!await p.$('#tn'),'tour shown again');await p.evaluate(()=>closeModal());await p.click('#help');ok(await p.$('.modal'),'help link does not open tour');await p.done()},
 
 /* every MCQ goes through the one-at-a-time flow: one set of 30 per topic */
 async mcqAll(){const p=await page({sid:STUDENT,clock:true});const topics=await p.evaluate(()=>TOPICS);let seen=new Set();
@@ -271,6 +272,38 @@ async contrast(){const p=await page({sid:STUDENT});const r=[];for(const theme of
 async profileLocal(){const p=await page({sid:'S000001'});await p.go('#/student/S081441');await p.waitForTimeout(300);
   ok((await p.textContent('main')).includes('need the live connection'),'device-only profile note missing');
   const s=await page({sid:STUDENT});await s.go('#/student/S081441');await s.waitForTimeout(300);ok(!(await s.textContent('main')).includes('live connection')&&!!await s.$('.hero'),'student reached a profile');await s.done();await p.done()},
+
+/* screen time: visible + active counts, idle stops after 2 minutes, a writing timer keeps it counting, hidden stops; goal, bonus blocks + cap, hours badges */
+async screentime(){const p=await page({sid:STUDENT,clock:true});await p.evaluate(()=>{U.st={};U.stx={};save()});
+  const sec=()=>p.evaluate(()=>((U.st||{})[today()]|0)+PR.pend),poke=()=>p.mouse.click(5,600),vis=v=>p.evaluate(v=>{Object.defineProperty(document,'visibilityState',{value:v,configurable:true});document.dispatchEvent(new Event('visibilitychange'))},v);
+  await poke();let a=await sec();await p.clock.runFor(90000);let b=await sec();ok(b-a>=85&&b-a<=92,'90 active seconds counted as '+(b-a));
+  await poke();a=await sec();await p.clock.runFor(300000);b=await sec();ok(b-a>=115&&b-a<=126,'idle did not pause after 2 minutes: '+(b-a));
+  await poke();await vis('hidden');a=await sec();await p.clock.runFor(60000);ok(await sec()-a<1,'counted while hidden');await vis('visible');
+  await p.evaluate(()=>{const t=document.createElement('button');t.dataset.a='tgo';t.textContent='Pause';t.id='fk';document.querySelector('main').append(t)});
+  await poke();a=await sec();await p.clock.runFor(300000);b=await sec();ok(b-a>=295,'a running writing timer did not keep it counting: '+(b-a));await p.evaluate(()=>document.getElementById('fk').remove());
+  await p.evaluate(()=>{U.st[today()]=1190;U.stx[today()]=1190;PR.pend=PR.pendx=0;save()});await poke();await p.clock.runFor(15000);await p.evaluate(()=>stFlush(true));
+  let u=await p.evaluate(()=>({g:!!U.log['stgoal:'+today()],b:Object.keys(U.log).filter(k=>k.startsWith('stblock:')).length,c:U.day.c.stgoal,gx:U.gain['stgoal:'+today()]}));
+  ok(u.g&&u.b===1&&u.c===1&&u.gx===15,'daily goal or first block not awarded: '+JSON.stringify(u));
+  await p.evaluate(()=>{U.stx[today()]=1200*9;stFlush(true)});ok(await p.evaluate(()=>Object.keys(U.log).filter(k=>k.startsWith('stblock:')).length)===6,'bonus blocks not capped at 6');
+  await p.evaluate(()=>{PR.sess={id:'x',name:'t',active:true,endsAt:Date.now()+3600e3};PR.sessOn=true;PR.joined=true;U.sess={x:{j:Date.now(),on:0,idle:0,away:0,left:0,lg:0,pr:[],c:0}};PR.pendx=0});
+  await poke();await p.clock.runFor(30000);ok(await p.evaluate(()=>PR.pendx)<1&&await p.evaluate(()=>PR.pend)>0,'live-session time counted towards bonus blocks');
+  await p.evaluate(()=>{PR.sess=null;PR.sessOn=false;PR.joined=false;presBar()});
+  await p.evaluate(()=>{U.stArch=5*3600;stFlush(true)});ok((await p.U()).badges.includes('hrs5'),'5 Hours Logged badge missing');
+  await p.go('#/');ok((await p.textContent('#stcard')).includes('GOAL MET'),'Home card does not show the goal met');await shot(p,'st-card');
+  await p.go('#/badges');ok((await p.textContent('main')).includes('every 20 active minutes'),'How to earn XP row missing');await p.done()},
+
+/* break reminder: after 20 focused minutes; Not now = 10 more minutes; a break pauses screen time; deferred during a timer or an MCQ question; never in a live session */
+async breaks(){const p=await page({sid:STUDENT,clock:true,breaks:true});const brk=()=>p.$('[aria-label="Take a break"]'),poke=()=>p.mouse.click(5,600),min=async n=>{for(let i=0;i<n;i++){await poke();await p.clock.runFor(60000)}};
+  await min(19);ok(!await brk(),'reminder before 20 minutes');await min(2);ok(await brk(),'no reminder after 20 minutes');await shot(p,'break-reminder');
+  await p.click('#brn');await min(9);ok(!await brk(),'"Not now" asked again too soon');await min(2);ok(await brk(),'no reminder 10 minutes after "Not now"');
+  await p.click('#brs');ok(await p.$('#brt'),'break countdown missing');const s0=await p.evaluate(()=>((U.st||{})[today()]|0)+PR.pend);await p.clock.runFor(120000);
+  ok(await p.evaluate(()=>((U.st||{})[today()]|0)+PR.pend)-s0<1,'screen time counted during the break');await p.clock.runFor(200000);ok(!await p.$('#brt'),'break did not end after 5 minutes');
+  await p.evaluate(()=>{PR.fc=1250;const t=document.createElement('button');t.dataset.a='tgo';t.textContent='Pause';t.id='fk';document.querySelector('main').append(t)});await poke();await p.clock.runFor(5000);ok(!await brk(),'reminder during a writing timer');
+  await p.evaluate(()=>document.getElementById('fk').remove());await poke();await p.clock.runFor(3000);ok(await brk(),'deferred reminder not shown after the timer');await p.click('#brn');
+  await p.evaluate(()=>{PR.sess={id:'x',name:'t',active:true,endsAt:Date.now()+3600e3};PR.sessOn=true;PR.fc=5000;PR.next=1200});await poke();await p.clock.runFor(3000);ok(!await brk(),'reminder during a live session');
+  await p.evaluate(()=>{PR.sess=null;PR.sessOn=false;presBar()});
+  await p.go('#/mcq');await p.click('#mgo');await p.waitForSelector('.mopt');await p.evaluate(()=>{PR.fc=5000;PR.next=1200});await poke();await p.clock.runFor(3000);ok(!await brk(),'reminder in the middle of an MCQ question');
+  await p.clock.runFor(8000);await p.click('.mopt[data-oi="0"]');await p.clock.runFor(2000);ok(await brk(),'reminder not shown after answering');await p.done()},
 
 async install(){const p=await page({sid:STUDENT,tour:false});await p.waitForTimeout(1200);ok(await p.$('#tn'),'tour should open for a new student');
   for(let n=0;n<8&&await p.$('#tn');n++){await p.click('#tn');await p.waitForTimeout(120)}
