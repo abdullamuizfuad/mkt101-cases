@@ -117,15 +117,12 @@ function topicGrid(){return `<div class="tcells">${TOPICS.map(t=>{const m=master
   return `<a class="tcell ${ok?'got':''}" href="#/notes/${t}"><b>${TOPIC_ICO[t]} Topic ${t}${ok?' ✓':''}</b><span>${esc(TERM.topics[t])}</span>
   <div class="tmarks"><i class="${m.notes?'on':''}" title="Notes studied">📖</i><i class="${m.mcq?'on':''}" title="80%+ on 15 MCQs">🎯 ${m.att?m.acc+'%':'–'}</i><i class="${m.wrote?'on':''}" title="Written answer">✍️</i></div></a>`}).join('')}</div>`}
 function home(){
-  rollDay();const L=level(U.xp),got=Object.keys(U.badges).length;
-  const GO={read:'#/cases',verdicts:'#/cases',verdictsRight:'#/cases',plans:'#/short',timed:'#/short',perfect:'#/short',typed:'#/short',mcq:'#/mcq',mcqRight:'#/mcq',mset20:'#/mcq',mset80:'#/mcq',notes:'#/notes',acts:'#/cases',longs:'#/long',stgoal:'#/mcq'};
+  rollDay();
+  const GO=CRS.missionGo={read:'#/cases',verdicts:'#/cases',verdictsRight:'#/cases',plans:'#/short',timed:'#/short',perfect:'#/short',typed:'#/short',mcq:'#/mcq',mcqRight:'#/mcq',mset20:'#/mcq',mset80:'#/mcq',notes:'#/notes',acts:'#/cases',longs:'#/long',stgoal:'#/mcq'};
   const ms=missions().map(m=>{const v=Math.min(U.day.c[m.k]||0,m.n);return `<div class="mission"><span class="tick ${v>=m.n?'on':''}">${v>=m.n?'✓':''}</span><div style="flex:1">${esc(m.x)}<div class="bar" style="margin-top:6px"><i style="width:${v/m.n*100}%"></i></div></div><span class="muted">${v}/${m.n}</span>${v<m.n?`<a class="btn ghost sm" href="${GO[m.k]||'#/mcq'}" style="min-height:32px;padding:4px 10px">Go</a>`:''}</div>`}).join('');
   const caseCards=CASEL.map(c=>{const read=c.sections.filter(s=>U.log['read:'+c.id+':'+s.id]).length;return `<a class="card zone" href="#/case/${c.id}/read"><div class="em">${c.icon}</div><h3>${esc(c.short)}</h3><p class="muted" style="font-size:.9rem">${esc(c.title)}</p><div class="bar"><i style="width:${read/c.sections.length*100}%;background:var(--teal)"></i></div><p class="muted" style="font-size:.8rem;margin:6px 0 0">${read}/${c.sections.length} sections read${U.badges['case_'+c.id]?' · ✓ cracked':''}</p></a>`}).join('');
   const live=U.mq&&!U.mq.done&&U.mq.i<U.mq.ids.length;
-  shell('#/',`${inboxHTML()}
-  <div class="card hero"><div class="ring" style="--p:${L.pct}"><div><b>${L.i+1}</b><small>LEVEL</small></div></div>
-  <div><h1>Welcome back, ${esc(String(ME.name).split(' ')[0])}</h1><p class="muted" style="margin:0">${LVL_ICO[L.i]} ${esc(L.name)} · ${L.to?(L.to-U.xp)+' XP to '+LEVELS[L.i+1][1]:'Top level reached'}</p>
-  <div class="stats"><div class="stat"><b>${U.xp}</b><span>XP</span></div><div class="stat"><b>🔥 ${streak(U)}</b><span>day streak</span></div><div class="stat"><b>${got}/${BADGES.length}</b><span>badges</span></div><div class="stat"><b>${TOPICS.filter(t=>mastered(U,t)).length}/7</b><span>topics mastered</span></div></div></div></div>
+  shell('#/',`${inboxHTML()}${dashHTML()}
   <div class="grid g2" style="margin-top:16px">
    <div class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Today's mission</h2><span class="tag">${TIERS[U.day.t]} · +${MBONUS[U.day.t]} XP</span></div><p class="muted" style="font-size:.9rem;margin-top:6px">${U.day.done?'✅ Done for today. New missions tomorrow.':'Complete all three for the bonus. New missions every day, and they get tougher as you level up.'}</p>${ms}</div>
    <a class="card zone quick" href="#/mcq"><div class="em">⚡</div><h2 style="margin:4px 0">${live?'Carry on with your MCQ set':'Quick MCQ round'}</h2><p class="muted" style="font-size:.92rem">${live?`Question ${U.mq.i+1} of ${U.mq.ids.length}. Pick up where you left off.`:'Up to 30 questions, one at a time, with instant feedback. Be quick and accurate for a speed bonus.'}</p><span class="btn" style="margin-top:6px">${live?'Resume →':'Start →'}</span></a>
@@ -141,7 +138,7 @@ function home(){
   <h2 style="margin-top:26px">Section C · Case studies</h2>
   <div class="grid g2">${caseCards}</div>
   <div class="grid g2" style="margin-top:26px">
-   <div class="card"><h2>Recent badges</h2>${got?`<div class="badges">${BADGES.filter(b=>U.badges[b.id]).sort((a,b)=>U.badges[a.id]<U.badges[b.id]?1:-1).slice(0,4).map(b=>`<div class="badge got"><div class="ico">${b.ico}</div><b>${b.name}</b></div>`).join('')}</div>`:'<p class="muted">None yet. Start an MCQ round to earn your first.</p>'}<p style="margin:12px 0 0"><a href="#/badges">See all badges →</a></p></div>
+   <div class="card"><h2>Quick recall</h2><div class="grid g2" style="gap:10px"><a class="card zone" href="#/review" style="padding:14px"><div class="em">🧠</div><h3 style="margin:4px 0">Review</h3><p class="muted" style="font-size:.85rem;margin:0">${srsDue().length} due today</p></a><a class="card zone" href="#/cards" style="padding:14px"><div class="em">🃏</div><h3 style="margin:4px 0">Flashcards</h3><p class="muted" style="font-size:.85rem;margin:0">Key terms by topic</p></a></div></div>
    <div class="card" id="bk"><div class="row" style="justify-content:space-between"><h2 style="margin:0">💾 Save my progress</h2><span class="tag" id="bkl"></span></div>
   <p class="muted" style="font-size:.9rem;margin:8px 0 12px">${cloudOn()?'Your progress saves to your account. A backup copy is an extra safety net.':'Your progress lives on this device only. Save a backup to move it to another phone or laptop, or to keep it safe before clearing your browser.'}</p>
   <div class="row"><button class="btn" id="bkd">⬇ Download backup</button><button class="btn ghost" id="bkc">📧 Email or copy…</button><button class="btn ghost" id="bkr">Restore</button></div>
@@ -446,8 +443,8 @@ function mcqAnswer(oi){const S=U.mq,id=S.ids[S.i],q=MCQ_BY[id];if(S.ans[id]!==un
   const t=Math.min(600,Math.round((Date.now()-S.shown)/1000)),ok=oi===0;S.ans[id]=oi;S.tm[id]=t;
   if(!U.mday||U.mday.d!==today())U.mday={d:today(),ids:{}};
   const fresh=!S.retry&&!U.mday.ids[id];S.fr[id]=fresh;S.rs[id]=t<minRead(q);U.mday.ids[id]=1;
-  U.mrow=ok?(U.mrow||0)+1:0;if(U.mrow>(U.n.bestRow||0))U.n.bestRow=U.mrow;
-  if(fresh){U.mt=U.mt||{};const r=U.mt[q.t]||(U.mt[q.t]=[0,0]);r[0]++;if(ok)r[1]++;countOnce('mcq:'+id+':'+today(),'mcq',ok&&'mcqRight')}
+  if(!ok)srsAdd(id,true);U.mrow=ok?(U.mrow||0)+1:0;if(U.mrow>(U.n.bestRow||0))U.n.bestRow=U.mrow;
+  if(fresh){miNote(id,oi);U.mt=U.mt||{};const r=U.mt[q.t]||(U.mt[q.t]=[0,0]);r[0]++;if(ok)r[1]++;countOnce('mcq:'+id+':'+today(),'mcq',ok&&'mcqRight')}
   if(ok&&!S.rs[id]){if(fresh)award('mcq:'+id+':'+today(),2,'Correct',1);else if(S.retry)award('mcqr:'+id+':'+today(),1,'Correct',1)}
   else{checkBadges();save();hud()}
   if(!ok){U.wk=U.wk||{q:{},t:{}};const k='t'+q.t,r=U.wk.t[k]||(U.wk.t[k]=[0,0]);r[0]++;r[1]=Math.round((r[1]+.5)*10)/10}
@@ -642,3 +639,9 @@ ROUTES.mcq=h=>{if(h[1]==='t'){const t=+h[2];if(U.mq&&U.mq.done)U.mq=null;U.mtopi
 ROUTES.short=h=>shortPage(h[1]==='t'?+h[2]:0);
 ROUTES.long=h=>h[1]?longView(h[1]):longPage();
 ROUTES.notes=h=>notesPage(h[1]);
+
+/* ---------- dashboard hooks (engine/dash.js): readiness by topic, MCQs in the review queue, flashcards from the notes ---------- */
+function readyAreas(u){return TOPICS.map(t=>{const m=mastery(u,t);return {k:'t'+t,label:TOPIC_ICO[t]+' '+tName(t),href:'#/notes/'+t,cov:(m.notes?.25:0)+Math.min(1,m.att/15)*.45+(m.wrote?.3:0),acc:m.att?m.acc/100:null}})}
+function qArea(id){const q=MCQ_BY[id];return q?'t'+q.t:((qIndex()[id]||{}).area||'')}
+function revItem(id){const q=MCQ_BY[id];return q?{kind:'mcq',q:q.q,o:q.o,why:q.why,label:'Topic '+q.t+' · MCQ'}:null}
+function flashDecks(){const T=(NOTES.topics8||{}).topics||{};return TOPICS.filter(t=>T[t]&&(T[t].terms||[]).length).map(t=>({k:'t'+t,label:TOPIC_ICO[t]+' '+tName(t),cards:T[t].terms}))}
