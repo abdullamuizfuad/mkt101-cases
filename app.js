@@ -722,21 +722,25 @@ const noTimeXP=t=>toast('⏱️','No XP this time','Write for at least '+minMins
 const MCQ_BY=Object.fromEntries(BANK.mcq.map(q=>[q.id,q]));
 const minRead=q=>Math.max(3,Math.round((q.q.length+q.o.join('').length)/30));
 const MQ_SIZES=[10,20,30];
-function drawMcq(topic,size){const prev=new Set(U.mlast||[]),seen=U.mday&&U.mday.d===today()?U.mday.ids:{},pool=BANK.mcq.filter(q=>!topic||q.t===topic);
+/* topics ticked for MCQ sets: an array of 8-14 (never empty); remembered per student in U.mtopics */
+function selTopics(){let a=Array.isArray(U.mtopics)?U.mtopics.filter(t=>TOPICS.includes(t)):(U.mtopic&&TOPICS.includes(U.mtopic)?[U.mtopic]:[]);return a.length?a.sort((x,y)=>x-y):TOPICS.slice()}
+const tpLabel=a=>!a||a.length>=TOPICS.length?'All topics (8–14)':a.length===1?tName(a[0]):'Topics '+a.slice().sort((x,y)=>x-y).join(', ');
+const mqTps=S=>S.tps||(S.topic?[S.topic]:TOPICS.slice());
+function drawMcq(topic,size){const arr=Array.isArray(topic)?topic:topic?[topic]:TOPICS,one=arr.length===1?arr[0]:0;topic=one;const prev=new Set(U.mlast||[]),seen=U.mday&&U.mday.d===today()?U.mday.ids:{},pool=BANK.mcq.filter(q=>arr.includes(q.t));
   /* questions not seen today first, then ones seen today but not in the last set, then the last set */
   const rank=q=>prev.has(q.id)?2:seen[q.id]?1:0,pick=list=>[0,1,2].flatMap(r=>shuffle(list.filter(q=>rank(q)===r)));
   let ids;if(topic)ids=pick(pool).slice(0,size).map(q=>q.id);
-  else{const by=TOPICS.map(t=>pick(pool.filter(q=>q.t===t)));ids=[];let k=0;while(ids.length<size&&by.some(l=>l.length)){const l=by[k++%by.length];if(l.length)ids.push(l.shift().id)}ids=shuffle(ids)}
+  else{const by=arr.map(t=>pick(pool.filter(q=>q.t===t)));ids=[];let k=0;while(ids.length<size&&by.some(l=>l.length)){const l=by[k++%by.length];if(l.length)ids.push(l.shift().id)}ids=shuffle(ids)}
   return ids}
-function startMcq(ids,o){U.mq={sid:Date.now().toString(36),ids,ord:Object.fromEntries(ids.map(id=>[id,shuffle([0,1,2,3])])),ans:{},tm:{},fr:{},rs:{},i:0,topic:o.topic||0,retry:!!o.retry,start:Date.now(),shown:Date.now()};
+function startMcq(ids,o){U.mq={sid:Date.now().toString(36),ids,ord:Object.fromEntries(ids.map(id=>[id,shuffle([0,1,2,3])])),ans:{},tm:{},fr:{},rs:{},i:0,topic:o.topics&&o.topics.length===1?o.topics[0]:(o.topic||0),tps:o.topics||(o.topic?[o.topic]:TOPICS.slice()),retry:!!o.retry,start:Date.now(),shown:Date.now()};
   if(!o.retry)U.mlast=ids.slice();save()}
 function mcqPage(topic){
   rollDay();if(!U.mday||U.mday.d!==today())U.mday={d:today(),ids:{}};
   const S=U.mq;if(S&&S.i<S.ids.length)return mcqPlay();if(S&&S.done)return mcqSummary();
-  const tp=topic||U.mtopic||0,size=U.msize||30,h=(U.mh||[]).slice(-5).reverse();
+  const sel=selTopics(),all=sel.length===TOPICS.length,size=U.msize||30,h=(U.mh||[]).slice(-5).reverse();
   shell('#/mcq',`<h1>Section A · Multiple choice</h1><p class="muted">One question at a time with instant feedback and a reason. Answer correctly and quickly for speed points, but read each question properly: answers given too fast earn nothing.</p>
   <div class="grid g2"><div class="card"><h2>Start a set</h2>
-   <label for="mtp" style="margin-top:0">Topics</label><select id="mtp" style="width:100%"><option value="0">All topics (8–14), mixed</option>${TOPICS.map(t=>`<option value="${t}" ${t===tp?'selected':''}>${esc(tName(t))}</option>`).join('')}</select>
+   <label style="margin-top:0" id="mtl">Topics</label><div class="tpicks" role="group" aria-labelledby="mtl"><label class="tpk tpall"><input type="checkbox" id="mtall" ${all?'checked':''}><span><b>All topics</b> 8–14, mixed</span></label>${TOPICS.map(t=>`<label class="tpk"><input type="checkbox" data-tp="${t}" ${sel.includes(t)?'checked':''}><span><b>${TOPIC_ICO[t]} Topic ${t}</b> ${esc(TERM.topics[t])}</span></label>`).join('')}</div><p class="tphint" id="mthint" aria-live="polite"></p>
    <label>Questions</label><div class="seg" role="radiogroup" aria-label="Number of questions">${MQ_SIZES.map(n=>`<button type="button" role="radio" aria-checked="${n===size}" data-n="${n}" class="${n===size?'on':''}">${n}</button>`).join('')}</div>
    <button class="btn" id="mgo" style="width:100%;margin-top:16px">▶ Start</button>
    <p class="muted" style="font-size:.82rem;margin:10px 0 0">Each new set avoids the questions from your last set where it can.</p></div>
@@ -746,17 +750,19 @@ function mcqPage(topic){
    <li><b>Speed bonus</b> at the end: the faster and more accurate you are, the bigger it gets. Below about 60% accuracy there is no bonus.</li>
    <li>Answer before you have had time to read the question and it earns nothing.</li>
    <li><b>Finish bonus</b> for completing 10, 20 or 30 questions.</li></ul></div></div>
-  ${h.length?`<h2 style="margin-top:22px">Recent sets</h2><div class="card"><div class="tablewrap"><table><tr><th>Date</th><th>Topics</th><th>Score</th><th>Accuracy</th><th>Time</th><th>XP</th></tr>${h.map(r=>`<tr><td>${esc(r.d)}</td><td>${r.topic?'Topic '+r.topic:'Mixed'}${r.retry?' · retry':''}</td><td>${r.c}/${r.n}</td><td>${r.acc}%</td><td>${fmtT(r.s)}</td><td>+${r.x}</td></tr>`).join('')}</table></div></div>`:''}
+  ${h.length?`<h2 style="margin-top:22px">Recent sets</h2><div class="card"><div class="tablewrap"><table><tr><th>Date</th><th>Topics</th><th>Score</th><th>Accuracy</th><th>Time</th><th>XP</th></tr>${h.map(r=>`<tr><td>${esc(r.d)}</td><td>${r.tp?esc(tpLabel(r.tp)):r.topic?'Topic '+r.topic:'Mixed'}${r.retry?' · retry':''}</td><td>${r.c}/${r.n}</td><td>${r.acc}%</td><td>${fmtT(r.s)}</td><td>+${r.x}</td></tr>`).join('')}</table></div></div>`:''}
   <h2 style="margin-top:22px">Your accuracy by topic</h2><div class="tcells">${TOPICS.map(t=>{const m=mastery(U,t);return `<a class="tcell" href="#/mcq/t/${t}"><b>${TOPIC_ICO[t]} Topic ${t}</b><span>${esc(TERM.topics[t])}</span><div class="bar"><i style="width:${m.acc}%;background:${m.acc>=80?'var(--green)':'var(--gold)'}"></i></div><small>${m.att?m.acc+'% of '+m.att+' answered':'Not tried yet'}</small></a>`}).join('')}</div>`);
   document.querySelectorAll('.seg [data-n]').forEach(b=>b.onclick=()=>{U.msize=+b.dataset.n;save();document.querySelectorAll('.seg [data-n]').forEach(x=>{x.classList.toggle('on',x===b);x.setAttribute('aria-checked',x===b)})});
-  $('#mtp').onchange=()=>{U.mtopic=+$('#mtp').value;save()};
-  $('#mgo').onclick=()=>{const t=+$('#mtp').value,n=U.msize||30;U.mtopic=t;startMcq(drawMcq(t,n),{topic:t});mcqPlay()}}
+  const boxes=[...document.querySelectorAll('[data-tp]')],hint=$('#mthint'),keep=()=>{const a=boxes.filter(b=>b.checked).map(b=>+b.dataset.tp);U.mtopics=a;U.mtopic=a.length===1?a[0]:0;$('#mtall').checked=a.length===TOPICS.length;save()};
+  boxes.forEach(b=>b.onchange=()=>{if(!boxes.some(x=>x.checked)){b.checked=true;hint.textContent='Keep at least one topic ticked.'}else hint.textContent='';keep()});
+  $('#mtall').onchange=e=>{if(e.target.checked){boxes.forEach(b=>b.checked=true);hint.textContent=''}else{e.target.checked=true;hint.textContent='Untick the topics you want to leave out.'}keep()};
+  $('#mgo').onclick=()=>{const a=selTopics(),n=U.msize||30;startMcq(drawMcq(a,n),{topics:a});mcqPlay()}}
 const fmtT=s=>{s=Math.round(s||0);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
 let MQT=null;
 function mcqPlay(){const S=U.mq,id=S.ids[S.i],q=MCQ_BY[id];if(!q){S.i++;save();return S.i<S.ids.length?mcqPlay():mcqFinish()}
   const a=S.ans[id],done=a!==undefined,ord=S.ord[id],good=0;if(!done){S.shown=Date.now();save()}
   const right=S.ids.filter(x=>S.ans[x]===0).length,answered=Object.keys(S.ans).length;
-  shell('#/mcq',`<div class="card mcqbox" id="mcq"><div class="row" style="justify-content:space-between"><b class="lex">Question ${S.i+1} of ${S.ids.length}</b>
+  shell('#/mcq',`<div class="card mcqbox" id="mcq"><div class="row" style="justify-content:space-between"><span><b class="lex">Question ${S.i+1} of ${S.ids.length}</b><br><small class="muted" id="mqtp">${esc(tpLabel(mqTps(S)))}</small></span>
    <span class="row" style="gap:8px"><span class="tag">${TOPIC_ICO[q.t]} Topic ${q.t}</span>${S.retry?'<span class="tag">Retry</span>':''}<span class="qclock" id="qc" aria-label="Time on this question">⏱ 0 s</span></span></div>
    <div class="bar" style="margin:10px 0 14px"><i style="width:${answered/S.ids.length*100}%;background:var(--teal)"></i></div>
    <h2 class="mq" style="font-weight:600">${esc(q.q)}</h2>
@@ -800,14 +806,14 @@ function mcqFinish(){const S=U.mq;clearInterval(MQT);document.onkeydown=null;if(
   if(!S.retry&&n>=30&&c===n&&rushed===0)U.n.perfect30=(U.n.perfect30||0)+1;
   if(!S.retry&&n>=20&&acc>=.9&&avg<=15&&rushed<=n*.1)U.n.speedrun=(U.n.speedrun||0)+1;
   if(bonus)award('mqs:'+S.sid,bonus,'MCQ set bonus');else{checkBadges();save()}
-  const xp=xpOfSet(S);U.mh=(U.mh||[]).concat({d:today(),topic:S.topic,retry:S.retry,n,c,acc:Math.round(acc*100),s:secs,x:xp}).slice(-20);save();hud();mcqSummary()}
+  const xp=xpOfSet(S);U.mh=(U.mh||[]).concat({d:today(),topic:S.topic,tp:mqTps(S),retry:S.retry,n,c,acc:Math.round(acc*100),s:secs,x:xp}).slice(-20);save();hud();mcqSummary()}
 function xpOfSet(S){U.gain=U.gain||{};const d=new Date(S.start),day=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   return S.ids.reduce((t,id)=>t+(S.ans[id]===0&&!S.rs[id]?(S.fr[id]?(U.gain['mcq:'+id+':'+day]|0):S.retry?(U.gain['mcqr:'+id+':'+day]|0):0):0),0)+(U.gain['mqs:'+S.sid]|0)}
 function mcqSummary(){const S=U.mq,ans=S.ids.filter(id=>S.ans[id]!==undefined),n=ans.length,c=ans.filter(id=>S.ans[id]===0).length,acc=n?Math.round(c/n*100):0;
   const secs=ans.reduce((t,id)=>t+(S.tm[id]||0),0),wrong=ans.filter(id=>S.ans[id]!==0),B=S.bonus||{speed:0,fin:0,f:0},rushed=ans.filter(id=>S.rs[id]).length;
   const by={};ans.forEach(id=>{const t=MCQ_BY[id].t,r=by[t]||(by[t]=[0,0]);r[0]++;if(S.ans[id]===0)r[1]++});
   const weakT=Object.keys(by).filter(t=>by[t][1]/by[t][0]<.7).sort((a,b)=>by[a][1]/by[a][0]-by[b][1]/by[b][0]);
-  shell('#/mcq',`<div class="card"><div style="font-size:2.4rem">${acc>=90?'🏆':acc>=70?'🎉':'💪'}</div><h1 style="margin:4px 0">${S.retry?'Retry results':'Set results'}</h1>
+  shell('#/mcq',`<div class="card"><div style="font-size:2.4rem">${acc>=90?'🏆':acc>=70?'🎉':'💪'}</div><h1 style="margin:4px 0">${S.retry?'Retry results':'Set results'}</h1><p class="muted" id="mstp" style="margin:0 0 8px">${esc(tpLabel(mqTps(S)))}</p>
   <div class="stats"><div class="stat"><b>${c}/${n}</b><span>correct</span></div><div class="stat"><b>${acc}%</b><span>accuracy</span></div><div class="stat"><b>${fmtT(secs)}</b><span>time</span></div><div class="stat"><b>+${xpOfSet(S)}</b><span>XP from this set</span></div></div>
   ${S.retry?'':`<div class="mres"><span>⚡ ${mcqSpeed(S)} speed points</span><span>Speed bonus <b>+${B.speed}</b>${B.speed?'':rushed>n*.3?' (too many rushed answers)':acc<=60?' (needs more than 60% accuracy)':''}</span><span>Finish bonus <b>+${B.fin}</b></span></div>`}
   ${rushed?`<p class="flagnote">⚠️ ${rushed} answer${rushed===1?' was':'s were'} given before there was time to read the question, so ${rushed===1?'it':'they'} earned no XP.</p>`:''}
@@ -815,8 +821,8 @@ function mcqSummary(){const S=U.mq,ans=S.ids.filter(id=>S.ans[id]!==undefined),n
   ${weakT.length?`<div class="callout" style="margin-top:14px">🎯 <b>Practise next:</b> ${weakT.slice(0,2).map(t=>`<a href="#/notes/${t}">${esc(tName(t))} notes</a>`).join(' · ')}</div>`:''}
   ${wrong.length?`<h3 style="margin-top:16px">Questions to review (${wrong.length})</h3>${wrong.map(id=>{const q=MCQ_BY[id];return `<div class="mqi"><div class="muted" style="font-size:.8rem">Topic ${q.t}</div><b>${esc(q.q)}</b><div style="margin-top:6px;font-size:.92rem">Your answer: <span style="color:var(--red)">${esc(q.o[S.ans[id]])}</span><br>Correct: <span style="color:var(--green)">${esc(q.o[0])}</span></div><div class="muted" style="font-size:.88rem;margin-top:4px">${esc(q.why)}</div></div>`}).join('')}`:'<div class="fb ok" style="margin-top:14px">No mistakes in this set. Excellent.</div>'}
   <div class="row" style="margin-top:16px">${wrong.length?'<button class="btn gold" id="mrt">↺ Retry my mistakes</button>':''}<button class="btn" id="mns">🎲 New set</button><button class="btn ghost" id="mch">Change topic or length</button></div></div>`);
-  $('#mrt')&&($('#mrt').onclick=()=>{startMcq(shuffle(wrong),{topic:S.topic,retry:1});mcqPlay()});
-  $('#mns').onclick=()=>{startMcq(drawMcq(S.topic,U.msize||30),{topic:S.topic});mcqPlay()};
+  $('#mrt')&&($('#mrt').onclick=()=>{startMcq(shuffle(wrong),{topics:mqTps(S),retry:1});mcqPlay()});
+  $('#mns').onclick=()=>{startMcq(drawMcq(mqTps(S),U.msize||30),{topics:mqTps(S)});mcqPlay()};
   $('#mch').onclick=()=>{U.mq=null;save();mcqPage()}}
 
 /* ---------- badges ---------- */
@@ -1108,7 +1114,7 @@ function lecturer(){
 /* ---------- router ---------- */
 function route(){CLOUD.unwatch();clearInterval(MQT);document.onkeydown=null;delete document.body.dataset.case;if(!ME)return gate();const h=location.hash.replace(/^#\/?/,'').split('/');
   if(h[0]==='case')return caseView(h[1],h[2]||'read',parseInt(h[3],10)||1);
-  if(h[0]==='mcq'){if(h[1]==='t'){const t=+h[2];if(U.mq&&U.mq.done)U.mq=null;U.mtopic=TOPICS.includes(t)?t:0;save();return mcqPage(U.mtopic)}return mcqPage()}
+  if(h[0]==='mcq'){if(h[1]==='t'){const t=+h[2];if(U.mq&&U.mq.done)U.mq=null;U.mtopic=TOPICS.includes(t)?t:0;U.mtopics=U.mtopic?[U.mtopic]:TOPICS.slice();save();return mcqPage()}return mcqPage()}
   if(h[0]==='short')return shortPage(h[1]==='t'?+h[2]:0);
   if(h[0]==='long')return h[1]?longView(h[1]):longPage();
   if(h[0]==='notes')return notesPage(h[1]);

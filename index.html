@@ -239,6 +239,10 @@ th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);verti
 th{font:600 .8rem Lexend;color:var(--ink2);background:var(--w08)}
 .tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 table.wide{min-width:560px}
+.tpicks{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px}
+.tpk{display:flex;gap:9px;align-items:flex-start;padding:8px 10px;margin:0;border:1px solid var(--line);border-radius:10px;background:var(--sunk);font:400 .88rem/1.35 Inter;color:var(--ink2);cursor:pointer}
+.tpk b{color:var(--ink);font-family:Lexend;font-weight:600}.tpk input{width:18px;height:18px;margin:1px 0 0;flex:none;accent-color:var(--teal)}.tpk:has(input:checked){border-color:var(--teal)}.tpall{grid-column:1/-1}
+.tphint{font-size:.82rem;color:var(--gold);min-height:1em;margin:6px 0 0}
 select{font:15px Inter;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:var(--field);color:var(--ink);max-width:100%;min-height:40px}
 .sortrow{display:grid;grid-template-columns:1fr;gap:8px;padding:10px 0;border-bottom:1px dashed var(--line)}
 .sortrow .row select{flex:1 1 140px}

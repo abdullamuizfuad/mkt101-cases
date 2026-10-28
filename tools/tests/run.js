@@ -115,6 +115,19 @@ async mcqAll(){const p=await page({sid:STUDENT,clock:true});const topics=await p
   ok(Object.values(u.mt).every(r=>r[0]===30&&r[1]===24),'topic accuracy off: '+JSON.stringify(u.mt));await p.done()},
 
 /* XP and speed design */
+async mcqTopics(){const p=await page({sid:STUDENT});await p.go('#/mcq');
+  ok(await p.$eval('#mtall',b=>b.checked)&&(await p.$$eval('[data-tp]',b=>b.filter(x=>x.checked).length))===7,'all topics should start ticked');
+  await p.click('#mtall');ok(await p.$eval('#mtall',b=>b.checked)&&/Untick/.test(await p.textContent('#mthint')),'All topics cannot be unticked to nothing');
+  for(const t of [8,10,11,13,14])await p.click(`[data-tp="${t}"]`);
+  ok(JSON.stringify(await p.evaluate(()=>U.mtopics))==='[9,12]','ticked topics not saved');ok(!await p.$eval('#mtall',b=>b.checked),'All topics should untick');
+  await p.click('[data-tp="12"]');await p.click('[data-tp="9"]');ok(await p.$eval('[data-tp="9"]',b=>b.checked)&&/at least one/.test(await p.textContent('#mthint')),'last topic could be unticked');
+  await p.click('[data-tp="12"]');await p.click('.seg [data-n="20"]');await p.click('#mgo');await p.waitForTimeout(50);
+  const ts=await p.evaluate(()=>[...new Set(U.mq.ids.map(id=>MCQ_BY[id].t))].sort((a,b)=>a-b));ok(JSON.stringify(ts)==='[9,12]','set drew other topics: '+ts);
+  ok((await p.evaluate(()=>U.mq.ids.length))===20,'set size');ok((await p.textContent('#mqtp')).includes('Topics 9, 12'),'set header should name the topics');
+  await shot(p,'mcq-topics-play');await p.evaluate(()=>{U.mq=null;save()});await p.reload();await p.waitForTimeout(400);await p.go('#/mcq');
+  ok(await p.$eval('[data-tp="9"]',b=>b.checked)&&await p.$eval('[data-tp="12"]',b=>b.checked)&&!await p.$eval('[data-tp="8"]',b=>b.checked),'choice not remembered');
+  await shot(p,'mcq-topics');await p.done()},
+
 async mcqXP(){const p=await page({sid:STUDENT,clock:true});
   /* 30 fresh, all right, comfortably read but quick: 60 base + 45 speed bonus + 15 finish + 10 daily check-in */
   await p.go('#/mcq');await p.click('.seg [data-n="30"]');await p.click('#mgo');
