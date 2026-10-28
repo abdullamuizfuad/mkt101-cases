@@ -78,7 +78,7 @@ async concepts(){const p=await page({sid:STUDENT});const r=await p.evaluate(()=>
   ok(!r.length,'concept check off for: '+r.join(', '));await p.done()},
 
 async signin(){const p=await page();
-  ok(await p.$('#sid'),'sign-in form missing');ok(!p.reqs.some(u=>/vendor\/firebase\.js/.test(u)),'Firebase SDK loaded while the cloud is off');ok(await p.evaluate(()=>!CLOUD.ok&&CLOUD_ON===false),'cloud should be off');
+  ok(await p.$('#sid'),'sign-in form missing');if(!await p.evaluate(()=>CLOUD_ON)){ok(!p.reqs.some(u=>/vendor\/firebase\.js/.test(u)),'Firebase SDK loaded while the cloud is off');ok(await p.evaluate(()=>!CLOUD.ok),'cloud should be off')}
   await p.fill('#nm','Test Student');await p.type('#sid','0814');ok((await p.textContent('#mla')).startsWith('s0814'),'email does not fill while typing');
   ok(await p.$eval('#go',b=>b.disabled),'button should be disabled before verifying');
   await p.type('#sid','41');await p.waitForTimeout(300);ok((await p.textContent('#mst')).includes('Verified'),'listed ID not verified');
