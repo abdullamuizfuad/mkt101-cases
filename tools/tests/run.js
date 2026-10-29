@@ -377,7 +377,11 @@ async install(){const p=await page({sid:STUDENT,tour:false});await p.waitForTime
   await p.click('#idone');await p.reload();await p.waitForTimeout(1600);ok(!await p.$('[aria-label="Install the app"]'),'install popup should show only once');
   await p.click('#inst');await p.waitForTimeout(200);ok(await p.$('[aria-label="Install the app"]'),'footer link should reopen it');await p.done()},
 
-async engine(){const r=require('child_process').spawnSync(process.execPath,[path.join(ROOT,'tools','sync-engine.mjs'),'--check'],{encoding:'utf8'});ok(r.status===0,'shared engine out of sync:\n'+r.stdout+r.stderr)},
+async engine(){const r=require('child_process').spawnSync(process.execPath,[path.join(ROOT,'tools','sync-engine.mjs'),'--check'],{encoding:'utf8'});ok(r.status===0,'shared engine out of sync:\n'+r.stdout+r.stderr)
+  /* every script shares one global scope: a function or const declared twice silently replaces the first */
+  const fs=require('fs'),files=fs.readdirSync(path.join(ROOT,'engine')).filter(f=>f.endsWith('.js')).map(f=>'engine/'+f).concat(['course.js']),seen={},dup=[];
+  for(const f of files)for(const m of fs.readFileSync(path.join(ROOT,f),'utf8').matchAll(/^(?:async )?(?:function|const|let) ([A-Za-z0-9_$]+)/gm)){if(seen[m[1]]&&seen[m[1]]!==f)dup.push(m[1]+' ('+seen[m[1]]+', '+f+')');seen[m[1]]=f}
+  ok(!dup.length,'declared in two files: '+dup.join('; '))},
 
 async offline(){const p=await page({sid:STUDENT,sw:true});const s=await p.evaluate(async()=>{const r=await navigator.serviceWorker.ready;return {a:!!r.active,scope:r.scope}});ok(s.a,'service worker not active');
   const keys=await p.evaluate(()=>caches.keys());ok(keys.some(k=>/^mkt101-arena-v\d+$/.test(k))&&!keys.some(k=>/mkt301/.test(k)),'cache name: '+keys);
