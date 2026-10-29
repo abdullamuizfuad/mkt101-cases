@@ -644,4 +644,5 @@ ROUTES.notes=h=>notesPage(h[1]);
 function readyAreas(u){return TOPICS.map(t=>{const m=mastery(u,t);return {k:'t'+t,label:TOPIC_ICO[t]+' '+tName(t),href:'#/notes/'+t,cov:(m.notes?.25:0)+Math.min(1,m.att/15)*.45+(m.wrote?.3:0),acc:m.att?m.acc/100:null}})}
 function qArea(id){const q=MCQ_BY[id];return q?'t'+q.t:((qIndex()[id]||{}).area||'')}
 function revItem(id){const q=MCQ_BY[id];return q?{kind:'mcq',q:q.q,o:q.o,why:q.why,label:'Topic '+q.t+' · MCQ'}:null}
+function dashStats(){return [[TOPICS.filter(t=>mastered(U,t)).length+'/7','topics mastered','#/notes']]}
 function flashDecks(){const T=(NOTES.topics8||{}).topics||{};return TOPICS.filter(t=>T[t]&&(T[t].terms||[]).length).map(t=>({k:'t'+t,label:TOPIC_ICO[t]+' '+tName(t),cards:T[t].terms}))}
