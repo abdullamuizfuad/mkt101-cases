@@ -11,3 +11,6 @@ tools/marking/marks.json
 tools/marking/.token
 node_modules/
 __pycache__/
+
+# phone notifications: which messages were sent
+tools/push/sent.json

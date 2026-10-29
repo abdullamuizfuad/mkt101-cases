@@ -12,3 +12,5 @@ const CLOUD_CONFIG={
   messagingSenderId:"1054434034798",
   appId:"1:1054434034798:web:39956c8349a47db10b127f"
 };
+/* phone notifications (docs/PUSH.md): off until the lecturer sets them up. PUSH_KEY is the public VAPID key (safe to commit). */
+const PUSH_ON=false,PUSH_KEY='';

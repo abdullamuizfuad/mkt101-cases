@@ -656,3 +656,7 @@ function paperSpec(rng){const pick=(a,n)=>{a=a.slice();const o=[];while(a.length
   return [{k:'a',title:'MCQs',mins:30,note:'Pick one answer for each question. You can change your answers until you submit the section.',items:pick(M,M.length).map(q=>({id:q.id,kind:'mcq',q:q.q,o:q.o,label:'Topic '+q.t}))},
     {k:'b',title:'Written answers',mins:75,note:'Three short answers and one long answer. Explain, give an example, and say why it matters.',items:S.concat([{id:e.id,kind:'written',q:e.q,ideas:e.guide,label:'Topic '+e.t+' · long answer'}])},
     {k:'c',title:'Case study: '+c.short,mins:75,note:'Answer the questions about the case. You can open the case in a new tab.',items:C.map((x,i)=>i?x:Object.assign(x,{html:`<p><a href="#/case/${c.id}/read" target="_blank" rel="noopener">📖 Open ${esc(c.short)} in a new tab</a></p>`}))}]}
+
+/* quick quiz items (engine/social.js: challenges, the weekend challenge, quiz battles): the MCQ bank */
+function quizItem(id){const q=MCQ_BY[id];return q?{id:q.id,q:q.q,o:q.o,why:q.why,label:'Topic '+q.t}:null}
+function quizItems(rng,n){const all=BANK.mcq,o=[],used=new Set();while(o.length<n&&o.length<all.length){const q=all[Math.floor(rng()*all.length)];if(used.has(q.id))continue;used.add(q.id);o.push(quizItem(q.id))}return o}
