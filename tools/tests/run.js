@@ -27,7 +27,7 @@ async function page(opts={}){
   if(opts.clock)await p.clock.install();if(opts.init)await p.addInitScript(opts.init);
   if(!opts.breaks)await p.addInitScript(()=>{window.__presNoBreak=1});
   /* already on Version 2.1 (the release test turns this off to see the one-time sign-out) */
-  if(opts.ver!==false)await p.addInitScript(()=>{try{if(!localStorage.getItem('mkt101_ver'))localStorage.setItem('mkt101_ver','"2.1"')}catch(e){}});/* break reminders only in the breaks test */
+  if(opts.ver!==false)await p.addInitScript(()=>{window.__noWhatsNew=1;try{if(!localStorage.getItem('mkt101_ver'))localStorage.setItem('mkt101_ver','"2.1"')}catch(e){}});/* break reminders only in the breaks test */
   await p.goto(URL0);
   if(opts.sid){await p.evaluate(([sid,theme,tour])=>{localStorage.setItem('mkt101_session',JSON.stringify({sid,name:'Test Student'}));
       if(tour)localStorage.setItem('mkt101_u_'+sid,JSON.stringify({tour:1,inst:1,migrated:1}));if(theme)localStorage.setItem('mkt101_theme',JSON.stringify(theme))},[opts.sid,opts.theme,opts.tour!==false]);

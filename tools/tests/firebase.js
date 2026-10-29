@@ -17,7 +17,7 @@ const shot=async(p,name,full)=>{if(ARGS.shots)await p.screenshot({path:path.join
 async function page(o={}){const ctx=await browser.newContext({viewport:{width:o.w||390,height:o.h||844}});
   if(o.theme)await ctx.addInitScript(t=>localStorage.setItem('mkt101_theme',JSON.stringify(t)),o.theme);
   await ctx.addInitScript(()=>{window.__presNoBreak=1});
-  if(o.ver!==false)await ctx.addInitScript(()=>{try{if(!localStorage.getItem('mkt101_ver'))localStorage.setItem('mkt101_ver','"2.1"')}catch(e){}});
+  if(o.ver!==false)await ctx.addInitScript(()=>{window.__noWhatsNew=1;try{if(!localStorage.getItem('mkt101_ver'))localStorage.setItem('mkt101_ver','"2.1"')}catch(e){}});
   await ctx.route('**/roster.js',r=>r.fulfill({contentType:'text/javascript',body:TEST_ROSTER}));
   const p=await ctx.newPage();p.errs=[];p.allow=o.allow||null;
   p.on('pageerror',e=>{if(!(p.allow&&p.allow.test(e.message)))p.errs.push('pageerror: '+e.message)});
