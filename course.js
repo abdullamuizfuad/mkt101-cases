@@ -113,38 +113,14 @@ const TOUR=[['⚡','Quick-fire MCQs','Section A gives you one question at a time
  ['🏁','Finish your way','After planning, choose: <b>📝 Plan only</b> to move on, <b>✍️ Write on paper</b> against the clock, or <b>⌨️ Type my answer</b> (or speak it with 🎤) for an automatic check of the key ideas. Your lecturer may mark typed answers too.'],
  ['✨','XP, missions and badges','Earn XP for answering, reading, planning and writing. Three daily missions change every day and get tougher as you level up. <b>⏱️ Screen time</b> counts your active minutes: 20 a day meets your daily goal. In class, tap <b>Join</b> when your lecturer starts a live session.'],
  ['💾','Keep your progress safe','Your progress lives on this device. Tap <b>💾 Save</b> in the top bar to email a copy to your lecturer or download it.']];
-function topicGrid(){return `<div class="tcells">${TOPICS.map(t=>{const m=mastery(U,t),ok=mastered(U,t);
+function topicGrid(u){return `<div class="tcells">${TOPICS.map(t=>{const m=mastery(u,t),ok=mastered(u,t);
   return `<a class="tcell ${ok?'got':''}" href="#/notes/${t}"><b>${TOPIC_ICO[t]} Topic ${t}${ok?' ✓':''}</b><span>${esc(TERM.topics[t])}</span>
   <div class="tmarks"><i class="${m.notes?'on':''}" title="Notes studied">📖</i><i class="${m.mcq?'on':''}" title="80%+ on 15 MCQs">🎯 ${m.att?m.acc+'%':'–'}</i><i class="${m.wrote?'on':''}" title="Written answer">✍️</i></div></a>`}).join('')}</div>`}
-function home(){
-  rollDay();
-  const GO=CRS.missionGo={read:'#/cases',verdicts:'#/cases',verdictsRight:'#/cases',plans:'#/short',timed:'#/short',perfect:'#/short',typed:'#/short',mcq:'#/mcq',mcqRight:'#/mcq',mset20:'#/mcq',mset80:'#/mcq',notes:'#/notes',acts:'#/cases',longs:'#/long',stgoal:'#/mcq'};
-  const ms=missions().map(m=>{const v=Math.min(U.day.c[m.k]||0,m.n);return `<div class="mission"><span class="tick ${v>=m.n?'on':''}">${v>=m.n?'✓':''}</span><div style="flex:1">${esc(m.x)}<div class="bar" style="margin-top:6px"><i style="width:${v/m.n*100}%"></i></div></div><span class="muted">${v}/${m.n}</span>${v<m.n?`<a class="btn ghost sm" href="${GO[m.k]||'#/mcq'}" style="min-height:32px;padding:4px 10px">Go</a>`:''}</div>`}).join('');
-  const caseCards=CASEL.map(c=>{const read=c.sections.filter(s=>U.log['read:'+c.id+':'+s.id]).length;return `<a class="card zone" href="#/case/${c.id}/read"><div class="em">${c.icon}</div><h3>${esc(c.short)}</h3><p class="muted" style="font-size:.9rem">${esc(c.title)}</p><div class="bar"><i style="width:${read/c.sections.length*100}%;background:var(--teal)"></i></div><p class="muted" style="font-size:.8rem;margin:6px 0 0">${read}/${c.sections.length} sections read${U.badges['case_'+c.id]?' · ✓ cracked':''}</p></a>`}).join('');
-  const live=U.mq&&!U.mq.done&&U.mq.i<U.mq.ids.length;
-  shell('#/',`${inboxHTML()}${dashHTML()}
-  <div class="grid g2" style="margin-top:16px">
-   <div class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Today's mission</h2><span class="tag">${TIERS[U.day.t]} · +${MBONUS[U.day.t]} XP</span></div><p class="muted" style="font-size:.9rem;margin-top:6px">${U.day.done?'✅ Done for today. New missions tomorrow.':'Complete all three for the bonus. New missions every day, and they get tougher as you level up.'}</p>${ms}</div>
-   <a class="card zone quick" href="#/mcq"><div class="em">⚡</div><h2 style="margin:4px 0">${live?'Carry on with your MCQ set':'Quick MCQ round'}</h2><p class="muted" style="font-size:.92rem">${live?`Question ${U.mq.i+1} of ${U.mq.ids.length}. Pick up where you left off.`:'Up to 30 questions, one at a time, with instant feedback. Be quick and accurate for a speed bonus.'}</p><span class="btn" style="margin-top:6px">${live?'Resume →':'Start →'}</span></a>
-  </div>
-  <div style="margin-top:16px">${stCardHTML()}</div>
-  <h2 style="margin-top:26px">Topic mastery</h2><p class="muted" style="margin-top:-4px;font-size:.9rem">Each topic badge needs 📖 the notes studied, 🎯 80%+ on at least 15 MCQs, and ✍️ one written answer on the topic.</p>${topicGrid()}
-  <h2 style="margin-top:26px">Practice</h2>
-  <div class="grid g3">
-   <a class="card zone" href="#/mcq"><div class="em">🎯</div><h3>Section A · MCQ</h3><p class="muted" style="font-size:.9rem">Question by question, with reasons and a speed bonus.</p><div class="chipline"><span class="tag">${BANK.mcq.length} questions</span></div></a>
-   <a class="card zone" href="#/short"><div class="em">🧩</div><h3>Section B · Written answers</h3><p class="muted" style="font-size:.9rem">Plan short answers with chips, then write long answers against the clock.</p><div class="chipline"><span class="tag">${BANK_S.length} short</span><span class="tag">${BANK.essays.length} long</span></div></a>
-   <a class="card zone" href="#/notes"><div class="em">📖</div><h3>Study notes</h3><p class="muted" style="font-size:.9rem">Key ideas, diagrams, terms and quick checks for every topic.</p><div class="chipline"><span class="tag">Topics 8–14</span></div></a>
-  </div>
-  <h2 style="margin-top:26px">Section C · Case studies</h2>
-  <div class="grid g2">${caseCards}</div>
-  <div class="grid g2" style="margin-top:26px">
-   <div class="card"><h2>Quick recall</h2><div class="grid g2" style="gap:10px"><a class="card zone" href="#/review" style="padding:14px"><div class="em">🧠</div><h3 style="margin:4px 0">Review</h3><p class="muted" style="font-size:.85rem;margin:0">${srsDue().length} due today</p></a><a class="card zone" href="#/cards" style="padding:14px"><div class="em">🃏</div><h3 style="margin:4px 0">Flashcards</h3><p class="muted" style="font-size:.85rem;margin:0">Key terms by topic</p></a></div></div>
-   <div class="card" id="bk"><div class="row" style="justify-content:space-between"><h2 style="margin:0">💾 Save my progress</h2><span class="tag" id="bkl"></span></div>
-  <p class="muted" style="font-size:.9rem;margin:8px 0 12px">${cloudOn()?'Your progress saves to your account. A backup copy is an extra safety net.':'Your progress lives on this device only. Save a backup to move it to another phone or laptop, or to keep it safe before clearing your browser.'}</p>
-  <div class="row"><button class="btn" id="bkd">⬇ Download backup</button><button class="btn ghost" id="bkc">📧 Email or copy…</button><button class="btn ghost" id="bkr">Restore</button></div>
-  <div id="bkp" class="hide" style="margin-top:14px"><label for="bkt">Paste your backup code, or choose your backup file</label><textarea id="bkt" style="min-height:90px" placeholder="MKT101Z-..."></textarea>
-  <div class="row" style="margin-top:10px"><input type="file" id="bkf" accept=".txt,text/plain" style="max-width:100%;color:var(--ink2)"><button class="btn gold" id="bkgo">Restore</button></div><div class="err" id="bke"></div></div></div></div>`);
-  backupCard()}
+CRS.missionGo={read:'#/cases',verdicts:'#/cases',verdictsRight:'#/cases',plans:'#/short',timed:'#/short',perfect:'#/short',typed:'#/short',mcq:'#/mcq',mcqRight:'#/mcq',mset20:'#/mcq',mset80:'#/mcq',notes:'#/notes',acts:'#/cases',longs:'#/long',stgoal:'#/mcq'};
+/* the four big practice tiles on home and on #/practice (engine/simple.js) */
+function homeTiles(){const live=U&&U.mq&&!U.mq.done&&U.mq.i<U.mq.ids.length;
+  return [['🎯','Section A · MCQ',live?'Resume: question '+(U.mq.i+1)+' of '+U.mq.ids.length:BANK.mcq.length+' questions, with a speed bonus','#/mcq'],['🧩','Section B · Written answers',BANK_S.length+' short · '+BANK.essays.length+' long','#/short'],
+    ['🏝️','Section C · Cases',CASEL.map(c=>c.short).join(' · '),'#/cases'],['📖','Study notes','Topics 8–14: ideas, terms, checks','#/notes']]}
 function writtenTabs(on){return `<div class="subnav"><a class="sbtn ${on==='s'?'on':''}" href="#/short">🧩 Short answers · 6 marks</a><a class="sbtn ${on==='l'?'on':''}" href="#/long">🖋️ Long answers · 10 marks</a></div>`}
 function shortPage(topic){
   if(topic&&TOPICS.includes(topic)&&U.stopic!==topic){U.stopic=topic;clearPlans(U.sets._s);U.sets._s=null;U.focus=U.focus||{};U.focus._s=0}
@@ -547,20 +523,13 @@ function studentPage(sid){
   if(!cloudOn())return shell('#/lecturer',`<p><a href="#/lecturer">← Lecturer</a></p><div class="callout">Student profiles need the live connection. Sign in with your PIN while online to open them.</div>`);
   if(!/^S0\d{5}$/.test(sid||''))return lecturer();
   shell('#/lecturer',`<p><a href="${esc(PFROM||'#/lecturer')}" id="pback">← Back</a></p><div id="prof"><p class="muted">Loading ${esc(sid)}…</p></div>`);
-  let X,RV,open=null,tab='ans';const drafts={};
+  let X,RV,open=null,tab='ans';const drafts={},OPEN=new Set();
   const draw=force=>{const el=$('#prof');if(!el||X===undefined||RV===undefined)return;const ae=document.activeElement;if(!force&&ae&&el.contains(ae)&&/TEXTAREA|INPUT|SELECT/.test(ae.tagName))return;
     if(!X||!X.u){el.innerHTML=`<div class="card"><h2>${esc(sid)}</h2><p class="muted">This student hasn't signed in with a PIN yet, so there is no saved progress. (Email: ${esc(CLOUD.email(sid))})</p></div>${actionsHTML()}`;bindActions();return}
-    const u=Object.assign({log:{},days:[],badges:{},n:{}},X.u),n=u.n||{},L=level(u.xp|0),I=qIndex(),fin=u.fin||{},done=practised(u);
+    const u=Object.assign({log:{},days:[],badges:{},n:{}},X.u),L=level(u.xp|0),I=qIndex();
     const ans=Object.entries(u.ans||{}).sort((a,b)=>String(a[1].at)<String(b[1].at)?1:-1),notes=Object.entries(RV).filter(([k])=>isNote(k)).sort((a,b)=>String(a[1].at)<String(b[1].at)?1:-1);
-    const marked=ans.filter(([k])=>RV[k]).length,first=[...(u.days||[])].sort()[0],ig=u.integ||{},{dec,miss}=decoyStats(u),mh=u.mh||[];
-    const topicRows=TOPICS.map(t=>{const m=mastery(u,t),sh=BANK_S.filter(q=>q.t===t),sd=sh.filter(q=>done.has(q.id)||fin[q.id]).length,w=((u.wk||{}).t||{})['t'+t],best=mh.filter(h=>h.topic===t&&!h.retry).reduce((b,h)=>Math.max(b,h.acc|0),-1);
-      return `<div class="pb"><span>${TOPIC_ICO[t]} <b>Topic ${t}</b><br><span class="muted" style="font-size:.8rem">${esc(TERM.topics[t])}</span></span>
-      <div class="bar"><i style="width:${Math.min(100,m.att/15*100)}%;background:${m.mcq?'var(--green)':'var(--teal)'}"></i></div>
-      <span style="text-align:right;font-size:.82rem">${m.att} MCQs · ${m.acc}%${best>=0?' · best set '+best+'%':''}<br>📖 ${m.notes?'✓':'–'} · ✍️ ${sd}/${sh.length}${w&&w[1]?' · ⚠️ '+w[1]:''} · ${mastered(u,t)?'🏅 mastered':'not mastered'}</span></div>`}).join('');
-    const caseRows=CASEL.map(c=>{const rd=c.sections.filter(s=>u.log['read:'+c.id+':'+s.id]).length,vs=c.boardroom.map((a,i)=>[a,(u.verd||{})[c.id+':'+i]]).filter(x=>x[1]),ok=vs.filter(x=>x[1]===x[0].v).length,
-      qd=c.questions.filter(q=>fin[q.id]||done.has(q.id)).length,ad=c.acts.filter((a,i)=>u.log['actdone:'+c.id+':'+(i+1)]).length;
-      return `<div class="pb"><span>${c.icon} <b>${esc(c.short)}</b></span><div class="bar"><i style="width:${(rd/c.sections.length*100)|0}%"></i></div>
-      <span style="text-align:right;font-size:.82rem">read ${rd}/${c.sections.length} · Boardroom ${vs.length}/${c.boardroom.length}${vs.length?' ('+Math.round(ok/vs.length*100)+'% match)':''}<br>practice ${qd}/${c.questions.length} · activities ${ad}/${c.acts.length}${u.badges['case_'+c.id]?' · 🏅':''}</span></div>`}).join('');
+    const marked=ans.filter(([k])=>RV[k]).length,first=[...(u.days||[])].sort()[0];
+    if(!OPEN.init){OPEN.init=1;if(ans.some(([k])=>!RV[k]))OPEN.add('ans')}
     const ansItem=([k,a])=>{const e=I[a.q],r=RV[k],good=e?e.q.chips.filter(c=>c.g).length:0,fl=a.fl||{},flt=flagText(fl);
       const d=drafts[k]||{band:r?r.band:a.b|0,xp:r?r.xp:Math.min(30,(a.b|0)*4),fb:r?r.fb:''};
       return `<div class="mqi" data-k="${esc(k)}"><div class="row" style="justify-content:space-between"><b style="font-size:.9rem">${esc(e?e.label:a.q)}</b><span class="muted" style="font-size:.8rem">${esc(String(a.at||'').slice(0,16).replace('T',' '))}</span></div>
@@ -576,29 +545,13 @@ function studentPage(sid){
       <div><h1 style="margin:0">${esc(X.name||sid)}</h1><p class="muted" style="margin:2px 0 0">${LVL_ICO[L.i]} ${esc(L.name)} · <b>${u.xp|0} XP</b>${L.to?' · '+(L.to-(u.xp|0))+' XP to '+esc(LEVELS[L.i+1][1]):' · top level'}</p>
       <div class="bar" style="margin-top:8px"><i style="width:${L.pct}%;background:var(--teal)"></i></div></div></div>
       <div class="kv"><div>ID<b>${esc(sid)}</b></div><div>Student email<b>${esc(CLOUD.email(sid))}</b></div><div>Name (class list)<b>${u.dn?esc(u.dn):'not added yet'}</b></div><div>Username<b>${u.un?esc(u.un):'not picked yet'}</b></div>
-      <div>Streak<b>🔥 ${streak(u)} day${streak(u)===1?'':'s'}</b></div><div>Last active<b>${ago(X.ts)}</b></div><div>First practised<b>${esc(first||'–')}</b></div></div></div>
-    <div class="grid g2"><div class="card psec"><h2>Activity</h2>${heatHTML(u.days)}
-      <div class="stats" style="grid-template-columns:repeat(3,1fr)"><div class="stat"><b>${n.mcq|0}</b><span>MCQs</span></div><div class="stat"><b>${n.mcqSets|0}</b><span>MCQ sets</span></div><div class="stat"><b>${n.plans|0}</b><span>plans</span></div>
-      <div class="stat"><b>${n.timed|0}</b><span>timed</span></div><div class="stat"><b>${n.typed|0}</b><span>typed</span></div><div class="stat"><b>${marked}</b><span>marked</span></div>
-      <div class="stat"><b>${n.longs|0}</b><span>long answers</span></div><div class="stat"><b>${n.acts|0}</b><span>activities</span></div><div class="stat"><b>${n.missions|0}</b><span>missions</span></div></div>
-      <h3 style="margin-top:14px">Recent activity</h3>${recentHTML(u)}</div>
-    <div class="card psec"><h2>Badges <span class="tag">${Object.keys(u.badges).length}/${BADGES.length}</span></h2>
-      <div>${BADGES.map(b=>u.badges[b.id]?`<span class="bsm got" title="${esc(b.d)}">${b.ico} ${esc(b.name)} <span class="muted">${esc(u.badges[b.id])}</span></span>`:'').join('')}</div>
-      <details style="margin-top:8px"><summary class="muted" style="cursor:pointer">Not yet earned (${BADGES.filter(b=>!u.badges[b.id]).length})</summary>${BADGES.filter(b=>!u.badges[b.id]).map(b=>`<span class="bsm no" title="${esc(b.d)}">${b.ico} ${esc(b.name)}</span>`).join('')}</details>
-      <h3 style="margin-top:14px">MCQ record</h3><p style="font-size:.9rem;margin:0">${n.mcqRight|0} right · best run ${n.bestRow|0} in a row · Perfect 30 ×${n.perfect30|0} · Speed Run ×${n.speedrun|0}</p>
-      ${mh.length?`<div class="tablewrap"><table style="margin-top:8px"><tr><th>Date</th><th>Topic</th><th>Score</th><th>Time/Q</th><th>XP</th></tr>${mh.slice().reverse().slice(0,8).map(h=>`<tr><td>${esc(h.d)}</td><td>${h.topic?'T'+h.topic:'Mixed'}${h.retry?' (retry)':''}</td><td>${h.c}/${h.n} · ${h.acc}%</td><td>${h.n?Math.round(h.s/h.n)+' s':'–'}</td><td>${h.x|0}</td></tr>`).join('')}</table></div>`:'<p class="muted">No MCQ sets yet.</p>'}</div></div>
-    ${presProfileHTML(u,sid)}
-    <div class="card psec"><h2>By topic</h2><p class="muted" style="font-size:.82rem;margin-top:-4px">Bar: MCQs answered towards the 15 needed for mastery (green once 80%+). ✍️ written questions practised. ⚠️ weak-spot score.</p>${topicRows}</div>
-    <div class="grid g2"><div class="card psec"><h2>Weak spots</h2>${(()=>{const w=((u.wk||{}).t)||{},ks=Object.keys(w).filter(k=>w[k][1]>0).sort((a,b)=>w[b][1]/Math.max(1,w[b][0])-w[a][1]/Math.max(1,w[a][0])).slice(0,6);
-      return (ks.length?`<ol class="sumlist">${ks.map(k=>`<li>${esc(tkLabel(k))} <span class="tag">${w[k][1]} pts over ${w[k][0]} tries</span></li>`).join('')}</ol>`:'<p class="muted">None recorded yet.</p>')
-      +`<h3>Decoys picked (${dec.length})</h3>${dec.length?`<ul class="sumlist">${dec.slice(0,8).map(d=>`<li><b>${esc(d.t)}</b><div class="muted" style="font-size:.8rem">${esc(d.where)}${d.why?' · '+esc(d.why):''}</div></li>`).join('')}</ul>`:'<p class="muted">None.</p>'}
-      <h3>Key ideas missed in plans (${miss.length})</h3>${miss.length?`<ul class="sumlist">${miss.slice(0,8).map(d=>`<li>${esc(d.t)}<div class="muted" style="font-size:.8rem">${esc(d.where)}</div></li>`).join('')}</ul>`:'<p class="muted">None.</p>'}`})()}</div>
-    <div class="card psec"><h2>Cases</h2>${caseRows}<h3 style="margin-top:14px">Integrity</h3><p style="font-size:.9rem;margin:0">${Object.keys(ig).length?Object.entries(ig).map(([k,v])=>`${esc({paste:'Pastes blocked',bigKept:'Large inserts kept (often voice typing)',big:'Big insertions removed (older rule)',fast:'Answers too fast'}[k]||k)}: <b>${v|0}</b>`).join(' · '):'No integrity flags.'}</p>
-      <p class="muted" style="font-size:.8rem">Flags are signals, not proof. Large inserts are usually voice typing; open an answer to see each flag's snippet.</p></div></div>
-    <div class="card psec"><h2>Typed answers <span class="tag">${ans.length}</span> <span class="tag">${marked} marked</span></h2>${ans.length?ans.slice(0,30).map(ansItem).join(''):'<p class="muted">No typed answers yet.</p>'}${ans.length>30?'<p class="muted" style="font-size:.85rem">Showing the newest 30.</p>':''}</div>
-    <div class="card psec"><h2>Messages you've sent</h2>${notes.length?notes.map(([k,v])=>`<div class="note" style="border-left:3px solid var(--teal);padding:6px 10px;margin-top:6px"><p style="margin:0">${esc(v.fb)}</p><span class="muted" style="font-size:.8rem">${esc(String(v.at).slice(0,16).replace('T',' '))} · ${u.notes&&u.notes[k]?(u.notesRead&&u.notesRead[k]?'read':'delivered'):'not opened yet'}</span></div>`).join(''):'<p class="muted">None yet.</p>'}</div>
+      <div>Section<b>${esc(secLabel(u.dg)||'–')}</b></div><div>Streak<b>🔥 ${streak(u)} day${streak(u)===1?'':'s'}</b></div><div>Last active<b>${ago(X.ts)}</b></div><div>First practised<b>${esc(first||'–')}</b></div></div>
+      ${profSumHTML(u,{last:X.ts,risk:riskOf(X)})}<div class="row" style="margin-top:10px"><button type="button" class="btn sm" data-va="${esc(sid)}">👁 View as student</button></div></div>
+    ${secsHTML(profSections(u,{sid,lect:1,marked}),OPEN)}${integSecHTML(u,OPEN)}
+    ${secsHTML([{id:'ans',ico:'✍️',t:'Typed answers',sum:`${ans.length} answer${ans.length===1?'':'s'} · ${marked} marked`,html:(ans.length?ans.slice(0,30).map(ansItem).join(''):'<p class="muted">No typed answers yet.</p>')+(ans.length>30?'<p class="muted" style="font-size:.85rem">Showing the newest 30.</p>':'')},
+      {id:'msgs',ico:'✉️',t:"Messages you've sent",sum:notes.length?notes.length+' sent':'None yet',html:notes.length?notes.map(([k,v])=>`<div class="note" style="border-left:3px solid var(--teal);padding:6px 10px;margin-top:6px"><p style="margin:0">${esc(v.fb)}</p><span class="muted" style="font-size:.8rem">${esc(String(v.at).slice(0,16).replace('T',' '))} · ${u.notes&&u.notes[k]?(u.notesRead&&u.notesRead[k]?'read':'delivered'):'not opened yet'}</span></div>`).join(''):'<p class="muted">None yet.</p>'}],OPEN)}
     ${profileXHTML(sid,u)}${nameEditHTML(sid,u)}${actionsHTML()}`;
-    bindActions();
+    secsBind(el,OPEN);bindActions();
     el.querySelectorAll('.mqi').forEach(box=>{const k=box.dataset.k,a=(u.ans||{})[k],r=RV[k];
       box.querySelector('[data-open]')&&(box.querySelector('[data-open]').onclick=()=>{open=k;draw(1)});
       box.querySelector('[data-close]')&&(box.querySelector('[data-close]').onclick=()=>{open=null;delete drafts[k];draw(1)});
@@ -627,6 +580,24 @@ function migrateProgress(){if(U.migrated)return;U.migrated=1;const st=LS.get('st
   if(st&&typeof st==='object'){U.act=U.act||{};for(const k in st)if(!U.act[k]){U.act[k]=st[k];n++}}
   if(dm&&typeof dm==='object')for(const k in dm){const m=k.match(/^(sto|soneva)-(\d+)$/);if(dm[k]&&m){const key='actdone:'+m[1]+':'+m[2];if(award(key,15,'Activity done',1)){countOnce(key,'acts');n++}}}
   save();if(n)setTimeout(()=>toast('📦','Progress carried over','Your work from the old MKT101 practice site is here.'),900)}
+
+/* the course's parts of a profile (engine/simple.js): shared by the lecturer's view of a student and the student's own My progress */
+function profCourse(u,ctx){const n=u.n||{},fin=u.fin||{},done=practised(u),mh=u.mh||[];
+  const topicRows=TOPICS.map(t=>{const m=mastery(u,t),sh=BANK_S.filter(q=>q.t===t),sd=sh.filter(q=>done.has(q.id)||fin[q.id]).length,w=((u.wk||{}).t||{})['t'+t],best=mh.filter(h=>h.topic===t&&!h.retry).reduce((b,h)=>Math.max(b,h.acc|0),-1);
+  return `<div class="pb"><span>${TOPIC_ICO[t]} <b>Topic ${t}</b><br><span class="muted" style="font-size:.8rem">${esc(TERM.topics[t])}</span></span>
+  <div class="bar"><i style="width:${Math.min(100,m.att/15*100)}%;background:${m.mcq?'var(--green)':'var(--teal)'}"></i></div>
+  <span style="text-align:right;font-size:.82rem">${m.att} MCQs · ${m.acc}%${best>=0?' · best set '+best+'%':''}<br>📖 ${m.notes?'✓':'–'} · ✍️ ${sd}/${sh.length}${w&&w[1]?' · ⚠️ '+w[1]:''} · ${mastered(u,t)?'🏅 mastered':'not mastered'}</span></div>`}).join('');
+  const caseRows=CASEL.map(c=>{const rd=c.sections.filter(s=>u.log['read:'+c.id+':'+s.id]).length,vs=c.boardroom.map((a,i)=>[a,(u.verd||{})[c.id+':'+i]]).filter(x=>x[1]),ok=vs.filter(x=>x[1]===x[0].v).length,
+  qd=c.questions.filter(q=>fin[q.id]||done.has(q.id)).length,ad=c.acts.filter((a,i)=>u.log['actdone:'+c.id+':'+(i+1)]).length;
+  return `<div class="pb"><span>${c.icon} <b>${esc(c.short)}</b></span><div class="bar"><i style="width:${(rd/c.sections.length*100)|0}%"></i></div>
+  <span style="text-align:right;font-size:.82rem">read ${rd}/${c.sections.length} · Boardroom ${vs.length}/${c.boardroom.length}${vs.length?' ('+Math.round(ok/vs.length*100)+'% match)':''}<br>practice ${qd}/${c.questions.length} · activities ${ad}/${c.acts.length}${u.badges['case_'+c.id]?' · 🏅':''}</span></div>`}).join('');
+  const ms=TOPICS.filter(t=>mastered(u,t)).length,rd=CASEL.reduce((t,c)=>t+c.sections.filter(s=>u.log['read:'+c.id+':'+s.id]).length,0),all=CASEL.reduce((t,c)=>t+c.sections.length,0);
+  return {stats:[[n.mcq|0,'MCQs'],[n.mcqSets|0,'MCQ sets'],[n.plans|0,'plans'],[n.timed|0,'timed'],[n.typed|0,'typed'],[ctx.marked|0,'marked'],[n.longs|0,'long answers'],[n.acts|0,'activities'],[n.missions|0,'missions']],
+    secs:[{id:'topics',ico:'🏅',t:'By topic',sum:ms+'/7 topics mastered · '+(n.mcq|0)+' MCQs answered',html:(ctx.self?'<p class="muted" style="font-size:.85rem;margin-top:0">Each topic badge needs 📖 the notes studied, 🎯 80%+ on at least 15 MCQs, and ✍️ one written answer on the topic.</p>'+topicGrid(u)+'<h3 style="margin-top:14px">Details</h3>':'')
+      +'<p class="muted" style="font-size:.82rem;margin-top:0">Bar: MCQs answered towards the 15 needed for mastery (green once 80%+). ✍️ written questions practised. ⚠️ weak-spot score.</p>'+topicRows}],
+    badgesX:`<h3 style="margin-top:14px">MCQ record</h3><p style="font-size:.9rem;margin:0">${n.mcqRight|0} right · best run ${n.bestRow|0} in a row · Perfect 30 ×${n.perfect30|0} · Speed Run ×${n.speedrun|0}</p>
+      ${mh.length?`<div class="tablewrap"><table style="margin-top:8px"><tr><th>Date</th><th>Topic</th><th>Score</th><th>Time/Q</th><th>XP</th></tr>${mh.slice().reverse().slice(0,8).map(h=>`<tr><td>${esc(h.d)}</td><td>${h.topic?'T'+h.topic:'Mixed'}${h.retry?' (retry)':''}</td><td>${h.c}/${h.n} · ${h.acc}%</td><td>${h.n?Math.round(h.s/h.n)+' s':'–'}</td><td>${h.x|0}</td></tr>`).join('')}</table></div>`:'<p class="muted">No MCQ sets yet.</p>'}`,
+    cases:{sum:rd+'/'+all+' case sections read',html:caseRows}}}
 
 /* ---------- course hooks for the engine ---------- */
 const CASE_ALL=CASEL,BANK_B_ALL=BANK_S;

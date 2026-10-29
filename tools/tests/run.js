@@ -192,7 +192,7 @@ async notesMastery(){const p=await page({sid:STUDENT,clock:true});const topics=a
   u=await p.U();ok(!u.badges.some(b=>/^mt\d/.test(b)),'mastery without a written answer');
   for(const t of topics){const id=await p.evaluate(t=>BANK_S.find(q=>q.t===t).id,t);await p.evaluate(id=>{U.sets._s=[id];(U.focus=U.focus||{})._s=0;save();location.hash='#/short';shortPage()},id);await p.waitForTimeout(30);await finish(p,'rpaper')}
   u=await p.U();ok(topics.every(t=>u.badges.includes('mt'+t)),'topic mastery badges missing: '+u.badges.join(','));
-  await p.go('#/');ok((await p.textContent('main')).includes('7/7'),'home does not show 7/7 mastered');await p.done()},
+  await p.go('#/progress');ok((await p.textContent('main')).includes('7/7'),'My progress does not show 7/7 mastered');await p.done()},
 
 async antiFarming(){const p=await page({sid:STUDENT,clock:true});await p.evaluate(()=>{U.sets.sto=['st2a','st1b','st3c','st4a','st5b'];save()});await p.go('#/case/sto/practice');
   for(let r=0;r<6;r++){await plan(p);if(r<5)await p.click('[data-a="replan"]')}
@@ -265,13 +265,14 @@ async levels(){const p=await page({sid:STUDENT});const r=await p.evaluate(()=>LE
   ok(r.every((x,i)=>i===0||x[1]>r[i-1][1]),'no badge per level');const t=await p.evaluate(()=>[0,150,400,750,1200,1800,2600,3600,5000].map(tier));ok(t.join('')==='000111222','tiers: '+t);
   await p.go('#/badges');ok(await p.locator('.badge').count()>=38,'badge list short');await p.done()},
 
-async lecturer(){const p=await page({sid:LECT});await p.go('#/lecturer');ok(await p.$('#demo'),'demo panel missing');ok(await p.$$eval('#rvw [data-rv]',e=>e.length)>100,'content review list too short');
+async lecturer(){const p=await page({sid:LECT});await p.go('#/lecturer');await p.click('[data-lfall="1"]');await p.waitForTimeout(100);ok(await p.$('#demo'),'demo panel missing');ok(await p.$$eval('#rvw [data-rv]',e=>e.length)>100,'content review list too short');
   await p.click('[data-dm="vs"]');ok((await p.textContent('#dm')).includes('Student 1'),'demo comparison missing');await p.done();
   const s=await page({sid:STUDENT});await s.go('#/lecturer');ok(!await s.$('#demo'),'students can open the lecturer page');await s.done()},
 
 async dash(){const p=await page({sid:STUDENT});
-  ok(await p.$('#cdcard')&&await p.$('.sblocks')&&await p.$('#nextact')&&await p.$('#rdcard'),'dashboard parts missing');
-  ok(/Mon 14 Dec 2026 · 9:00 am/.test(await p.textContent('#cdcard'))&&!/exam/i.test(await p.textContent('main')),'countdown wording');await shot(p,'dash-home',true);
+  ok(await p.$('#thead')&&await p.$('.tstreak')&&await p.$('#tcd')&&await p.$('#nextact')&&await p.$('#trow')&&await p.$('#ttiles'),'home parts missing');
+  ok(/\d+ days? left/.test(await p.textContent('#tcd'))&&/Mon 14 Dec 2026 · 9:00 am/.test(await p.textContent('#tcd'))&&!/exam/i.test(await p.textContent('main')),'countdown wording');await shot(p,'dash-home',true);
+  await p.go('#/progress/cd');ok(await p.$('#sec-cd[open] #cdcard')&&await p.$('#rdcard'),'progress parts missing');ok(/Mon 14 Dec 2026 · 9:00 am/.test(await p.textContent('#cdcard')),'full countdown wording');await p.go('#/');
   /* spaced review with the confidence check */
   const id=await p.evaluate(()=>{const id=Object.keys(qIndex()).concat(typeof MCQ_BY!=='undefined'?Object.keys(MCQ_BY):[]).find(k=>revOf(k));U.srs={[id]:{s:0,due:today(),n:0}};save();return id});
   ok(id,'nothing reviewable');const x0=(await p.U()).xp;await p.go('#/review');await p.click('[data-sure="1"]');
@@ -357,7 +358,7 @@ async contrast(){const p=await page({sid:STUDENT});const r=[];for(const theme of
 
 async profileLocal(){const p=await page({sid:'S000001'});await p.go('#/student/S081441');await p.waitForTimeout(300);
   ok((await p.textContent('main')).includes('need the live connection'),'device-only profile note missing');
-  const s=await page({sid:STUDENT});await s.go('#/student/S081441');await s.waitForTimeout(300);ok(!(await s.textContent('main')).includes('live connection')&&!!await s.$('.hero'),'student reached a profile');await s.done();await p.done()},
+  const s=await page({sid:STUDENT});await s.go('#/student/S081441');await s.waitForTimeout(300);ok(!(await s.textContent('main')).includes('live connection')&&!!await s.$('#thead'),'student reached a profile');await s.done();await p.done()},
 
 /* screen time: visible + active counts, idle stops after 2 minutes, a writing timer keeps it counting, hidden stops; goal, bonus blocks + cap, hours badges */
 async screentime(){const p=await page({sid:STUDENT,clock:true});await p.evaluate(()=>{U.st={};U.stx={};save()});
@@ -375,7 +376,8 @@ async screentime(){const p=await page({sid:STUDENT,clock:true});await p.evaluate
   await poke();await p.clock.runFor(30000);ok(await p.evaluate(()=>PR.pendx)<1&&await p.evaluate(()=>PR.pend)>0,'live-session time counted towards bonus blocks');
   await p.evaluate(()=>{PR.sess=null;PR.sessOn=false;PR.joined=false;presBar()});
   await p.evaluate(()=>{U.stArch=5*3600;stFlush(true)});ok((await p.U()).badges.includes('hrs5'),'5 Hours Logged badge missing');
-  await p.go('#/');ok((await p.textContent('#stcard')).includes('GOAL MET'),'Home card does not show the goal met');
+  await p.go('#/');ok((await p.textContent('#tst')).includes('Goal met'),'Home does not show the goal met');
+  await p.go('#/progress/screen');ok((await p.textContent('#stcard')).includes('GOAL MET'),'My progress does not show the goal met');
   await p.evaluate(()=>{document.querySelectorAll('.toast').forEach(t=>t.remove());document.querySelector('#stcard').scrollIntoView({block:'center'})});await shot(p,'st-card');
   await p.go('#/badges');ok((await p.textContent('main')).includes('every 20 active minutes'),'How to earn XP row missing');await p.done()},
 

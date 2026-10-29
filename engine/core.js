@@ -2,11 +2,12 @@
    Keep this file identical in both repos: edit it in one, then run node tools/sync-engine.mjs. */
 /* ---------- engine hooks: course.js and engine modules plug in here ---------- */
 const HOOKS={},ROUTES={};
+let VIEWAS=null;/* lecturer "View as student" (engine/simple.js): while set, nothing is saved anywhere */
 function onHook(name,f){(HOOKS[name]=HOOKS[name]||[]).push(f)}
 function hook(name,...a){(HOOKS[name]||[]).forEach(f=>{try{f(...a)}catch(e){console.error(e)}})}
 async function hookA(name,...a){for(const f of HOOKS[name]||[])try{await f(...a)}catch(e){console.error(e)}}
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const LS={get(k,d){try{const v=localStorage.getItem(CRS.ls+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(CRS.ls+k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(CRS.ls+k)}catch(e){}}};
+const LS={get(k,d){try{const v=localStorage.getItem(CRS.ls+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){if(VIEWAS)return;try{localStorage.setItem(CRS.ls+k,JSON.stringify(v))}catch(e){}},del(k){if(VIEWAS)return;try{localStorage.removeItem(CRS.ls+k)}catch(e){}}};
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 async function sha(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
@@ -21,7 +22,7 @@ function missions(){rollDay();return U.day.m.map(id=>MPOOL.find(m=>m.id===id)).f
 let ME=null, U=null, LOAD_T=-1;
 function me(){const r=LS.get('session',null);return r&&/^S0\d{5}$/.test(r.sid||'')?r:null}
 function load(){const st=LS.get('u_'+ME.sid,null);LOAD_T=st?(st._t||0):-1;U=Object.assign(blank(),st||{});U.n=Object.assign(blank().n,U.n);if(!U.nick)U.nick=defaultNick(ME.name)}
-function save(){U._t=Date.now();LS.set('u_'+ME.sid,U);if(ME&&ME.cloud)CLOUD.push()}
+function save(){if(VIEWAS)return;U._t=Date.now();LS.set('u_'+ME.sid,U);if(ME&&ME.cloud)CLOUD.push()}
 const cloudOn=()=>!!(ME&&ME.cloud&&CLOUD.ok);
 function defaultNick(n){const p=String(n||'').trim().split(/\s+/);return p.length>1?p[0]+' '+p[p.length-1][0]+'.':(p[0]||'Player')}
 function level(xp){let i=0;LEVELS.forEach((l,j)=>{if(xp>=l[0])i=j});const nx=LEVELS[i+1];return {i,name:LEVELS[i][1],from:LEVELS[i][0],to:nx?nx[0]:null,pct:nx?Math.round((xp-LEVELS[i][0])/(nx[0]-LEVELS[i][0])*100):100}}
@@ -30,7 +31,7 @@ function rollDay(){if(U.day.d!==today()||!U.day.c||!U.day.m){const t=tier(U.xp);
 function count(k){rollDay();U.n[k]=(U.n[k]||0)+1;U.day.c[k]=(U.day.c[k]||0)+1;
   const ms=missions();if(!U.day.done&&ms.length&&ms.every(m=>(U.day.c[m.k]||0)>=m.n)){U.day.done=1;U.n.missions++;save();award(null,MBONUS[U.day.t],'Daily mission complete')}
   checkBadges();save()}
-function countOnce(key,...ks){U.cnt=U.cnt||{};if(U.cnt[key])return;U.cnt[key]={d:today(),k:ks.filter(Boolean)};U.cnt[key].k.forEach(count)}
+function countOnce(key,...ks){if(VIEWAS)return;U.cnt=U.cnt||{};if(U.cnt[key])return;U.cnt[key]={d:today(),k:ks.filter(Boolean)};U.cnt[key].k.forEach(count)}
 function uncount(test){U.cnt=U.cnt||{};rollDay();Object.keys(U.cnt).filter(test).forEach(key=>{const c=U.cnt[key];
   c.k.forEach(k=>{U.n[k]=Math.max(0,(U.n[k]||0)-1);if(c.d===today()&&U.day.c[k])U.day.c[k]--});delete U.cnt[key]})}
 const MINPCT=.4,minMins=t=>Math.ceil(t*MINPCT/60);
@@ -38,12 +39,13 @@ function checkBadges(){BADGES.forEach(b=>{if(!U.badges[b.id]&&b.t(U)){U.badges[b
 function toast(em,t,s){const el=document.createElement('div');el.className='toast';el.innerHTML=`<span class="em">${em}</span><div><b class="lex">${esc(t)}</b><div class="muted" style="font-size:.85rem">${esc(s)}</div></div>`;const box=$('#toasts');box.append(el);while(box.children.length>3)box.firstChild.remove();setTimeout(()=>el.remove(),2800)}
 function hud(){if(!ME){$('#hud').innerHTML='';return}const L=level(U.xp);
   $('#hud').innerHTML=`${typeof avatarSVG==='function'&&ME.sid!==LECTURER?`<a class="avpill" href="#/avatar" title="My avatar" aria-label="My avatar">${avatarSVG(myAv(),30,'')}</a>`:''}${typeof bellHTML==='function'?bellHTML():''}<button class="pill save" id="svb" title="Save my progress" aria-label="Save my progress">💾<span class="lbl">&nbsp;Save</span></button><span class="pill fire" title="Day streak">🔥 ${streak(U)}</span><span class="pill gold" title="XP">✨ ${U.xp}</span><span class="pill lvl">${esc(L.name)}</span><span class="xpmini" title="${L.pct}% to next level"><i style="width:${L.pct}%"></i></span>`}
-async function signOut(){if(ME&&U)presOff();hook('signout');if(ME&&ME.cloud){await CLOUD.flush();await CLOUD.signOut()}LS.del('session');ME=null;U=null;hud();location.hash='#/';gate()}
+async function signOut(){if(VIEWAS)vaExit();if(ME&&U)presOff();hook('signout');if(ME&&ME.cloud){await CLOUD.flush();await CLOUD.signOut()}LS.del('session');ME=null;U=null;hud();location.hash='#/';gate()}
 function shell(active,body){
-  const nav=NAV.concat(ME.sid===LECTURER?[['#/lecturer','Lecturer']]:[]).map(n=>`<a href="${n[0]}" class="${n[0]===active?'on':''}">${n[1]}</a>`).join('');
+  const N=NAV.slice();if(ME.sid!==LECTURER)N.splice(1,0,['#/progress','My progress']);
+  const nav=N.concat(ME.sid===LECTURER?[['#/lecturer','Lecturer']]:[]).map(n=>`<a href="${n[0]}" class="${n[0]===active?'on':''}">${n[1]}</a>`).join('')+'<button type="button" class="tabmore" data-more="1" aria-haspopup="dialog">More ▾</button>';
   app.innerHTML=`<div class="wrap"><nav class="tabs" aria-label="Sections">${nav}</nav><main id="main" tabindex="-1">${body}</main>
   <footer><div class="row"><span>Signed in as <b>${esc(ME.name)}</b> · ${esc(ME.sid)}</span><button class="btn ghost sm" id="so">Sign out</button></div>
-  <p style="margin-top:10px">Practice material only. Write your full answers on paper. · <a href="javascript:void 0" id="help">? How it works</a> · <a href="#/whatsnew">✨ What's new</a> · <a href="javascript:void 0" id="inst">📲 Install the app</a> · <a href="#/privacy">Privacy</a></p></footer></div>`;
+  <p style="margin-top:10px">Practice material only. Write your full answers on paper. · <a href="javascript:void 0" id="help">? How it works</a> · <a href="#/whatsnew">✨ What's new</a> · <a href="javascript:void 0" id="inst">📲 Install the app</a> · <a href="#/privacy">Privacy</a></p></footer></div>${typeof tabbarHTML==='function'?tabbarHTML(active):''}`;
   $('#so').onclick=signOut;$('#help').onclick=()=>tour(0);$('#inst').onclick=()=>installPop(0);scrollTo(0,0)}
 function xpFor(test){U.gain=U.gain||{};return Object.keys(U.log).filter(test).reduce((t,k)=>t+(k in U.gain?U.gain[k]:(XP_DEFAULT[k.split(':')[0]]||0)),0)}
 function restartItem(test,what,clear){const x=Math.min(xpFor(test),U.xp);
@@ -353,7 +355,7 @@ function theme(t){if(t)LS.set('theme',t);const cur=LS.get('theme','dark');docume
 function tier(xp){const i=level(xp).i;return i<=CRS.tierCut[0]?0:i<=CRS.tierCut[1]?1:2}
 function blank(){return Object.assign({xp:0,log:{},days:[],badges:{},n:Object.assign({verdicts:0,verdictsRight:0,weakSpotted:0,plans:0,perfect:0,timed:0,missions:0},CRS.blankN),day:{d:'',c:{},m:[],t:0,done:0},nick:'',hide:false,sets:{},focus:{},verd:{},plansSaved:{}},JSON.parse(JSON.stringify(CRS.blankX)))}
 function award(key,xp,label,quiet){
-  if(key&&U.log[key])return false;
+  if(VIEWAS||key&&U.log[key])return false;
   if(key){U.log[key]=1;U.gain=U.gain||{};U.gain[key]=xp}
   rollDay();
   if(!U.days.includes(today())){U.days.push(today());U.days=U.days.slice(-60);U.xp+=10;toast('📅','Daily check-in','+10 XP · streak '+streak(U))}
@@ -424,16 +426,17 @@ function recentHTML(u){const by={};Object.keys(u.log||{}).forEach(k=>{const m=k.
   <p class="muted" style="font-size:.8rem">From the dated records the portal keeps (${CRS.recentWhat}). Reading and Boardroom calls are counted below but aren't dated.</p>`}
 function lecturer(){
   if(ME.sid!==LECTURER)return home();
-  shell('#/lecturer',`<h1>Lecturer</h1>
-  ${liveCardHTML()}${cloudOn()?'<div class="card" id="cdash" style="margin-bottom:22px"></div><div class="card" id="mq" style="margin-bottom:22px"></div><div class="card" id="cov" style="margin-bottom:22px"></div>'+lcardsHTML():'<div class="callout" style="margin-bottom:18px">Sign in with your PIN to see the live class dashboard. In device-only mode, use the score-code tools at the bottom of this page.</div>'}
-  <div class="card" id="demo" style="margin-bottom:22px"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Show the class</h2><button class="btn ghost sm" id="fs">⛶ Full screen</button></div>
+  shell('#/lecturer',`<h1>Lecturer</h1>${lfBar()}
+  ${cloudOn()?lfBlock('lsess','🔴 Live tutorial session',liveCardHTML(),'Start, watch and end a session')+lfBlock('cdash','👥 Class dashboard','<div class="card" id="cdash"></div>','Every student, sortable')+lfBlock('mq','✍️ Marking','<div class="card" id="mq"></div>','Typed answers to mark')+lfBlock('cov','🧭 Question coverage','<div class="card" id="cov"></div>','Which questions the class has tried')+lcardsHTML():'<div class="callout" style="margin-bottom:18px">Sign in with your PIN to see the live class dashboard. In device-only mode, use the score-code tools at the bottom of this page.</div>'}
+  ${lfBlock('demo','🏆 Show the class',`<div class="card" id="demo"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Show the class</h2><button class="btn ghost sm" id="fs">⛶ Full screen</button></div>
   <p class="muted" style="font-size:.9rem;margin:6px 0 12px">Example students only, made up to explain how scoring works. Real scores appear on the Leaderboard tab.</p>
-  <div class="subnav"><button data-dm="board" class="on">🏆 Example leaderboard</button><button data-dm="vs">⚔️ Student 1 vs Student 2</button><button data-dm="tips">💡 How to climb</button></div><div id="dm"></div></div>
-  <h2>Content review</h2><div class="card" id="rvw" style="margin-bottom:22px"></div>
+  <div class="subnav"><button data-dm="board" class="on">🏆 Example leaderboard</button><button data-dm="vs">⚔️ Student 1 vs Student 2</button><button data-dm="tips">💡 How to climb</button></div><div id="dm"></div></div>`,'Example students explain scoring')}
+  ${lfBlock('rvw','🔍 Content review','<div class="card" id="rvw"></div>','Check what was invented for practice')}
   <details class="card"${cloudOn()?'':' open'}><summary class="lex" style="cursor:pointer;font-weight:700">Offline fallback: update the leaderboard from score codes</summary><p class="muted" style="font-size:.88rem">Only needed if the live leaderboard is unavailable.</p><ol style="padding-left:1.2em;margin-top:0"><li>Paste all the score emails or codes below (everything at once is fine).</li><li>Check the preview, then <b>Download leaderboard.js</b>.</li><li>On GitHub, open the <b>${CRS.repo}</b> repo → <b>Add file → Upload files</b> → drop in <code>leaderboard.js</code> → <b>Commit changes</b>.</li></ol>
   <textarea id="tx" placeholder="Paste score emails or codes here"></textarea><div class="row" style="margin-top:12px"><button class="btn" id="go">Read codes</button></div><div id="out" style="margin-top:16px"></div></details>`);
-  if(cloudOn()){liveCardInit();classDash();markQueue();covCard();lecturerCards()}
-  demo();$('#rvw').innerHTML=reviewHTML();$('#rvw').querySelectorAll('[data-rv]').forEach(b=>b.onchange=()=>{const r=LS.get('review',{});r[b.dataset.rv]=b.checked;LS.set('review',r)});
+  lfBind(Object.assign(cloudOn()?Object.assign({lsess:liveCardInit,cdash:classDash,mq:markQueue,cov:covCard},lcardInits()):{},{demo,rvw:()=>{$('#rvw').innerHTML=reviewHTML();$('#rvw').querySelectorAll('[data-rv]').forEach(b=>b.onchange=()=>{const r=LS.get('review',{});r[b.dataset.rv]=b.checked;LS.set('review',r)})}}));
+  if(cloudOn()&&typeof lectNums==='function')lectNums().then(N=>{lfSum('cdash',N.active+' active today');lfSum('mq',N.mark?N.mark+' waiting':'Nothing waiting',N.mark>0);
+    if(N.reports!=null)lfSum('rptc',N.reports?N.reports+' open':'None open',N.reports>0);lfSum('riskc',N.risk?N.risk+' at risk':'No one at risk',N.risk>0)}).catch(()=>{});
   $('#go').onclick=async()=>{const found=$('#tx').value.match(new RegExp(CRS.CODE+'-[A-Za-z0-9_-]+-[0-9a-f]{8}','g'))||[];const best={};let bad=0,off=0;
     for(const code of found){const m=code.match(new RegExp('^'+CRS.CODE+'-(.+)-([0-9a-f]{8})$'));if((await sha(CRS.id+'-score|'+m[1])).slice(0,8)!==m[2]){bad++;continue}
       let p;try{p=JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/-/g,'+').replace(/_/g,'/')))))}catch(e){bad++;continue}
