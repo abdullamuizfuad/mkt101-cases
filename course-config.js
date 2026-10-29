@@ -2,6 +2,8 @@
 const CRS={
   id:'mkt101',CODE:'MKT101',name:'MKT101 Arena',ls:'mkt101_',repo:'mkt101-cases',
   title:'Introduction to Marketing',
+  /* the weekly 6th-spot challenge (engine/wild.js): class starts Wednesday 4:00 pm (GMT+5); the challenge is open the 24 hours before */
+  wild:{day:3,hour:16},
   themeColor:{light:'#f6f0e4',dark:'#0d0718'},
   /* level index cut-offs for the three leaderboard tiers */
   tierCut:[2,5],

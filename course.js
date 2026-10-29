@@ -144,7 +144,7 @@ function longPage(){const L=U.long||{};
     return `<a class="card zone" href="#/long/${e.id}" style="padding:16px"><div class="chipline" style="margin:0 0 6px"><span class="tag">${e.b==='K'?'Explain':'Apply'}</span><span class="tag">${s.done?'✓ Marked '+s.total+'/10':s.step?'In progress':'10 marks'}</span></div><p style="margin:0;font-size:.95rem">${esc(e.q)}</p></a>`}).join('')}</div>`).join('')}`)}
 function longView(id){const e=BANK.essays.find(x=>x.id===id);if(!e)return longPage();U.long=U.long||{};const s=U.long[id]||(U.long[id]={step:0,mk:{}});
   const max=e.marks.reduce((t,r)=>t+r[1],0),tot=e.marks.reduce((t,r,i)=>t+Math.min(r[1],+(s.mk[i]||0)),0),re=()=>longView(id);
-  shell('#/short',`<p><a href="#/long">← Long answers</a></p><div class="card qcard" id="lq"><div class="qmeta"><span class="tag">${TOPIC_ICO[e.t]} Topic ${e.t}</span><span class="tag">${max} marks</span><span class="tag">About ${LMINS} min</span><button class="btn ghost sm rst" data-a="restart">↺ Restart</button>${rptBtn(e.id,'Long answer (Topic '+e.t+')')}</div>
+  shell('#/short',`<p><a href="#/long">← Long answers</a></p><div class="card qcard" id="lq"><div class="qmeta"><span class="tag">${TOPIC_ICO[e.t]} Topic ${e.t}</span><span class="tag">${max} marks</span><span class="tag">About ${LMINS} min</span><button class="btn ghost sm rst" data-a="restart">↺ Restart</button>${notesBtn(e,{})}${rptBtn(e.id,'Long answer (Topic '+e.t+')')}</div>
   <h2 style="font-weight:600">${esc(e.q)}</h2><div class="steps">${['1 · Plan','2 · Write','3 · Mark'].map((x,j)=>`<span class="${j===s.step?'on':j<s.step||s.done?'done':''}">${j<s.step?'✓ ':''}${x}</span>`).join('')}</div>
   ${s.step===0?`<details class="mine" open><summary>How to build your answer</summary><ol style="margin:8px 0 0;padding-left:1.2em">${e.guide.map(g=>`<li>${esc(g)}</li>`).join('')}</ol></details>
    <h4>How it is marked</h4><div class="tablewrap"><table><tr><th>Part</th><th>Marks</th><th>What earns them</th></tr>${e.marks.map(r=>`<tr><td>${esc(r[0])}</td><td>${r[1]}</td><td>${esc(r[2])}</td></tr>`).join('')}</table></div>
@@ -162,61 +162,6 @@ function longView(id){const e=BANK.essays.find(x=>x.id===id);if(!e)return longPa
   if(s.step===1)timer('l_'+id,LMINS*60,el,ok=>{s.step=2;if(ok){countOnce('ltimed:'+id+':'+today(),'timed','longs');award('ltimed:'+id+':'+today(),40,'Long answer written');U.tw=U.tw||{};U.tw[e.t]=1;checkBadges()}else noTimeXP(LMINS*60);save();re()});
   el.querySelectorAll('[data-mk]').forEach(x=>x.onchange=()=>{s.mk[x.dataset.mk]=+x.value;save();re()});
   A('fin')&&(A('fin').onclick=()=>{s.done=true;s.total=tot;award('lmark:'+id+':'+today(),tot*2,'Long answer self-marked');save();re()})}
-function diagramHTML(d){
- const cap=d.title?`<figcaption>${esc(d.title)}</figcaption>`:'';const sub=x=>x?`<small>${esc(x)}</small>`:'';let body='';
- if(d.type==='flow')body=`<ol class="dflow${d.steps.length>5?' dlong':''}">${d.steps.map(([h,s],i)=>`<li><span class="dn">${i+1}</span><b>${esc(h)}</b>${sub(s)}</li>`).join('')}</ol>${d.loop?`<p class="dloop">↻ ${esc(d.loop)}</p>`:''}`;
- else if(d.type==='grid')body=`<div class="dgrid"><span class="dyl">${esc(d.yl)}</span><div class="dbox"><span class="dyv">${esc(d.y[0])}</span><span class="dyv">${esc(d.y[1])}</span>
-   ${d.cells.map(([h,s],i)=>`<div class="dcell c${i}"><b>${esc(h)}</b>${sub(s)}</div>`).join('')}<span></span><span class="dxv">${esc(d.x[0])}</span><span class="dxv">${esc(d.x[1])}</span></div><span class="dxl">${esc(d.xl)}</span></div>`;
- else if(d.type==='pyramid')body=`<div class="dpyr">${d.levels.map(([h,s],i)=>`<div style="width:${Math.round(40+60*i/Math.max(1,d.levels.length-1))}%"><b>${esc(h)}</b>${sub(s)}</div>`).join('')}</div>${d.note?`<p class="dloop">${esc(d.note)}</p>`:''}`;
- else if(d.type==='rings'){const r=k=>k>=d.rings.length?'':`<div class="dring r${k}"><b>${esc(d.rings[k][0])}</b>${sub(d.rings[k][1])}${r(k+1)}</div>`;body=r(0)}
- else if(d.type==='compare')body=`<div class="dcmp">${d.cols.map(([h,items])=>`<div><b>${esc(h)}</b><ul>${items.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`).join('')}</div>`;
- return `<figure class="dia">${cap}${body}</figure>`}
-const listHTML=l=>`<ul>${l.map(x=>`<li>${Array.isArray(x)?`<b>${esc(x[0])}:</b> ${esc(x[1])}`:esc(x)}</li>`).join('')}</ul>`;
-function ideaHTML(c,k){const ps=[].concat(c.p||[]);
- return `<section class="card concept" id="n-i${k}" style="margin-bottom:12px"><h3>${esc(c.h)}</h3>${ps.map(x=>`<p>${esc(x)}</p>`).join('')}${c.l?listHTML(c.l):''}${c.dia?diagramHTML(c.dia):''}${c.more?[].concat(c.more).map(x=>`<p>${esc(x)}</p>`).join(''):''}
-  ${c.eg?`<p class="eg"><b>Maldives example:</b> ${esc(c.eg)}</p>`:''}${c.tip?`<p class="tip"><b>Tip:</b> ${esc(c.tip)}</p>`:''}</section>`}
-const GEMINI='https://gemini.google.com/app';
-function notesPage(sub){const N=NOTES.topics8,t=parseInt(sub,10),T=N.topics[t];
- if(!T){shell('#/notes',`<h1>Study notes</h1><p class="muted">${esc(N.intro)}</p>
-  <div class="card" style="margin-bottom:16px"><h3>How to use these notes</h3><div class="nsteps">${N.how.map(([h,s],i)=>`<div><b>${i+1}. ${esc(h)}</b><span>${esc(s)}</span></div>`).join('')}</div></div>
-  <div class="ntopics">${TOPICS.filter(x=>N.topics[x]).map(x=>`<a class="ntopic" href="#/notes/${x}"><span class="kick">${TOPIC_ICO[x]} Topic ${x}${U.log['notes:'+x]?' · ✓ studied':''}</span><b>${esc(TERM.topics[x])}</b><span>${esc(N.topics[x].sum)}</span></a>`).join('')}</div>
-  ${[].concat(N.answer||[]).map(A=>`<div class="card" style="margin-top:18px"><h3>${esc(A.h)}</h3><p class="muted">${esc(A.p)}</p>${A.dia?diagramHTML(A.dia):''}${listHTML(A.l)}
-   ${A.links?`<div class="row">${A.links.map(([n,h])=>`<a class="btn ghost sm" href="${h}">${esc(n)} →</a>`).join('')}</div>`:''}</div>`).join('')}`);return}
- const tps=TOPICS.filter(x=>N.topics[x]),i=tps.indexOf(t),prev=tps[i-1],next=tps[i+1],W=T.worked,studied=!!U.log['notes:'+t];
- const jumps=[['n-min','In one minute'],['n-ideas','Key ideas'],['n-terms','Key terms'],T.mistakes&&['n-mis','Common mistakes'],W&&['n-ans','Answer like this'],['n-chk','Check yourself'],['n-prac','Practise'],['n-ai','Explore with AI']].filter(Boolean);
- shell('#/notes',`<nav class="dots" aria-label="Topics" style="margin-bottom:12px">${tps.map(x=>`<a href="#/notes/${x}" class="dot ${x===t?'on':''} ${U.log['notes:'+x]?'done':''}" aria-label="Topic ${x}" style="text-decoration:none">${x}</a>`).join('')}<a href="#/notes" class="btn ghost sm">All topics</a></nav>
-  <div class="casehead" style="--c:#8b5cf6"><div class="kick lex">${TOPIC_ICO[t]} Topic ${t}</div><h1 style="margin:4px 0 0">${esc(TERM.topics[t])}</h1></div>
-  <div class="chipline" style="margin-bottom:12px">${jumps.map(([id,n])=>`<button type="button" class="chip" data-jump="${id}">${esc(n)}</button>`).join('')}</div>
-  <div class="card lo" id="n-min"><h3>In one minute</h3>${listHTML(T.min)}<h3>What you need to be able to do</h3><p>${esc(T.lo)}</p></div>
-  <h2 id="n-ideas" style="margin-top:18px">Key ideas</h2><p class="muted">Read one card at a time. Look at each diagram and try to say it in your own words.</p>
-  ${T.ideas.map(ideaHTML).join('')}
-  <h2 id="n-terms" style="margin-top:18px">Key terms</h2><p class="muted">Tap a card to see the meaning. Say the meaning out loud before you tap.</p>
-  <div class="terms">${T.terms.map(([a],k)=>`<button type="button" class="term" aria-pressed="false" data-ti="${k}"><b>${esc(a)}</b><span>Tap to reveal</span></button>`).join('')}</div>
-  <div class="row" style="margin-top:10px"><button type="button" class="btn ghost sm" data-tall="1">Show all</button><button type="button" class="btn ghost sm" data-tall="0">Hide all</button></div>
-  ${T.mistakes?`<div class="card mis" id="n-mis" style="margin-top:18px"><h3>Common mistakes</h3>${listHTML(T.mistakes)}</div>`:''}
-  ${W?`<div class="card" id="n-ans" style="margin-top:18px"><h3>Answer like this</h3><p class="muted">A worked practice question. Plan your own answer first, then open the model.</p>
-   <div class="callout"><b>Practice question · ${W.marks||5} marks</b><br>${esc(W.q)}</div>
-   <details class="mine"><summary>✍ Plan</summary><ol style="padding-left:1.2em">${W.plan.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></details>
-   <details class="mine"><summary>Model answer, with what each part does</summary>${W.model.map(([tag,x])=>`<p><span class="tag">${esc(tag)}</span> ${esc(x)}</p>`).join('')}</details></div>`:''}
-  <h2 id="n-chk" style="margin-top:18px">Check yourself</h2><p class="muted">Answer in your head or on paper first. Then open the answer.</p>
-  ${T.check.map(([q,a],k)=>`<details class="mine"><summary>${k+1}. ${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}
-  <div class="card" id="n-prac" style="margin-top:18px"><h3>${studied?'✓ You have studied this topic':'Finished reading?'}</h3>
-   ${studied?'<p class="muted" style="margin:0">Now practise it.</p>':`<p class="muted" style="margin:0 0 10px">Mark the topic as studied to earn XP and move towards the ${esc(TOPIC_BADGE[t])} badge.</p><button class="btn gold" id="nst">📖 I've studied this topic · +20 XP</button>`}
-   <div class="row" style="margin-top:12px"><a class="btn" href="#/mcq/t/${t}">🎯 MCQs on Topic ${t}</a><a class="btn ghost" href="#/short/t/${t}">🧩 Short answers</a><a class="btn ghost" href="#/long">🖋️ Long answers</a></div></div>
-  <div class="card" id="n-ai" style="margin-top:18px"><h3>Explore further with AI</h3><p class="muted">Copy a prompt, open Gemini, and paste it in. Read the reply with care. Check every idea against these notes and your textbook.</p>
-   ${T.prompts.map((x,k)=>`<div class="prompt"><p>${esc(x)}</p><button class="btn ghost sm" type="button" data-copy="${k}">Copy prompt</button></div>`).join('')}
-   <div class="row" style="margin-top:10px"><a class="btn ghost sm" href="${GEMINI}" target="_blank" rel="noopener">Open Gemini ↗</a></div></div>
-  <div class="row" style="justify-content:space-between;margin-top:18px">${prev?`<a class="btn ghost" href="#/notes/${prev}">← Topic ${prev}</a>`:'<span></span>'}${next?`<a class="btn" href="#/notes/${next}">Topic ${next} →</a>`:`<a class="btn" href="#/mcq">Try a mixed MCQ set →</a>`}</div>`);
- const el=$('main');$('#nst')&&($('#nst').onclick=()=>{if(award('notes:'+t,20,'Topic studied'))countOnce('notes:'+t,'notes');notesPage(String(t));$('#n-prac').scrollIntoView({block:'center'})});
- const flip=(b,on)=>{b.setAttribute('aria-pressed',on);b.querySelector('span').textContent=on?T.terms[b.dataset.ti][1]:'Tap to reveal'};
- el.onclick=e=>{const j=e.target.closest('[data-jump]');if(j){const x=document.getElementById(j.dataset.jump);if(x)x.scrollIntoView({behavior:'smooth'});return}
-  const tm=e.target.closest('[data-ti]');if(tm){flip(tm,tm.getAttribute('aria-pressed')!=='true');return}
-  const ta=e.target.closest('[data-tall]');if(ta){document.querySelectorAll('[data-ti]').forEach(b=>flip(b,ta.dataset.tall==='1'));return}
-  const b=e.target.closest('[data-copy]');if(!b)return;const txt=T.prompts[+b.dataset.copy];
-  const ok=()=>{b.textContent='Copied ✓';setTimeout(()=>{b.textContent='Copy prompt'},2000)};
-  const old=()=>{const a=document.createElement('textarea');a.value=txt;a.setAttribute('readonly','');a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();
-   try{document.execCommand('copy');ok()}catch(err){b.textContent='Select and copy the text'}a.remove()};
-  if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(txt).then(ok,old);else old()}}
 function actPane(c,n){n=Math.min(Math.max(1,n||1),c.acts.length);const a=c.acts[n-1],dk='actdone:'+c.id+':'+n;U.act=U.act||{};document.body.dataset.case=c.id;
  $('#pane').innerHTML=`<div class="card" style="margin-bottom:14px"><h2>Hands-on activities</h2><p class="muted" style="margin:0">Short interactive tasks that build the ideas you need for full answers. Mark each one as done when you have finished it.</p>
   <div class="dots" style="margin-top:12px">${c.acts.map((x,i)=>`<button class="dot ${i+1===n?'on':''} ${U.log['actdone:'+c.id+':'+(i+1)]?'done':''}" data-an="${i+1}" title="${esc(x.title)}" aria-label="Activity ${i+1}">${U.log['actdone:'+c.id+':'+(i+1)]?'✓':i+1}</button>`).join('')}</div></div>
@@ -284,7 +229,7 @@ function qCard(q,i,o={}){
   const good=q.chips.map((c,j)=>c.g?j:-1).filter(j=>j>=0),planHTML=`<div class="plan"><b class="lex" style="font-size:.85rem">Your plan</b><ol>${st.sel.filter(j=>q.chips[j].g).map(j=>`<li>${esc(q.chips[j].t)}</li>`).join('')||'<li class="muted">No key ideas picked</li>'}</ol></div>`;
   const steps=st.route==='typed'?['1 · Plan','2 · Type','3 · Mark']:st.route==='plan'?['1 · Plan','✓ Plan only']:['1 · Plan','2 · Write','3 · Check'];
   const nextBtn=`<div class="row" style="margin-top:12px"><button class="btn" data-a="next">${o.last?'See set summary 🏁':'Next question →'}</button></div>`;
-  let h=`<div class="qmeta"><span class="tag">Question ${i+1}</span><span class="tag">${esc(q.skill||q.topic)}</span>${q.t?`<span class="tag">${TOPIC_ICO[q.t]||''} Topic ${q.t}</span>`:''}<span class="tag">${q.marks||6} marks</span><button class="btn ghost sm rst" data-a="restart" title="Restart this question">↺ Restart</button>${rptBtn(q.id,(qIndex()[q.id]||{}).label||q.skill||q.topic)}</div>
+  let h=`<div class="qmeta"><span class="tag">Question ${i+1}</span><span class="tag">${esc(q.skill||q.topic)}</span>${q.t?`<span class="tag">${TOPIC_ICO[q.t]||''} Topic ${q.t}</span>`:''}<span class="tag">${q.marks||6} marks</span><button class="btn ghost sm rst" data-a="restart" title="Restart this question">↺ Restart</button>${notesBtn(q,o)}${rptBtn(q.id,(qIndex()[q.id]||{}).label||q.skill||q.topic)}</div>
   <h3 style="font-weight:600">${esc(q.q)}</h3><div class="steps">${steps.map((s,j)=>`<span class="${st.done&&j===steps.length-1||j===st.step?'on':j<st.step||st.done?'done':''}">${j<st.step||st.done&&j<steps.length-1?'✓ ':''}${s}</span>`).join('')}</div>`;
   const fin=()=>{U.fin=U.fin||{};U.fin[q.id]=1;if(st.route!=='plan'){U.tw=U.tw||{};if(q.t)U.tw[q.t]=1}const cc=o.cid&&CASEL.find(x=>x.id===o.cid);if(cc)caseCheck(cc);checkBadges()};
   const modelH=q.model&&st.done?`<details class="mine"><summary>Model answer: compare it with yours</summary>${q.model.model.map(x=>`<p>${esc(x)}</p>`).join('')}${q.model.rub?`<div class="tablewrap"><table><tr><th>Part</th><th>Marks</th><th>What earns them</th></tr>${q.model.rub.map(r=>`<tr><td>${esc(r[0])}</td><td>${r[1]}</td><td>${esc(r[2])}</td></tr>`).join('')}</table></div>`:''}</details>`:'';
@@ -609,7 +554,6 @@ ROUTES.case=h=>caseView(h[1],h[2]||'read',parseInt(h[3],10)||1);
 ROUTES.mcq=h=>{if(h[1]==='t'){const t=+h[2];if(U.mq&&U.mq.done)U.mq=null;U.mtopic=TOPICS.includes(t)?t:0;U.mtopics=U.mtopic?[U.mtopic]:TOPICS.slice();save();return mcqPage()}return mcqPage()};
 ROUTES.short=h=>shortPage(h[1]==='t'?+h[2]:0);
 ROUTES.long=h=>h[1]?longView(h[1]):longPage();
-ROUTES.notes=h=>notesPage(h[1]);
 
 /* ---------- dashboard hooks (engine/dash.js): readiness by topic, MCQs in the review queue, flashcards from the notes ---------- */
 function readyAreas(u){return TOPICS.map(t=>{const m=mastery(u,t);return {k:'t'+t,label:TOPIC_ICO[t]+' '+tName(t),href:'#/notes/'+t,cov:(m.notes?.25:0)+Math.min(1,m.att/15)*.45+(m.wrote?.3:0),acc:m.att?m.acc/100:null}})}
@@ -642,3 +586,15 @@ function qbankKinds(){return {mcq:{label:'MCQ',template:{id:'',t:8,b:'K',d:1,q:'
     check:d=>qbText(d,20)||(!TOPICS.includes(+d.t)?'t must be a topic number (8 to 14).':typeof d.topic!=='string'||!d.topic?'Give the topic.':'')||qbChips(d),find:id=>BANK_S.find(q=>q.id===id)||null}}}
 function qbankApply(L){qbPut(BANK.mcq,L,'mcq',d=>Object.assign({b:'K',d:1},d,{t:+d.t}));qbPut(BANK_S,L,'short',d=>Object.assign({checks:[],marks:6},d,{t:+d.t}));
   Object.keys(MCQ_BY).forEach(k=>delete MCQ_BY[k]);BANK.mcq.forEach(q=>MCQ_BY[q.id]=q)}
+
+/* ---------- study notes (engine/notes.js): Topics 8 to 14 from notes.js ---------- */
+function notesCfg(){const N=NOTES.topics8;return {N,keys:TOPICS.filter(t=>N.topics[t]),get:k=>N.topics[k]||null,word:'Topic',ico:k=>TOPIC_ICO[k],title:k=>TERM.topics[k],egLabel:'Maldives example',
+  badge:k=>TOPIC_BADGE[k],practice:k=>[['🎯 MCQs on Topic '+k,'#/mcq/t/'+k],['🧩 Short answers','#/short/t/'+k],['🖋️ Long answers','#/long']],last:['Try a mixed MCQ set','#/mcq']}}
+/* "📖 Refer to notes": written questions and paragraph questions go to their topic */
+function notesFor(q,o){const t=+(q.t||(q.kind==='chips'?q.topic:0)||o.topic||0);return TOPICS.includes(t)&&NOTES.topics8.topics[t]?'#/notes/'+t:''}
+/* ---------- the weekly 6th-spot challenge (engine/wild.js) and paragraph practice (engine/chips.js) ---------- */
+function wildTopicList(){return TOPICS.map(t=>[t,'Topic '+t+': '+TERM.topics[t]])}
+const chipTopics=wildTopicList;
+const wildArea=k=>'t'+k;
+function wildItems(top,seed){return wildPick(top,seed)}
+function wildItem(id){if(CHIPS_BY[id])return CHIPS_BY[id];const q=MCQ_BY[id];return q?{kind:'mcq',id:q.id,q:q.q,o:q.o,why:q.why,label:'Topic '+q.t}:null}
