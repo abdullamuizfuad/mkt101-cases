@@ -11,11 +11,11 @@ function chipQ(id,topic,q,ok,bad,alt){return {id,kind:'chips',topic,q,chips:ok.m
   paths:[ok.map((_,i)=>i)].concat(alt||[]),partial:[[[0,ok.length-1],2]],max:4}}
 const CHIPS=[
 /* ---- Topic 8: new products and the product life cycle ---- */
-chipQ('c8a',8,"A Malé juice bar wants to launch a new smoothie. Put the early steps of new product development in order.",
- ["Idea generation: collect ideas from customers, staff and competitors.",
-  "Idea screening: drop ideas that are too costly or don't fit the brand.",
-  "Concept testing: describe the smoothie to target customers and ask if they would buy it.",
-  "Test marketing: sell it in one outlet for a few weeks before a full launch."],
+chipQ('c8a',8,"A Malé juice bar wants to launch a new smoothie. Put the eight stages of new product development in order, two stages at a time.",
+ ["Idea generation and idea screening: collect many ideas, then drop those that are too costly or don't fit the brand.",
+  "Concept development and testing, then marketing strategy development: describe the smoothie to target customers, then plan its target, price and budget.",
+  "Business analysis, then product development: check sales, cost and profit forecasts, then make and test the real smoothie.",
+  "Test marketing, then commercialisation: sell it in one outlet for a few weeks, then launch it in all outlets."],
  [["Commercialisation comes first so the product reaches shops quickly.","Commercialisation is the last stage, after testing."],
   ["Screening means adding as many ideas as possible.","Screening cuts weak ideas out."]]),
 chipQ('c8b',8,"A smartphone model is in the maturity stage. Explain what marketers should do at this stage.",
@@ -108,7 +108,7 @@ chipQ('c12a',12,"Explain integrated marketing communications (IMC) for a new mob
   ["Each department should create its own separate message.","Separate messages confuse customers."]]),
 chipQ('c12b',12,"Put the main advertising decisions in a sensible order.",
  ["First, set the advertising objective, such as to inform customers about a new product.",
-  "Next, set the budget the brand can afford for the campaign.",
+  "Next, set the budget, ideally with the objective-and-task method: goals, tasks, then cost.",
   "Then, develop the message and choose the media that reach the target audience.",
   "Finally, evaluate the campaign to see if it met its objective."],
  [["Choose the media first, then decide what the campaign should achieve.","Objectives guide every other decision."],
@@ -122,9 +122,9 @@ chipQ('c12c',12,"A resort received bad online reviews after a power cut. Explain
   ["Public relations is the same as paid advertising.","PR mostly earns coverage rather than paying for space."]]),
 /* ---- Topic 13: personal selling and sales promotion ---- */
 chipQ('c13a',13,"Put the steps of the personal selling process in order for a salesperson selling office printers.",
- ["Prospecting: find businesses that may need new printers.",
-  "Approach and presentation: meet the buyer and show how the printer meets their needs.",
-  "Handling objections: answer concerns about price or reliability.",
+ ["Prospecting and qualifying: find businesses that may need new printers and can afford them.",
+  "Pre-approach and approach: learn about the business before the visit, then meet the buyer and open well.",
+  "Presentation and demonstration, then handling objections: show how the printer meets their needs, then answer concerns about price or reliability.",
   "Closing and follow-up: ask for the order, then check the customer is happy."],
  [["Closing should come first so the salesperson saves time.","A close without understanding needs usually fails."],
   ["Follow-up is not needed once the order is signed.","Follow-up builds loyalty and repeat sales."]]),
@@ -157,12 +157,12 @@ chipQ('c14b',14,"Explain consumerism and environmentalism, and why they matter t
   "Marketers who ignore these movements risk complaints, laws against them and lost customers."],
  [["Consumerism means encouraging people to buy as much as possible.","Here it means protecting consumers' rights."],
   ["Environmentalism only affects factories, not marketing.","It affects packaging, products and claims."]],[[2,3,0,1]]),
-chipQ('c14c',14,"Explain what enlightened marketing means, using a sense-of-mission example.",
- ["Enlightened marketing supports the best long-run performance of the marketing system.",
-  "A company with a sense of mission defines its purpose in broad social terms.",
+chipQ('c14c',14,"Explain the sustainable marketing principles, using sense-of-mission marketing as the example.",
+ ["Five sustainable marketing principles guide a company: consumer-oriented, customer-value, innovative, sense-of-mission and societal marketing.",
+  "Sense-of-mission marketing means defining the company's mission in broad social terms, not narrow product terms.",
   "For example, a sunscreen brand may aim to protect people and the reefs they swim in.",
   "This guides products, such as reef-safe formulas, and builds loyal customers."],
- [["Enlightened marketing means focusing only on this year's sales.","It looks to long-run performance."],
+ [["Sustainable marketing principles mean focusing only on this year's sales.","They look to the long-run interests of customers, the company and society."],
   ["A sense of mission means having the lowest prices.","It means a broad social purpose."]])
 ];
 /* the weekly challenge: for each of the two topics, five MCQs and one paragraph question, all in one shuffled order */

@@ -56,3 +56,32 @@ Checked on 29 Oct 2026 against Armstrong & Kotler, *Marketing: An Introduction*,
 - **Topic 12:** added engagement to the media decisions. The communication process, six steps and buyer-readiness sections are kept but labelled "Extra", because the 15th edition no longer covers them.
 - **Topic 13:** added sales promotion objectives for the four target groups (consumer, trade, business, sales force), and loyalty programmes as relationship-building promotions. Updated the reasons for the growth of sales promotion.
 - **Topic 14:** checked; it matches Chapter 16 and needed no changes.
+
+## Lecturer's decision (29 Oct 2026): keep everything and match it to the book. Done.
+
+The question ids and the correct options are unchanged, so XP, review and marking keys still work.
+
+### Group 1: kept and active, linked to the book
+
+| Id | Done |
+|---|---|
+| t12-13 | **Done.** Stem marked "(Extra topic in the notes)". The explanation says the stages are not in the 15th edition and links them to the book's inform / persuade / remind advertising objectives. |
+| t12-17 | **Done.** Marked Extra. The explanation links noise to the book's "advertising clutter". |
+| t12-23 | **Done.** Marked Extra. The explanation links feedback to the book's evaluation of communication and sales effects. |
+| t12-18 | **Done.** Marked Extra. The answer is still "an emotional appeal". The explanation adds the book's term: the mood or image execution style. |
+| e12k2 | **Done.** The guide says it is an Extra topic and asks students to link each step to the book's terms. The model answer now names the book's terms: informative objective, message strategy and execution style, reach/frequency/impact/engagement, evaluating communication and sales effects. |
+| t13-25 | **Done.** The correct option is now "A loyalty (frequency marketing) programme reward", following the book's wording for frequency marketing programmes and loyalty cards. The explanation notes that older editions called these patronage rewards. |
+| s13d | **Done.** The key idea is now "Loyalty (frequency marketing) programme: tenth pizza free". "Bonus packs", which the book doesn't use, became "Price packs or premiums". |
+| t13-5, t13-9, t13-20, t13-27 (distractors) | **Done.** "Patronage reward" changed to "loyalty programme reward". |
+
+### Group 2: fixed to match the book
+
+| Id | Done |
+|---|---|
+| s8b | **Done.** Now asks for the five stages, from product development to decline. New key idea: "Product development: sales are zero and investment costs rise". |
+| c8a | **Done.** Now covers all eight stages of new product development, two stages per chip, in the book's order. |
+| c12b | **Done.** The budget step now reads "set the budget, ideally with the objective-and-task method: goals, tasks, then cost". |
+| c13a | **Done.** All seven steps are covered, including the pre-approach: prospecting and qualifying / pre-approach and approach / presentation and demonstration, then handling objections / closing and follow-up. |
+| c14c | **Done.** Now "Explain the sustainable marketing principles, using sense-of-mission marketing as the example". The chips name the five principles and define sense-of-mission marketing. "Enlightened marketing" is gone. |
+
+Also checked: s9c, s12e and the greenwashing items needed no change, as noted above.
