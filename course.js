@@ -646,3 +646,13 @@ function qArea(id){const q=MCQ_BY[id];return q?'t'+q.t:((qIndex()[id]||{}).area|
 function revItem(id){const q=MCQ_BY[id];return q?{kind:'mcq',q:q.q,o:q.o,why:q.why,label:'Topic '+q.t+' · MCQ'}:null}
 function dashStats(){return [[TOPICS.filter(t=>mastered(U,t)).length+'/7','topics mastered','#/notes']]}
 function flashDecks(){const T=(NOTES.topics8||{}).topics||{};return TOPICS.filter(t=>T[t]&&(T[t].terms||[]).length).map(t=>({k:'t'+t,label:TOPIC_ICO[t]+' '+tName(t),cards:T[t].terms}))}
+
+/* practice paper (engine/paper.js): MCQs, written answers and a case, 180 minutes in all */
+function paperSpec(rng){const pick=(a,n)=>{a=a.slice();const o=[];while(a.length&&o.length<n)o.push(a.splice(Math.floor(rng()*a.length),1)[0]);return o};
+  const M=TOPICS.flatMap(t=>pick(BANK.mcq.filter(q=>q.t===t),4)).slice(0,25);
+  const st=pick(TOPICS,3),S=st.map(t=>pick(BANK_S.filter(q=>q.t===t),1)[0]).filter(Boolean).map(q=>({id:q.id,kind:'written',q:q.q,ideas:q.chips.filter(c=>c.g).map(c=>c.t),label:'Topic '+q.t+' · '+q.topic}));
+  const lt=TOPICS.filter(t=>!st.includes(t)),e=pick(BANK.essays.filter(x=>lt.includes(x.t)),1)[0]||pick(BANK.essays,1)[0];
+  const c=pick(CASEL,1)[0],C=pick(c.questions,3).map(q=>({id:q.id,kind:'written',q:q.q,ideas:q.chips.filter(x=>x.g).map(x=>x.t),label:c.short+': '+q.skill}));
+  return [{k:'a',title:'MCQs',mins:30,note:'Pick one answer for each question. You can change your answers until you submit the section.',items:pick(M,M.length).map(q=>({id:q.id,kind:'mcq',q:q.q,o:q.o,label:'Topic '+q.t}))},
+    {k:'b',title:'Written answers',mins:75,note:'Three short answers and one long answer. Explain, give an example, and say why it matters.',items:S.concat([{id:e.id,kind:'written',q:e.q,ideas:e.guide,label:'Topic '+e.t+' · long answer'}])},
+    {k:'c',title:'Case study: '+c.short,mins:75,note:'Answer the questions about the case. You can open the case in a new tab.',items:C.map((x,i)=>i?x:Object.assign(x,{html:`<p><a href="#/case/${c.id}/read" target="_blank" rel="noopener">📖 Open ${esc(c.short)} in a new tab</a></p>`}))}]}
