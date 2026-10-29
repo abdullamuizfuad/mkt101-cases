@@ -25,7 +25,9 @@ async function page(opts={}){
   p.on('console',m=>{if(m.type()==='error'&&!/mailto|favicon|fonts\.g/.test(m.text()))p.errs.push('console: '+m.text())});
   p.on('dialog',d=>d.accept());
   if(opts.clock)await p.clock.install();if(opts.init)await p.addInitScript(opts.init);
-  if(!opts.breaks)await p.addInitScript(()=>{window.__presNoBreak=1});/* break reminders only in the breaks test */
+  if(!opts.breaks)await p.addInitScript(()=>{window.__presNoBreak=1});
+  /* already on Version 2.1 (the release test turns this off to see the one-time sign-out) */
+  if(opts.ver!==false)await p.addInitScript(()=>{try{if(!localStorage.getItem('mkt101_ver'))localStorage.setItem('mkt101_ver','"2.1"')}catch(e){}});/* break reminders only in the breaks test */
   await p.goto(URL0);
   if(opts.sid){await p.evaluate(([sid,theme,tour])=>{localStorage.setItem('mkt101_session',JSON.stringify({sid,name:'Test Student'}));
       if(tour)localStorage.setItem('mkt101_u_'+sid,JSON.stringify({tour:1,inst:1,migrated:1}));if(theme)localStorage.setItem('mkt101_theme',JSON.stringify(theme))},[opts.sid,opts.theme,opts.tour!==false]);
@@ -325,6 +327,18 @@ async hints(){const p=await page({sid:STUDENT});await p.go('#/short');await p.wa
   /* skip link and focus */
   await p.reload();await p.waitForTimeout(500);await p.keyboard.press('Tab');ok(await p.evaluate(()=>document.activeElement.classList.contains('skip')),'skip link is not first');await p.keyboard.press('Enter');ok(await p.evaluate(()=>document.activeElement.id==='main'),'skip link does not reach the content');
   await p.done()},
+
+async release(){const p=await page({ver:false});const pre=await p.evaluate(()=>CRS.ls);
+  await p.evaluate(pre=>{localStorage.setItem(pre+'session',JSON.stringify({sid:'S081441',name:'Test Student'}));localStorage.setItem(pre+'u_S081441',JSON.stringify({tour:1,inst:1,xp:120,days:['2026-10-01'],log:{'x:1':1},badges:{boarding:'2026-10-01'}}))},pre);
+  await p.reload();await p.waitForTimeout(3500);
+  ok(await p.evaluate(()=>!ME)&&!!await p.$('#verban'),'not signed out once with the 2.1 message');await shot(p,'release-banner');
+  const kept=await p.evaluate(pre=>{const u=JSON.parse(localStorage.getItem(pre+'u_S081441')||'{}'),b=JSON.parse(localStorage.getItem(pre+'u_bak21_S081441')||'{}');return [u.xp,b.xp]},pre);ok(kept[0]>=120&&kept[1]>=120,'progress not kept: '+kept);
+  await p.fill('#nm','Test Student');await p.type('#sid','081441');await p.waitForTimeout(300);await p.click('#go');await p.waitForTimeout(400);if(await p.$('#pgo'))await p.click('#pgo');
+  await p.waitForSelector('.modal[aria-label="What\'s new"]',{timeout:8000});ok(await p.evaluate(()=>U.xp>=120&&!document.querySelector('#verban')),'progress lost after signing in again');await shot(p,'release-whatsnew');
+  await p.click('#wnmore');await p.waitForTimeout(400);ok((await p.textContent('main')).includes("What's new in Version 2.1"),'What\'s new page missing');
+  ok(!/\bexam/i.test(await p.textContent('main')),'exam wording on What\'s new');
+  /* only once: reloading does not sign out again or show the popup again */
+  await p.reload();await p.waitForTimeout(3000);ok(await p.evaluate(()=>!!ME&&!document.querySelector('.modal[aria-label="What\'s new"]')),'2.1 steps repeated');await p.done()},
 
 async layout(){const pages=['#/','#/paper','#/mcq','#/short','#/long','#/long/e10a','#/cases','#/case/sto/read','#/case/soneva/board','#/case/sto/acts/1','#/case/sto/acts/7','#/case/soneva/acts/3','#/case/soneva/acts/6','#/case/soneva/acts/7','#/case/soneva/practice','#/case/sto/exhibits','#/notes','#/notes/10','#/badges','#/board'];
   for(const w of [320,390,1280])for(const theme of ['dark','light']){const p=await page({sid:STUDENT,w,theme,clock:true});for(const h of pages){await p.go(h);const sw=await p.evaluate(()=>document.documentElement.scrollWidth);ok(sw<=w,`${h} at ${w}px ${theme}: scrollWidth ${sw}`)}
