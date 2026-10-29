@@ -660,3 +660,14 @@ function paperSpec(rng){const pick=(a,n)=>{a=a.slice();const o=[];while(a.length
 /* quick quiz items (engine/social.js: challenges, the weekend challenge, quiz battles): the MCQ bank */
 function quizItem(id){const q=MCQ_BY[id];return q?{id:q.id,q:q.q,o:q.o,why:q.why,label:'Topic '+q.t}:null}
 function quizItems(rng,n){const all=BANK.mcq,o=[],used=new Set();while(o.length<n&&o.length<all.length){const q=all[Math.floor(rng()*all.length)];if(used.has(q.id))continue;used.add(q.id);o.push(quizItem(q.id))}return o}
+
+/* question editor (engine/qbank.js): MCQs and short answers */
+const qbChips=d=>!Array.isArray(d.chips)?'chips must be a list.':d.chips.some(c=>!c||typeof c.t!=='string'||!c.t.trim())?'Every chip needs its text (t).':d.chips.filter(c=>c.g).length<3?'Give at least 3 key ideas (g: 1).':d.chips.filter(c=>!c.g).length<1?'Give at least one decoy (g: 0, with why).':d.chips.some(c=>!c.g&&!c.why)?'Every decoy needs a why.':'';
+const qbText=(d,n)=>typeof d.q!=='string'||d.q.trim().length<n?'Write the question (q).':/\bexams?\b|\bmidterms?\b|\bresits?\b/i.test(JSON.stringify(d))?'Practice questions must not mention exams, midterms or resits.':'';
+function qbPut(arr,L,kind,fix){L.filter(x=>x.kind===kind).forEach(x=>{const i=arr.findIndex(q=>q.id===x.id);if(x.st==='hidden'){if(i>=0)arr.splice(i,1);return}const q=fix?fix(x.data):x.data;if(i>=0)arr[i]=Object.assign({},arr[i],q);else arr.push(q)})}
+function qbankKinds(){return {mcq:{label:'MCQ',template:{id:'',t:8,b:'K',d:1,q:'',o:['The correct answer','Wrong answer','Wrong answer','Wrong answer'],why:'Why the correct answer is right'},
+    check:d=>qbText(d,10)||(!TOPICS.includes(+d.t)?'t must be a topic number (8 to 14).':!Array.isArray(d.o)||d.o.length!==4||d.o.some(x=>typeof x!=='string'||!x.trim())?'Give exactly 4 options (o), the correct one first.':!d.why?'Explain the answer (why).':''),find:id=>MCQ_BY[id]||null},
+  short:{label:'Short answer',template:{id:'',t:8,topic:'',marks:6,q:'',chips:[{t:'Define: …',g:1},{t:'Explain: …',g:1},{t:'Example: …',g:1},{t:'A common mistake …',g:0,why:'Why it is wrong'}],checks:['I defined the key term accurately','I applied it to the situation']},
+    check:d=>qbText(d,20)||(!TOPICS.includes(+d.t)?'t must be a topic number (8 to 14).':typeof d.topic!=='string'||!d.topic?'Give the topic.':'')||qbChips(d),find:id=>BANK_S.find(q=>q.id===id)||null}}}
+function qbankApply(L){qbPut(BANK.mcq,L,'mcq',d=>Object.assign({b:'K',d:1},d,{t:+d.t}));qbPut(BANK_S,L,'short',d=>Object.assign({checks:[],marks:6},d,{t:+d.t}));
+  Object.keys(MCQ_BY).forEach(k=>delete MCQ_BY[k]);BANK.mcq.forEach(q=>MCQ_BY[q.id]=q)}
