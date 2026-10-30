@@ -17,3 +17,4 @@ tools/push/sent.json
 
 # Claude question drafts before upload
 tools/qgen/drafts.json
+tools/marking/marked-log.json
