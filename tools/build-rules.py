@@ -299,7 +299,7 @@ __EMAILS__
     // Ask a tutor (engine/fun.js): a student asks a short question on a topic; classmates who are tutors reply; the asker marks a reply
     // "helped me". Text only, no links, at most 3 questions a day (the id is <SID>_<Maldives day number>_<1-3>) and 3 replies per thread
     // per person (<SID>_<1-3>). The lecturer hides or deletes anything. Every class member can read the board.
-    function mvDayNo() { return math.floor((request.time.toMillis() + 18000000) / 86400000); }
+    function mvDayNo() { return int(math.floor((request.time.toMillis() + 18000000) / 86400000)); }
     function noLink(s) { return !s.lower().matches('.*(https?:|www[.]|[.](com|net|org|mv|io|ly|me|co|app|link)([/ ]|$)).*'); }
     function helpDoc(id) { return get(/databases/$(database)/documents/help/$(id)).data; }
     match /help/{id} {
