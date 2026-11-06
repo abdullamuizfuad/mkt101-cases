@@ -261,7 +261,7 @@ async missions(){const p=await page({sid:STUDENT,clock:true});const v=await p.ev
   ok(u.xp>=x0+25,'mission bonus missing');await p.done()},
 
 async levels(){const p=await page({sid:STUDENT});const r=await p.evaluate(()=>LEVELS.map(l=>{U.xp=l[0];checkBadges();return [level(l[0]).name,Object.keys(U.badges).length]}));
-  ok(r.map(x=>x[0]).join('|')==='Intern|Marketing Officer|Marketing Executive|Senior Marketing Executive|Marketing Manager|Marketing Director|Cluster Director|Chief Marketing Officer (CMO)|Marketing Consultant','level names wrong');
+  ok(r.map(x=>x[0]).join('|')==='Intern|Marketing Officer|Marketing Executive|Senior Marketing Executive|Marketing Manager|Marketing Director|Cluster Director|Chief Marketing Officer (CMO)|Marketing Consultant|⭐ Senior Consultant|⭐⭐ Principal Consultant|⭐⭐⭐ Marketing Partner','level names wrong');
   ok(r.every((x,i)=>i===0||x[1]>r[i-1][1]),'no badge per level');const t=await p.evaluate(()=>[0,150,400,750,1200,1800,2600,3600,5000].map(tier));ok(t.join('')==='000111222','tiers: '+t);
   await p.go('#/badges');ok(await p.locator('.badge').count()>=38,'badge list short');await p.done()},
 
@@ -494,6 +494,7 @@ async function p320(g){await g.waitForTimeout(200);return (await g.evaluate(()=>
 
 Object.assign(T,require('./wild-site.js')({page,ok,STUDENT,LECT,shot}));
 Object.assign(T,require('./sessxp-site.js')({page,ok,STUDENT,LECT,shot}));
+Object.assign(T,require('./expert-site.js')({page,ok,STUDENT,LECT,shot}));
 (async()=>{const server=spawn('python3',['-m','http.server',String(PORT)],{cwd:ROOT,stdio:'ignore'});await new Promise(r=>setTimeout(r,800));
   browser=await chromium.launch({headless:!ARGS.headed});
   for(const [name,fn] of Object.entries(T)){if(ARGS.only&&!ARGS.only.split(',').includes(name))continue;const t0=Date.now();
