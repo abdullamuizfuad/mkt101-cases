@@ -2,6 +2,8 @@
 const CRS={
   /* fun and tutors (engine/fun.js): Boss rounds and story mode (MKT101 only: content in bank-boss.js, story.js), tutors from level tutorLvl with tutorEx Expert badges, the default weekly class goal */
   fun:{boss:true,story:true,tutorLvl:9,tutorEx:3,goal:3000},
+  /* secret levels (engine/cheer.js): levels from this index show as "??? Secret level" until the one before it is reached */
+  secretFrom:9,
   id:'mkt101',CODE:'MKT101',name:'MKT101 Arena',ls:'mkt101_',repo:'mkt101-cases',
   title:'Introduction to Marketing',
   /* the weekly 6th-spot challenge (engine/wild.js): class starts Wednesday 4:00 pm (GMT+5); the challenge is open the 24 hours before */

@@ -26,6 +26,7 @@ async function page(opts={}){
   p.on('dialog',d=>d.accept());
   if(opts.clock)await p.clock.install();if(opts.init)await p.addInitScript(opts.init);
   if(!opts.breaks)await p.addInitScript(()=>{window.__presNoBreak=1});
+  if(!opts.celeb)await p.addInitScript(()=>{window.__noCeleb=1});/* celebrations only in the celebration tests */
   /* already on Version 2.1 (the release test turns this off to see the one-time sign-out) */
   if(opts.ver!==false)await p.addInitScript(()=>{window.__noWhatsNew=1;try{if(!localStorage.getItem('mkt101_ver'))localStorage.setItem('mkt101_ver','"2.1"')}catch(e){}});/* break reminders only in the breaks test */
   await p.goto(URL0);
@@ -496,6 +497,7 @@ Object.assign(T,require('./wild-site.js')({page,ok,STUDENT,LECT,shot}));
 Object.assign(T,require('./sessxp-site.js')({page,ok,STUDENT,LECT,shot}));
 Object.assign(T,require('./expert-site.js')({page,ok,STUDENT,LECT,shot}));
 Object.assign(T,require('./fun-site.js')({page,ok,STUDENT,LECT,shot}));
+Object.assign(T,require('./cheer-site.js')({page,ok,STUDENT,LECT,shot}));
 (async()=>{const server=spawn('python3',['-m','http.server',String(PORT)],{cwd:ROOT,stdio:'ignore'});await new Promise(r=>setTimeout(r,800));
   browser=await chromium.launch({headless:!ARGS.headed});
   for(const [name,fn] of Object.entries(T)){if(ARGS.only&&!ARGS.only.split(',').includes(name))continue;const t0=Date.now();
