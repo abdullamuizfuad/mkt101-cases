@@ -1,6 +1,6 @@
 /* MKT101 course: content, pages and hooks that only this course has. The shared engine is in engine/. */
-const LEVELS=[[0,'Intern'],[150,'Marketing Officer'],[400,'Marketing Executive'],[750,'Senior Marketing Executive'],[1200,'Marketing Manager'],[1800,'Marketing Director'],[2600,'Cluster Director'],[3600,'Chief Marketing Officer (CMO)'],[5000,'Marketing Consultant']];
-const LVL_ICO=['🎫','🧑‍💼','📋','📈','🧭','🏢','🌐','👑','💎'];
+const LEVELS=[[0,'Intern'],[150,'Marketing Officer'],[400,'Marketing Executive'],[750,'Senior Marketing Executive'],[1200,'Marketing Manager'],[1800,'Marketing Director'],[2600,'Cluster Director'],[3600,'Chief Marketing Officer (CMO)'],[5000,'Marketing Consultant'],[7000,'⭐ Senior Consultant'],[9000,'⭐⭐ Principal Consultant'],[12000,'⭐⭐⭐ Marketing Partner']];
+const LVL_ICO=['🎫','🧑‍💼','📋','📈','🧭','🏢','🌐','👑','💎','⭐','🌟','🏛️'];
 const TOPIC_ICO={8:'🧪',9:'🏷️',10:'🚚',11:'🛒',12:'📣',13:'🤝',14:'🌱'},TOPIC_BADGE={8:'New Product Pro',9:'Pricing Pro',10:'Channel Pro',11:'Retail Pro',12:'Promotion Pro',13:'Sales Pro',14:'Sustainability Pro'};
 const TOPICS=Object.keys(TERM.topics).map(Number);
 const tName=t=>'Topic '+t+' · '+TERM.topics[t];
@@ -546,6 +546,12 @@ function profCourse(u,ctx){const n=u.n||{},fin=u.fin||{},done=practised(u),mh=u.
 
 /* ---------- course hooks for the engine ---------- */
 const CASE_ALL=CASEL,BANK_B_ALL=BANK_S;
+/* Expert sets (engine/expert.js, bank-expert.js): unlocked by the MCQ part of topic mastery (80%+ on 15 MCQs) */
+const expertTopics=()=>TOPICS.map(t=>[t,tName(t)]);
+function expertProg(u,t){const m=mastery(u,t);return {att:m.att,acc:m.acc,ok:m.mcq}}
+function expertEssayUI(host,q,done){host.innerHTML=`<div class="card qcard" id="q-${q.id}"></div>`;qCard(q,0,{short:1,secs:600,last:true,next:done})}
+/* Expert essays join the question index, so marking, review and reports know them */
+function qIndexMore(I){if(typeof EXPERT==='undefined')return;Object.values(EXPERT.sets).forEach(S=>{const q=S.essay;if(q)I[q.id]={q,area:'t'+q.t,label:'Expert set · Topic '+q.t+': '+q.topic}})}
 const caseName=c=>c.short,caseNames=c=>[c.short,c.org,'Soneva','STO','Lena','Malé','Hulhumalé'];
 const isB=o=>!!o.short,bArea=q=>'t'+q.t,bQLabel=q=>'Topic '+q.t+': '+q.topic,bLabel=k=>tName(+k.slice(1));
 onHook('beforeMe',migrateSession);onHook('afterLoad',migrateProgress);

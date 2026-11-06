@@ -50,7 +50,11 @@ export async function patchReview(token,sid,entries){const mask=Object.keys(entr
 export function bank(){const ctx={};vm.createContext(ctx);
   const D=vm.runInContext(['cases-data.js','case-extend.js','bank-s.js'].map(f=>readFileSync(path.join(ROOT,f),'utf8')).join('\n')+';({CASEL,BANK_S})',ctx);
   const Q={};D.CASEL.forEach(c=>c.questions.forEach(q=>Q[q.id]={q,area:c.short+' (case): '+q.skill,context:c.title+': '+c.subtitle}));
-  D.BANK_S.forEach(q=>Q[q.id]={q,area:'Topic '+q.t+': '+q.topic,context:'Short-answer practice'});return Q}
+  D.BANK_S.forEach(q=>Q[q.id]={q,area:'Topic '+q.t+': '+q.topic,context:'Short-answer practice'});
+  /* Expert set essays (bank-expert.js): harder, so mark for evaluation and a justified recommendation */
+  if(existsSync(path.join(ROOT,'bank-expert.js'))){const X=vm.runInContext(readFileSync(path.join(ROOT,'bank-expert.js'),'utf8')+';EXPERT',ctx);
+    Object.values(X.sets).forEach(S=>{const q=S.essay;if(q)Q[q.id]={q,area:'Topic '+q.t+': '+q.topic,context:'Expert set essay (for students who have mastered the topic)'}})}
+  return Q}
 export const BANDS=['0: Off topic or missing','1: Lists a term or two','2: Lists several terms with little explanation','3: Explains the idea with some application',
   '4: Explains clearly and applies it to the example','5: Applies well and starts to evaluate','6: Applies to the case or example throughout and evaluates with a clear judgement'];
 export const readJSON=(f,d)=>existsSync(f)?JSON.parse(readFileSync(f,'utf8')):d;

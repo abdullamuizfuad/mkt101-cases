@@ -4,6 +4,8 @@ const CRS={
   title:'Introduction to Marketing',
   /* the weekly 6th-spot challenge (engine/wild.js): class starts Wednesday 4:00 pm (GMT+5); the challenge is open the 24 hours before */
   wild:{day:3,hour:16},
+  /* Expert sets (engine/expert.js, content in bank-expert.js) */
+  expert:true,
   /* topics the lecturer has already chosen for a week (used when no other topics are saved before it opens) */
   wildPlan:{'w2026-11-04':['10','11']},
   themeColor:{light:'#f6f0e4',dark:'#0d0718'},
