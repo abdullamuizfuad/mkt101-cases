@@ -7,7 +7,7 @@ const CRS={
   id:'mkt101',CODE:'MKT101',name:'MKT101 Arena',ls:'mkt101_',repo:'mkt101-cases',
   title:'Introduction to Marketing',
   /* the weekly 6th-spot challenge (engine/wild.js): class starts Wednesday 4:00 pm (GMT+5); the challenge is open the 24 hours before */
-  wild:{day:3,hour:16},
+  wild:{day:3,hour:16},wildOff:true,/* the 6th-spot challenge ended on 15 Nov 2026: the window still sets the "This week" leaderboard */
   /* Expert sets (engine/expert.js, content in bank-expert.js) */
   expert:true,
   /* topics the lecturer has already chosen for a week (used when no other topics are saved before it opens) */

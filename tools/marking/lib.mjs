@@ -54,6 +54,9 @@ export function bank(){const ctx={};vm.createContext(ctx);
   /* Expert set essays (bank-expert.js): harder, so mark for evaluation and a justified recommendation */
   if(existsSync(path.join(ROOT,'bank-expert.js'))){const X=vm.runInContext(readFileSync(path.join(ROOT,'bank-expert.js'),'utf8')+';EXPERT',ctx);
     Object.values(X.sets).forEach(S=>{const q=S.essay;if(q)Q[q.id]={q,area:'Topic '+q.t+': '+q.topic,context:'Expert set essay (for students who have mastered the topic)'}})}
+  /* Replacement Tutorial Sessions (rts.js): written questions */
+  if(existsSync(path.join(ROOT,'rts.js'))){const R=vm.runInContext(readFileSync(path.join(ROOT,'rts.js'),'utf8')+';RTS_Q',ctx);
+    Object.values(R).forEach(q=>{if(q&&q.id)Q[q.id]={q,area:'Topic '+(q.t||q.week)+': '+q.topic,context:'Replacement tutorial session'+(q.scenario?': '+q.scenario:'')}})}
   return Q}
 export const BANDS=['0: Off topic or missing','1: Lists a term or two','2: Lists several terms with little explanation','3: Explains the idea with some application',
   '4: Explains clearly and applies it to the example','5: Applies well and starts to evaluate','6: Applies to the case or example throughout and evaluates with a clear judgement'];
