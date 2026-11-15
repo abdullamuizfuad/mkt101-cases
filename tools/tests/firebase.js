@@ -18,6 +18,7 @@ async function page(o={}){const ctx=await browser.newContext({viewport:{width:o.
   if(o.theme)await ctx.addInitScript(t=>localStorage.setItem('mkt101_theme',JSON.stringify(t)),o.theme);
   await ctx.addInitScript(()=>{window.__presNoBreak=1});
   if(!o.celeb)await ctx.addInitScript(()=>{window.__noCeleb=1});
+  await ctx.addInitScript(()=>{window.__noRts=1});/* Replacement Tutorial Sessions are tested in rts-site */
   /* the board opens on This week; these tests read the All time board (boardWeek tests the weekly row) */
   await ctx.addInitScript(()=>{try{['mkt101_','mkt301_'].forEach(x=>{if(!localStorage.getItem(x+'lbtab'))localStorage.setItem(x+'lbtab','"a"')})}catch(e){}});
   if(o.ver!==false)await ctx.addInitScript(()=>{window.__noWhatsNew=1;try{if(!localStorage.getItem('mkt101_ver'))localStorage.setItem('mkt101_ver','"2.1"')}catch(e){}});
