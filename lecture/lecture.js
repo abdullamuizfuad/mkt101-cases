@@ -11,7 +11,7 @@
    Without the cloud (or before the rules are published) the deck still runs: every live slide has a show-of-hands version. */
 const LX_LECS={ch13:LX_CH13};
 const LX_KEEN=1;/* the right priority client in round 2: Client B (index 1) */
-const LX_ORDER=['w1','rep','p1','p2','c0','c1','c2','ln','w2'];
+const LX_ORDER=['w1','rep','p1','p2','c0','c1','c2','c3','ln','w2'];
 const LX_DUR={words:60,rep:90,prospect:60,research:150,call:30,snap:12};
 const LX_BLOCK=/\b(fuck|shit|bitch|dick|sex|porn|ass|bastard|damn|idiot|stupid)\b/i;
 const LX={id:null,L:null,doc:null,mine:null,stops:[],sig:'',rT0:0,err:null,gstop:null,gid:null};
@@ -19,6 +19,8 @@ const lxPath=id=>'lec/'+id;
 const lxStop=()=>{LX.stops.forEach(f=>{try{f&&f()}catch(e){}});LX.stops=[]};
 const lxLive=d=>!!(d&&d.st==='live'&&(!d.ends||Date.now()<d.ends));
 const lxIsStudent=()=>typeof ME!=='undefined'&&ME&&ME.sid!==LECTURER&&!VIEWAS;
+/* the call script an activity belongs to: its own (A2) or the client the class carries */
+const lxScript=(A,a,d)=>A.script||(a&&a.pk)||(d&&d.pick)||'B';
 function lxU(id){U.lec=U.lec||{};const r=U.lec[id]||(U.lec[id]={a:{}});r.a=r.a||{};r.sc=r.sc||{};return r}
 const lxNick=()=>String((U&&U.nick)||defaultNick(ME.name)||'Player').slice(0,24);
 const lxSeed=(s,arr)=>{const r=seeded(s);return arr.map((x,i)=>[x,r(),i]).sort((a,b)=>a[1]-b[1]).map(x=>x[2])};
@@ -65,7 +67,7 @@ function lxPOnDoc(p,d){if(!lxIsStudent())return;const id=LX.id;
 /* XP that depends on the result is given once an activity has closed (stable keys, so a reload never gives it twice) */
 function lxSettle(d){if(!d||!LX.mine)return;const id=LX.id,L=LX.L,a=LX.mine.a,R=lxU(id),ci=LX_ORDER.indexOf(d.cur);
   const past=k=>d.st==='ended'||LX_ORDER.indexOf(k)<ci||(d.cur===k&&d.ph!=='open');
-  ['c0','c1','c2'].forEach((k,j)=>{if(Number.isInteger(a[k])&&past(k)){const c=L.call[a.pk||d.pick||'B']||L.call.B,o=c.d[j].opts[a[k]];if(o&&o.good)lxAw('lec:'+id+':'+k+':v',5,'Value move: '+c.d[j].step)}});
+  Object.entries(L.acts).filter(([k,A])=>A.kind==='call').forEach(([k,A])=>{if(Number.isInteger(a[k])&&past(k)){const c=L.call[lxScript(A,a,d)]||L.call.B,o=c.d[A.d].opts[a[k]];if(o&&o.good)lxAw('lec:'+id+':'+k+':v',5,'Value move: '+c.d[A.d].step)}});
   for(let r=0;r<L.snap.length;r++){const x=a['s'+r];if(!x||R.sc[r])continue;const done=d.st==='ended'||LX_ORDER.indexOf('ln')<ci||(d.cur==='ln'&&(d.r>r||(d.r===r&&d.ph!=='open')));if(!done)continue;
     R.sc[r]=1;const ok=x.c===0;U.mt=U.mt||{};const m=U.mt[L.topic]||(U.mt[L.topic]=[0,0]);m[0]++;if(ok)m[1]++;countOnce('lecsnap:'+id+':'+r,'mcq',ok&&'mcqRight');
     if(ok)award('lec:'+id+':s'+r,3,'Term Snap: right',true);save()}}
@@ -88,7 +90,7 @@ function lxBadgeRow(){const b=['salesrep','keeneye','topcloser'].map(i=>BADGES.f
 /* what the student did in the activity that just closed */
 function lxAfter(d){const L=LX.L,a=LX.mine.a,k=d.cur;if(!k||!L.acts[k])return '';const A=L.acts[k];
   if(A.kind==='snap'&&a['s'+d.r]){const x=a['s'+d.r];return `<p class="lxfb ${x.c===0?'ok':'no'}">${x.c===0?'✅ Right!':'❌ Not this time.'} The answer: <b>${esc(L.snap[d.r].o[0])}</b></p><p class="muted">Your score: ${lxSnapScore(a,d.r+1,A.ms).s}</p>`}
-  if(A.kind==='call'&&Number.isInteger(a[k])){const o=(L.call[a.pk||d.pick]||L.call.B).d[A.d].opts[a[k]];return `<p class="lxfb ${o.good?'ok':''}">You voted: <b>${esc(o.t)}</b>${o.good?' · a value move (+5 XP)':''}</p>`}
+  if(A.kind==='call'&&Number.isInteger(a[k])){const o=(L.call[lxScript(A,a,d)]||L.call.B).d[A.d].opts[a[k]];return `<p class="lxfb ${o.good?'ok':''}">You voted: <b>${esc(o.t)}</b>${o.good?' · a value move (+5 XP)':''}</p>`}
   if(a[k]!=null)return '<p class="lxfb ok">✅ Your answer is in. See the results on the screen.</p>';return ''}
 function lxPAct(k,A,d){const el=$('#lxact'),L=LX.L,a=LX.mine.a,done=a[k]!=null;
   const top=`<p class="lxk">${esc(A.title)}</p>`;
@@ -105,10 +107,10 @@ function lxPAct(k,A,d){const el=$('#lxact'),L=LX.L,a=LX.mine.a,done=a[k]!=null;
       ${A.research?`<div class="row lxrsb"><button class="btn ghost sm" data-s="${c}">🔎 Search</button>${C[c].feed?`<button class="btn ghost sm" data-f="${c}">📱 Their feed</button>`:''}</div>`:''}<button class="btn sm lxvote" data-v="${i}">${a[k]===i?'✅ Your choice':'Call Client '+c+' first'}</button></div>`).join('')}<p class="muted" id="lxm"></p>`;
     $$('[data-s]',el).forEach(b=>b.onclick=()=>lxSearch(b.dataset.s));$$('[data-f]',el).forEach(b=>b.onclick=()=>lxFeed(b.dataset.f));
     $$('[data-v]',el).forEach(b=>b.onclick=async()=>{const i=+b.dataset.v,first=a[k]==null;if(await lxSend(k,i)){if(first)lxAw('lec:'+LX.id+':'+k,A.xp,'Prospect chosen');lxPAct(k,A,d)}});return}
-  if(A.kind==='call'){const pk=d.pick||'B',c=L.call[pk],D=c.d[A.d],cl=L.clients[pk];
-    el.innerHTML=top+`<p class="lxtag">Teaching scenario · Client ${pk}: ${esc(cl.name)}</p>${D.setup.map(([w,t])=>`<div class="lxbub ${w==='rep'?'rep':'cli'}"><b>${esc(L.voices[w])}</b>${esc(t)}</div>`).join('')}<h2>${esc(D.q)}</h2>
+  if(A.kind==='call'){const pk=A.script||d.pick||'B',c=L.call[pk],D=c.d[A.d],ck=c.client||pk,cl=L.clients[ck];
+    el.innerHTML=top+`<p class="lxtag">Teaching scenario · Client ${ck}: ${esc(cl.name)}</p>${D.setup.map(([w,t])=>`<div class="lxbub ${w==='rep'?'rep':'cli'}"><b>${esc(L.voices[w])}</b>${esc(t)}</div>`).join('')}<h2>${esc(D.q)}</h2>
       <div class="lxopts">${D.opts.map((o,i)=>`<button class="lxopt" data-i="${i}" aria-pressed="${a[k]===i}">${esc(o.t)}</button>`).join('')}</div><p class="muted" id="lxm">${a[k]!=null?'✅ Vote in. You can change it until the vote closes.':'Tap one. The class vote decides what Maya says.'}</p>`;
-    $$('.lxopt',el).forEach(b=>b.onclick=async()=>{const i=+b.dataset.i,first=a[k]==null;LX.mine.a.pk=pk;if(await lxSend(k,i)){if(first)lxAw('lec:'+LX.id+':'+k,A.xp,'Vote: '+D.step);$$('.lxopt',el).forEach(x=>x.setAttribute('aria-pressed',x===b));$('#lxm').textContent='✅ Vote in. Listen to the call on the screen.'}});return}
+    $$('.lxopt',el).forEach(b=>b.onclick=async()=>{const i=+b.dataset.i,first=a[k]==null;if(!A.script)LX.mine.a.pk=pk;if(await lxSend(k,i)){if(first)lxAw('lec:'+LX.id+':'+k,A.xp,'Vote: '+D.step);$$('.lxopt',el).forEach(x=>x.setAttribute('aria-pressed',x===b));$('#lxm').textContent='✅ Vote in. Listen to the call on the screen.'}});return}
   if(A.kind==='snap'){const r=d.r|0,it=L.snap[r],sk='s'+r,ord=lxSeed(ME.sid+'|'+r,it.o);
     el.innerHTML=`<div class="lxsnaph"><span class="lxk">⚡ Term Snap · Round ${r+1}</span><span class="pill" id="lxsc">${lxSnapScore(a,r,A.ms).s} pts</span></div><p class="muted" style="margin:4px 0 10px">Read the definition on the screen. Tap the term. Fast and right wins.</p>
       <div class="lxtiles">${ord.map(i=>`<button class="lxtile${a[sk]&&a[sk].c===i?' on':''}" data-i="${i}" ${a[sk]?'disabled':''}>${esc(it.o[i])}</button>`).join('')}</div><p class="lxfb" id="lxm">${a[sk]?'🔒 Locked in. Wait for the answer.':''}</p>`;
@@ -155,7 +157,7 @@ lcard('lxc',el=>{el.hidden=false;const id='ch13',L=LX_LECS[id];el.innerHTML=`<h2
    The projector deck (lecturer only)
    ===================================================================================================================== */
 const LXD={id:null,L:null,i:0,s:0,el:null,doc:null,ans:[],live:false,tEnd:0,tic:null,au:{},mute:false,busy:false,skip:false,short:false,
-  trust:50,won:{},over:{},t0:null,bc:null,notes:false,theme:'light',hide:new Set(),scores:[]};
+  trust:50,won:{},over:{},res:{},t0:null,bc:null,notes:false,theme:'light',hide:new Set(),scores:[]};
 function lxDeckClose(){if(!LXD.el)return;clearInterval(LXD.tic);document.removeEventListener('keydown',lxKey);window.removeEventListener('resize',lxFit);LXD.el.remove();LXD.el=null;document.body.classList.remove('lxon');
   Object.values(LXD.au).forEach(a=>{try{a.pause()}catch(e){}});if(LXD.bc){LXD.bc.close();LXD.bc=null}}
 function lxDeck(id){if(ME.sid!==LECTURER)return lxPhone(id);const L=LX_LECS[id];lxDeckClose();Object.assign(LXD,{asked:0,id,L,i:+(sessionStorage.getItem('lx_i_'+id)||0),s:0,ans:[],doc:null,live:false,won:{},over:{},trust:50,hide:new Set()});
@@ -173,6 +175,8 @@ function lxDeck(id){if(ME.sid!==LECTURER)return lxPhone(id);const L=LX_LECS[id];
   LXD.tic=setInterval(lxTick,250);lxEnter()}
 function lxFit(){const st=$('#lxst');if(!st)return;const k=Math.min(innerWidth/1600,innerHeight/900);st.style.transform=`translate(-50%,-50%) scale(${k})`}
 const lxSl=()=>LXD.L.slides[LXD.i];
+const lxScr=sl=>(sl&&sl.script)||lxPk();
+const lxCl=sl=>{const s=lxScr(sl);return (LXD.L.call[s]||{}).client||s};
 const lxPk=()=>(LXD.doc&&LXD.doc.pick)||LXD.over.pick||'B';
 const lxOther=p=>p==='A'?'B':'A';
 async function lxSet(patch){if(!LXD.live&&!('st' in patch))return;try{await CLOUD.put(lxPath(LXD.id),patch,true)}catch(e){console.warn('lecture write',e)}}
@@ -186,7 +190,8 @@ function lxPlan(sl){const L=LXD.L,b=(sl.b||[]).length;switch(sl.k){
   case 'act':return [{t:'join'},{t:'open',k:sl.act},{t:'close',k:sl.act}];
   case 'badge':return [{t:'show'},{t:'award'}];
   case 'podium':return [{t:'show'},{t:'award'}];
-  case 'call':{const c=L.call[lxPk()],P=[{t:'scene'},{t:'say',lines:'intro'}];c.d.forEach((d,j)=>P.push({t:'open',k:'c'+j,d:j},{t:'close',k:'c'+j,d:j},{t:'win',d:j}));P.push({t:'say',lines:'outro',end:1});return P}
+  case 'call':{const c=L.call[lxScr(sl)],ks=sl.acts||[],P=[{t:'scene'},{t:'say',lines:'intro'}];c.d.forEach((d,j)=>P.push({t:'open',k:ks[j],d:j},{t:'close',k:ks[j],d:j},{t:'win',d:j}));P.push(c.outro.length?{t:'say',lines:'outro',end:1}:{t:'sum',end:1});return P}
+  case 'pipeline':return [{t:'show',n:0},{t:'show',n:1},{t:'show',n:2},{t:'show',n:3}];
   case 'snap':{const n=LXD.short?6:L.snap.length,P=[{t:'intro'}];for(let r=0;r<n;r++)P.push({t:'open',k:'ln',r},{t:'close',k:'ln',r});return P}
   case 'stairs':return [{t:'show',n:0},{t:'show',n:1},{t:'show',n:2},{t:'show',n:3}];
   case 'prospects':return [{t:'show',n:0},{t:'show',n:1},{t:'show',n:2},{t:'show',n:3}];
@@ -204,16 +209,17 @@ function lxLeave(){const d=LXD.doc;if(d&&d.ph==='open'&&LXD.live)lxSet({ph:'clos
 function lxOpen(k,r){const A=LXD.L.acts[k],dur=(A.research?LX_DUR.research:LX_DUR[A.kind])||60;LXD.tEnd=Date.now()+dur*1000;LXD.tDur=dur;if(LXD.live)lxSet({cur:k,ph:'open',r:r|0,oat:CLOUD.ts()})}
 function lxClose(k){LXD.tEnd=0;lxSet({ph:'closed'});if(k==='ln')setTimeout(lxPodWrite,700)}
 function lxDo(p){const sl=lxSl();
-  if(p.t==='open'){if(sl.k==='call'){const c=LXD.L.call[lxPk()],D=c.d[p.d];lxOpen(p.k,0);if(D.setup.length)lxSay(D.setup,lxPk()+'-d'+p.d+'-s',1)}else lxOpen(p.k,p.r)}
+  if(p.t==='open'){if(sl.k==='call'){const s=lxScr(sl),D=LXD.L.call[s].d[p.d];lxOpen(p.k,0);if(D.setup.length)lxSay(D.setup,s+'-d'+p.d+'-s',1)}else lxOpen(p.k,p.r)}
   if(p.t==='close'){lxClose(p.k);if(sl.k==='call')lxSaveWin(p.d)}
-  if(p.t==='win'){const c=LXD.L.call[lxPk()],w=LXD.won[p.d],o=c.d[p.d].opts[w];LXD.trust=Math.max(0,Math.min(100,LXD.trust+o.tr*12));lxSay(o.say,lxPk()+'-d'+p.d+'-o'+w)}
-  if(p.t==='say'){const c=LXD.L.call[lxPk()];lxSay(c[p.lines],lxPk()+'-'+p.lines)}
+  if(p.t==='win'){const s=lxScr(sl),c=LXD.L.call[s],w=LXD.won[p.d],o=c.d[p.d].opts[w];LXD.trust=Math.max(0,Math.min(100,LXD.trust+o.tr*12));LXD.res[s]=!!o.good;lxSay(o.say,s+'-d'+p.d+'-o'+w)}
+  if(p.t==='say'){const s=lxScr(sl),c=LXD.L.call[s];lxSay(c[p.lines],s+'-'+p.lines)}
+  if(p.t==='sum'&&sl.script==='C')LXD.res.C=true;
   if(p.t==='award'&&sl.k==='badge'){lxSet({sfr:true});lxBoom()}
   if(p.t==='award'&&sl.k==='podium'){const top=lxBoard().filter(x=>x.s>0).slice(0,3);lxSet({tc:top.map(x=>x.id)});lxBoom(1)}
   if(p.t==='pick'){const pk=LXD.over.pick||lxPick(lxCount(LXD.ans,'p1',3),lxCount(LXD.ans,'p2',3));LXD.over.pick=pk;lxSet({pick:pk});setTimeout(()=>lxBoom(),400)}
   if(sl.k==='podium'&&p.t==='show')setTimeout(()=>lxBoom(1),900)}
-function lxSaveWin(d){const c=LXD.L.call[lxPk()],D=c.d[d],v=lxCount(LXD.ans.filter(x=>(x.a.pk||lxPk())===lxPk()),'c'+d,3),g=D.opts.findIndex(o=>o.good);
-  if(LXD.over['c'+d]!=null)return LXD.won[d]=LXD.over['c'+d];const mx=Math.max(...v);LXD.won[d]=!LXD.live||!mx?g:(v[g]===mx?g:v.indexOf(mx))}
+function lxSaveWin(d){const sl=lxSl(),s=lxScr(sl),k=(sl.acts||[])[d],c=LXD.L.call[s],D=c.d[d],v=lxCount(sl.script?LXD.ans:LXD.ans.filter(x=>(x.a.pk||lxPk())===lxPk()),k,3),g=D.opts.findIndex(o=>o.good);
+  if(LXD.over[k]!=null)return LXD.won[d]=LXD.over[k];const mx=Math.max(...v);LXD.won[d]=!LXD.live||!mx?g:(v[g]===mx?g:v.indexOf(mx))}
 /* play lines one after another: the bubble types while the voice plays; Next skips */
 async function lxSay(lines,key,keep){LXD.busy=true;LXD.skip=false;const box=$('#lxchat');if(box&&!keep)box.querySelectorAll('.lxbub').forEach(b=>b.classList.add('old'));
   for(let i=0;i<lines.length;i++){const [w,t]=lines[i],b=document.createElement('div');b.className='lxbub '+(w==='rep'?'rep':'cli');b.innerHTML=`<b>${esc(LXD.L.voices[w])}</b><span></span>`;
@@ -232,6 +238,7 @@ function lxEnter(back){const sl=lxSl(),st=$('#lxst');try{sessionStorage.setItem(
   if(sl.k==='call'&&!back){LXD.trust=50;LXD.won={}}
   st.className='lxstage k-'+sl.k;st.innerHTML=lxSlideHTML(sl)+(sl.at||sl.k==='call'?lxMiniHTML(sl.at||[]):'')+`<div class="lxfoot"><span>${esc(LXD.L.foot)}</span><span>${LXD.i+1} / ${LXD.L.slides.length}</span></div>`;
   if(back){const P=lxPlan(sl);for(let s=1;s<=LXD.s;s++){const p=P[s];if(p.t==='pick')LXD.over.pick=LXD.over.pick||lxPk()}}
+  if(sl.k==='stairs'){LXD.popI=null;$$('.lxst',st).forEach(x=>{const i=+x.dataset.si;x.onmouseenter=()=>{if(LXD.popI!==i)lxPop(i)};x.onclick=e=>{e.stopPropagation();lxPop(i)}});st.onclick=e=>{if(!e.target.closest('.lxst,.lxpop'))lxPop(null)};requestAnimationFrame(()=>lxShrink('#lxst .lxst'))}else st.onclick=null;
   lxApply();lxLiveDraw();lxPost()}
 function lxApply(){const st=$('#lxst');if(!st)return;const sl=lxSl(),P=lxPlan(sl),p=P[LXD.s]||{};
   let n=0;for(let s=0;s<=LXD.s;s++)if(P[s].t==='show')n=P[s].n|0;const shown=sl.k==='act'||sl.k==='call'||sl.k==='snap'?99:(P[LXD.s].t==='show'?n:LXD.s);
@@ -255,6 +262,9 @@ function lxSlideHTML(sl){const L=LXD.L,b=sl.b||[],pk=lxPk();switch(sl.k){
   case 'path':{const n=b.length;return `${lxH(sl)}<div class="lxpath${n>6?' seven':''}"><svg viewBox="0 0 1400 160" preserveAspectRatio="none" aria-hidden="true"><path class="lxpl0" d="M60 80 C 300 10, 450 150, 700 80 S 1100 10, 1340 80"/><path class="lxpl" pathLength="1" d="M60 80 C 300 10, 450 150, 700 80 S 1100 10, 1340 80"/></svg>
     <div class="lxps">${b.map((x,i)=>`<div class="lxp1" data-bi="${i+1}"><span>${i+1}</span><b>${esc(x)}</b></div>`).join('')}</div>${sl.steps7?`<div class="lxav" aria-hidden="true">🧳</div>`:''}</div>${lxCaseHTML(sl,n+1)}`}
   case 'stairs':return `${lxH(sl)}${lxStairsHTML()}`;
+  case 'pipeline':{const C=L.clients,pk=lxPk(),o=lxOther(pk),r=LXD.res;
+    const st={[pk]:['✅','Sale in progress','The class carried this client through all seven steps.'],[o]:o==='A'?(r.A2===false?['❌','Lost','We let go too early.']:['📅','Confirmed for later','An executive learning visit, early next year.']):['📞','Call next','The secret VIP we must not miss.'],C:['📨','Passed to Marketing','Uyoon, our Marketing Director, will decide.']};
+    return `${lxH(sl)}<div class="lxpipe">${['A','B','C'].map((c,i)=>`<div class="lxpc" data-bi="${i+1}"><div class="lxprh"><span>${C[c].ico}</span><b>Client ${c}</b></div><small>${esc(C[c].name)}</small><p class="lxps1">${st[c][0]} ${esc(st[c][1])}</p><p>${esc(st[c][2])}</p></div>`).join('')}</div><p class="lxsub" data-bi="4">Skip the approach and the objections, and we lose clients we could have kept.</p>`}
   case 'act':return lxActHTML(sl);
   case 'reveal':return `${lxH(sl)}<div class="lxrev"><div class="lxrevr" id="lxres"></div><ul class="lxpts sm">${b.map((x,i)=>`<li data-bi="${i+1}">${esc(x)}</li>`).join('')}</ul></div>`;
   case 'badge':return `<div class="lxbadge"><p class="lxkick">LO 13.2 · You passed every step</p><h1 class="lxh xl">You’re hired!</h1><div class="lxmedal"><span>🤝</span></div><h2>Sales Force Representative</h2><p class="lxsub">Badge for everyone in Soneva’s new sales team</p><p class="lxcount" id="lxbc"></p></div>`;
@@ -262,7 +272,7 @@ function lxSlideHTML(sl){const L=LXD.L,b=sl.b||[],pk=lxPk();switch(sl.k){
   case 'qualify':{const C=L.clients,rows=[['need','Do they need us?'],['pay','Can they pay?'],['decide','Can they decide?'],['back','Will they come back?']];
     return `${lxH(sl)}<div class="lxq"><table><tr><th></th>${['A','B','C'].map((c,i)=>`<th data-bi="${i+1}">${C[c].ico} Client ${c}<small>${esc(C[c].name)}</small></th>`).join('')}</tr>${rows.map(([k,q])=>`<tr><td>${q}</td>${['A','B','C'].map((c,i)=>`<td data-bi="${i+1}">${esc(C[c].verdict[k])}</td>`).join('')}</tr>`).join('')}</table>
       <div class="lxqside"><div id="lxres"></div><div class="lxpick" data-bi="4" id="lxpick"></div></div></div>`}
-  case 'call':return `<div class="lxcall"><div class="lxcallh"><span class="lxtag">Teaching scenario · AI voices</span><h1 class="lxh">The live sales call</h1><p class="lxsub" id="lxcw"></p></div>
+  case 'call':return `<div class="lxcall"><div class="lxcallh"><span class="lxtag">Teaching scenario · AI voices</span><h1 class="lxh">${esc((LXD.L.call[lxScr(sl)]||{}).title||'The live sales call')}</h1><p class="lxsub" id="lxcw"></p></div>
     <div class="lxcallb"><div class="lxper rep"><div class="lxava">🧑🏽‍💼</div><b>Maya</b><small>Soneva sales executive (you)</small></div><div class="lxchat" id="lxchat"></div><div class="lxper cli"><div class="lxava" id="lxcava"></div><b id="lxcn"></b><small id="lxcs2"></small></div></div>
     <div class="lxcallf"><div class="lxmeter"><span>Trust</span><i><b id="lxtm"></b></i><em id="lxtv"></em></div><div id="lxres" class="lxcallr"></div></div>${lxJoinMini()}</div>`;
   case 'snap':return `<div class="lxsnap" id="lxsnap"></div>${lxJoinMini()}`;
@@ -274,13 +284,19 @@ function lxSlideHTML(sl){const L=LXD.L,b=sl.b||[],pk=lxPk();switch(sl.k){
   default:return lxH(sl)}}
 /* the seller's staircase and the customer's funnel (adapted from the lecturer's GEO demo lecture) */
 function lxStairsHTML(){const L=LXD.L,S=L.stairs,F=L.funnel,y=[10,110,210,310,414];
-  return `<div class="lxsx"><div class="lxsxl"><p class="lxview">The seller’s view · seven steps</p><div class="lxstairs" data-bi="1">${S.map((x,i)=>`<div class="lxst ${i<4?'d':'h'}" style="--i:${i}"><span>${i+1}</span><b>${esc(x[0])}</b><small>${esc(x[1])}</small></div>`).join('')}
-    <span class="lxband d">Social selling and digital tools help most</span><span class="lxband h">People win the sale</span></div><p class="lxcite">Seven steps: Kotler &amp; Armstrong, Marketing: An Introduction (15th ed.)</p></div>
+  return `<div class="lxsx"><div class="lxsxl"><p class="lxview">The seller’s view · seven steps</p><div class="lxstairs" data-bi="1">${S.map((x,i)=>`<div class="lxst ${i<4?'d':'h'}" style="--i:${i}" data-si="${i}" tabindex="0"><span>${i+1}</span><b>${esc(x[0])}</b><small>${esc(x[1])}</small></div>`).join('')}
+<span class="lxband d">Social selling and digital tools help most</span><span class="lxband h">People win the sale</span></div><p class="lxcite">Seven steps: Kotler &amp; Armstrong, Marketing: An Introduction (15th ed.)</p></div>
+    <div class="lxpop" id="lxpop" hidden></div>
     <div class="lxsxr"><p class="lxview" data-bi="2">The customer’s view · marketing funnel<br><small>AIDA funnel: general marketing</small></p><svg class="lxfun" viewBox="0 0 680 560" role="img" aria-label="Marketing funnel: awareness, interest, consideration, action, loyalty, mapped to the seven steps, with a loop from loyalty back to awareness">
       <defs><marker id="lxarr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker></defs>
       <g data-bi="2">${F.slice(0,4).map((f,i)=>{const t=y[i],a=90+i*49.5,b=610-i*49.5;return `<path class="lxfl l${i}" d="M${a},${t} L${b},${t} L${b-39.6},${t+80} L${a+39.6},${t+80} Z" style="--d:${i*.12}s"/><text class="lxfn" x="350" y="${t+49}">${esc(f[0])}</text><g class="lxfc"><rect x="${i*14}" y="${t+22}" width="${i===1||i===2?150:104}" height="36" rx="18"/><text x="${i*14+(i===1||i===2?75:52)}" y="${t+47}">${esc(f[1])}</text></g>`}).join('')}
         <rect class="lxfl l4" x="276" y="414" width="148" height="58" rx="29"/><text class="lxfn inv" x="350" y="452">${esc(F[4][0])}</text><g class="lxfc"><rect x="120" y="425" width="104" height="36" rx="18"/><text x="172" y="450">${esc(F[4][1])}</text></g></g>
       <g class="lxloop" data-bi="3"><path d="M432,443 C560,443 662,420 662,320 L662,150 C662,70 650,50 626,50" marker-end="url(#lxarr)"/><text x="672" y="506">Loyal guests return</text><text x="672" y="534">and refer new prospects</text></g></svg></div></div>`}
+function lxPop(i){const el=$('#lxpop');if(!el)return;if(i==null||i<0||i>6||LXD.popI===i&&!el.hidden){el.hidden=true;LXD.popI=null;$$('.lxst').forEach(x=>x.classList.remove('sel'));return}
+  const S=LXD.L.stepInfo[i];LXD.popI=i;el.innerHTML=`<span class="lxpn">Step ${i+1}</span><h3>${esc(S.h)}</h3><p class="lxpd1">${esc(S.d)}</p><ul>${S.how.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p class="lxpat"><b>At Soneva:</b> ${esc(S.at)}</p>`;
+  el.style.setProperty('--x',Math.min(i,4)*14.3+'%');el.hidden=false;$$('.lxst').forEach((x,j)=>x.classList.toggle('sel',j===i))}
+/* shrink text until it fits its box (long labels on the staircase) */
+function lxShrink(sel){$$(sel).forEach(el=>{let f=parseFloat(getComputedStyle(el).fontSize)||18;el.style.fontSize='';f=parseFloat(getComputedStyle(el).fontSize);while(el.scrollHeight>el.clientHeight+1&&f>10){f-=.5;el.style.fontSize=f+'px'}})}
 /* a small staircase in the corner: where this slide sits in the seven steps */
 const lxMiniHTML=at=>`<div class="lxmini" aria-label="Selling steps ${at.join(', ')}">${[1,2,3,4,5,6,7].map(i=>`<i class="${at.includes(i)?'on':''}" style="--i:${i}"><b>${i}</b></i>`).join('')}</div>`;
 const lxJoinHTML=()=>`<div class="lxjoin"><img src="${LXD.L.qr}" alt="QR code to join"><div><p>Join on the Arena</p><b>${esc(LXD.L.url)}</b><p class="lxjn" id="lxjn"></p></div></div>`;
@@ -326,12 +342,13 @@ function lxBars(labels,v,prev){const tot=Math.max(1,v.reduce((a,b)=>a+b,0)),pt=p
   return `<div class="lxbars">${labels.map((l,i)=>`<div class="lxbar1"><span>${esc(l)}</span><i>${prev?`<em style="width:${Math.round(prev[i]/pt*100)}%"></em>`:''}<b style="width:${Math.round(v[i]/tot*100)}%"></b></i><small>${Math.round(v[i]/tot*100)}%${prev?` <s>was ${Math.round(prev[i]/pt*100)}%</s>`:''}</small></div>`).join('')}</div>`}
 function lxRepHTML(){const A=LXD.L.acts.rep,v=lxCount(LXD.ans,'rep',3,x=>x&&x.s),sl=LXD.ans.map(x=>x.a&&x.a.rep&&x.a.rep.v).filter(x=>x!=null),avg=sl.length?Math.round(sl.reduce((a,b)=>a+b,0)/sl.length):50;
   return `<div class="lxrep">${lxBars(['Territorial','Product','Customer'],v)}<div class="lxdial"><svg viewBox="0 0 200 120"><path d="M20 110 A80 80 0 0 1 180 110" class="t"/><line x1="100" y1="110" x2="100" y2="40" class="n" style="transform:rotate(${(avg-50)*1.8}deg)"/></svg><b>${100-avg}% salary · ${avg}% commission</b><small>class average</small></div></div>`}
-function lxCallDraw(p){const L=LXD.L,pk=lxPk(),C=L.clients[pk],c=L.call[pk];const e=$('#lxcava');if(e&&!e.textContent){e.textContent=C.ico;$('#lxcn').textContent=pk==='A'?'Mr Tan':'T. M.';$('#lxcs2').textContent=C.who+', '+C.from}
-  const mi=$('.lxmini');if(mi){const on=p.d!=null?[[3],[5],[6]][p.d]:p.end?[7]:p.t==='say'?[3]:[];mi.querySelectorAll('i').forEach((e,j)=>e.classList.toggle('on',on.includes(j+1)))}
+function lxCallDraw(p){const L=LXD.L,sl=lxSl(),s=lxScr(sl),pk=lxCl(sl),C=L.clients[pk],c=L.call[s];const e=$('#lxcava');if(e&&!e.textContent){e.textContent=C.ico;$('#lxcn').textContent={A:'Mr Tan',B:'T. M.',C:'Zee'}[pk];$('#lxcs2').textContent=C.who+', '+C.from}
+  const mi=$('.lxmini');if(mi){const on=c.steps?(p.t==='scene'?[]:c.steps):p.d!=null?[[3],[5],[6]][p.d]:p.end?[7]:p.t==='say'?[3]:[];mi.querySelectorAll('i').forEach((e,j)=>e.classList.toggle('on',on.includes(j+1)))}
   const w=$('#lxcw');if(w)w.textContent=p.d!=null?'Step: '+c.d[p.d].step:(p.t==='scene'?'Client '+pk+': '+C.name+'. Press → to start the call.':'');
   const res=$('#lxres');if(!res)return;const live=LXD.live;
-  if(p.t==='open'){const D=c.d[p.d],n=LXD.ans.filter(x=>x.a&&x.a['c'+p.d]!=null).length;lxSetH(res,`<p class="lxk">📱 Vote now: ${esc(D.q)}</p><ol class="lxhand sm">${D.opts.map(o=>`<li>${esc(o.t)}</li>`).join('')}</ol>${live?`<p class="lxn"><b>${n}</b> voted of ${lxJoined()}</p>`:'<p class="lxsub">Hands up. Then press 1, 2 or 3 for the class choice.</p>'}`)}
-  else if(p.t==='close'||p.t==='win'){const D=c.d[p.d],v=live?lxCount(LXD.ans,'c'+p.d,3):D.opts.map((o,i)=>i===LXD.won[p.d]?1:0);lxSetH(res,lxBars(D.opts.map(o=>o.t),v)+(LXD.won[p.d]!=null?`<p class="lxsub">Class choice: <b>${esc(D.opts[LXD.won[p.d]].t)}</b>${D.opts[LXD.won[p.d]].good?' ✅ value move':''}</p>`:''))}
+  if(p.t==='open'){const D=c.d[p.d],k=(sl.acts||[])[p.d],n=LXD.ans.filter(x=>x.a&&x.a[k]!=null).length;lxSetH(res,`<p class="lxk">📱 Vote now: ${esc(D.q)}</p><ol class="lxhand sm">${D.opts.map(o=>`<li>${esc(o.t)}</li>`).join('')}</ol>${live?`<p class="lxn"><b>${n}</b> voted of ${lxJoined()}</p>`:'<p class="lxsub">Hands up. Then press 1, 2 or 3 for the class choice.</p>'}`)}
+  else if(p.t==='close'||p.t==='win'){const D=c.d[p.d],v=live?lxCount(LXD.ans,(sl.acts||[])[p.d],3):D.opts.map((o,i)=>i===LXD.won[p.d]?1:0);lxSetH(res,lxBars(D.opts.map(o=>o.t),v)+(LXD.won[p.d]!=null?`<p class="lxsub">Class choice: <b>${esc(D.opts[LXD.won[p.d]].t)}</b>${D.opts[LXD.won[p.d]].good?' ✅ value move':''}</p>`:''))}
+  else if(p.end&&c.sum){const ok=s==='C'||Object.values(LXD.won).some(w=>c.d[0].opts[w]&&c.d[0].opts[w].good);lxSetH(res,`<p class="lxsub">${ok?'✅':'❌'} ${esc(ok?c.sum.good:c.sum.bad)}</p>`)}
   else if(p.end){const g=Object.keys(LXD.won).filter(d=>c.d[d].opts[LXD.won[d]].good).length;lxSetH(res,`<p class="lxsub"><b>${g} of 3</b> value moves. ${LXD.trust>=75?'The client trusts Maya. A strong relationship starts.':LXD.trust>=50?'The client is interested, but not sure yet.':'Trust was lost. Price moves rarely build relationships.'}</p>`)}
   else lxSetH(res,'');lxMeter()}
 function lxMeter(){const m=$('#lxtm'),v=$('#lxtv');if(m){m.style.width=LXD.trust+'%';m.dataset.lv=LXD.trust>=70?'hi':LXD.trust>=45?'mid':'lo'}if(v)v.textContent=LXD.trust}
@@ -367,8 +384,10 @@ function lxKey(e){if(!LXD.el||e.target.closest&&e.target.closest('input,textarea
   else if(k==='+'||k==='='){if(LXD.tEnd){LXD.tEnd+=30000;LXD.tDur+=30}}
   else if(k==='-'||k==='_'){if(LXD.tEnd)LXD.tEnd=Math.max(Date.now()+3000,LXD.tEnd-30000)}
   else if(k==='6'&&lxSl().k==='snap'&&LXD.s===0){LXD.short=!LXD.short;lxApply()}
+  else if(lxSl().k==='stairs'&&/^[1-7]$/.test(k))lxPop(+k-1);
+  else if(k==='Escape'&&lxSl().k==='stairs')lxPop(null);
   else if(['1','2','3'].includes(k)){const sl=lxSl(),p=lxPlan(sl)[LXD.s];
-    if(sl.k==='call'&&p.t==='close'){LXD.over['c'+p.d]=+k-1;LXD.won[p.d]=+k-1;lxApply()}
+    if(sl.k==='call'&&p.t==='close'){LXD.over[(sl.acts||[])[p.d]]=+k-1;LXD.won[p.d]=+k-1;lxApply()}
     else if((sl.k==='qualify'||sl.k==='prospects')&&k!=='3'){LXD.over.pick=k==='1'?'A':'B';lxSet({pick:LXD.over.pick});lxApply()}}
   else if(k==='e'||k==='E'){if(confirm('End the live lecture now? Phones stop taking answers.'))lxSet({st:'ended',cur:null,ph:'closed',show:false})}}
 function lxAction(x){if(x==='next')lxGo(1)}

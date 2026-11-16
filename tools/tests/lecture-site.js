@@ -10,7 +10,7 @@ return {
 /* content rules: plain text with no em-dashes, every call branch complete, every voice clip present, Term Snap answers are distinct */
 async lxcontent(){const p=await page({sid:STUDENT});const r=await p.evaluate(()=>{const L=LX_CH13,txt=JSON.stringify(L),bad=[];
     if(/[—–]/.test(txt))bad.push('em or en dash in lecture text');
-    for(const c of ['A','B']){const s=L.call[c];if(s.d.length!==3)bad.push(c+': 3 decisions');s.d.forEach((d,j)=>{if(d.opts.filter(o=>o.good).length!==1)bad.push(c+j+': one value move');d.opts.forEach(o=>{if(o.say.length<2)bad.push(c+j+': reply missing')})})}
+    const need={A:3,B:3,A2:1,C:0};for(const c of Object.keys(L.call)){const s=L.call[c];if(s.d.length!==need[c])bad.push(c+': '+need[c]+' decisions');s.d.forEach((d,j)=>{if(d.opts.filter(o=>o.good).length!==1)bad.push(c+j+': one value move');d.opts.forEach(o=>{if(o.say.length<2)bad.push(c+j+': reply missing')})})}
     L.snap.forEach((x,i)=>{if(new Set(x.o).size!==4)bad.push('snap '+i+' options')});
     L.slides.forEach((x,i)=>{if(!x.n)bad.push('slide '+(i+1)+' has no note');if(x.act&&!L.acts[x.act])bad.push('slide '+(i+1)+' unknown activity')});
     return bad});ok(!r.length,r.join('; '));
@@ -27,10 +27,11 @@ async lxphone(){const p=await page({sid:STUDENT,w:360});await p.evaluate(()=>{wi
   await set({cur:'p2',ph:'open'});for(const c of ['A','B','C']){await p.click(`[data-f="${c}"]`);ok(await p.locator('.lxfp').count()===9,'feed '+c+' has 9 posts');await p.click('.modal .x')}await p.click('[data-s="A"]');ok(await p.isVisible('text=Simulated search'),'search panel');await p.click('.modal .x');
   await p.click('[data-v="1"]');await p.waitForTimeout(100);
   await set({cur:'c1',ph:'open',pick:'B'});await p.click('.lxopt[data-i="1"]');await p.waitForTimeout(100);await set({cur:'c1',ph:'closed',pick:'B'});
+  await set({cur:'c3',ph:'open',pick:'B'});ok(await p.isVisible('text=Client A: Orbis Tech'),'second call is with Client A');await p.click('.lxopt[data-i="1"]');await p.waitForTimeout(100);await set({cur:'c3',ph:'closed',pick:'B'});
   await set({cur:'ln',ph:'open',r:0,pick:'B'});await p.click('.lxtile:has-text("Sales promotion")');await p.waitForTimeout(100);ok(await p.locator('.lxtile:disabled').count()===4,'tiles lock after one tap');
   await set({cur:'ln',ph:'closed',r:0,pick:'B'});await set({cur:'ln',ph:'closed',r:0,pick:'B',sfr:true,tc:['S081441']});await p.waitForTimeout(200);
   const r=await p.evaluate(()=>({log:Object.keys(U.log).filter(k=>k.startsWith('lec:')).sort().join(),b:['salesrep','keeneye','topcloser'].filter(b=>U.badges[b]).join(),mt:(U.mt||{})[13],last:window.__w[window.__w.length-1]}));
-  ok(r.log==='lec:ch13:c1,lec:ch13:c1:v,lec:ch13:ke,lec:ch13:p2,lec:ch13:rep,lec:ch13:s0,lec:ch13:sfr,lec:ch13:tc,lec:ch13:w1','xp keys: '+r.log);ok(r.b==='salesrep,keeneye,topcloser','badges: '+r.b);
+  ok(r.log==='lec:ch13:c1,lec:ch13:c1:v,lec:ch13:c3,lec:ch13:c3:v,lec:ch13:ke,lec:ch13:p2,lec:ch13:rep,lec:ch13:s0,lec:ch13:sfr,lec:ch13:tc,lec:ch13:w1','xp keys: '+r.log);ok(r.b==='salesrep,keeneye,topcloser','badges: '+r.b);
   ok(r.mt&&r.mt[0]===1&&r.mt[1]===1,'Term Snap counted toward Topic 13 mastery: '+JSON.stringify(r.mt));
   ok(r.last[0]==='lec/ch13/a/'+'S081441'&&r.last[1].a.w1==='help'&&r.last[1].a.rep.s===2&&r.last[1].a.s0.c===0&&r.last[1].n,'answers doc: '+JSON.stringify(r.last));
   ok(!(await p.locator('[data-lect]').count()),'lecturer-only element on the student lecture page');await shot(p,'lx-phone');await p.done()},
@@ -41,7 +42,7 @@ async lxdeck(){const p=await page({sid:LECT,w:1600,h:900});await p.go('#/lecture
     LXD.live=false;LXD.doc=null;LXD.i=0;LXD.s=0;lxEnter()});
   const steps=await p.evaluate(async()=>{let n=0;window.alert=()=>{};window.confirm=()=>true;while(n<400){const last=LXD.i===LXD.L.slides.length-1&&LXD.s===lxPlan(lxSl()).length-1;if(last)break;LXD.skip=true;LXD.busy=false;lxGo(1);n++;await new Promise(r=>setTimeout(r,5))}return n});
   const r=await p.evaluate(()=>{const d=window.__w.filter(x=>x[0]==='lec/ch13').map(x=>x[1]);return {st:d[0]&&d[0].st,opens:d.filter(x=>x.ph==='open').map(x=>x.cur+(x.cur==='ln'?x.r:'')).join(),sfr:d.some(x=>x.sfr===true),tc:(d.find(x=>x.tc&&x.tc.length)||{}).tc,pick:(d.find(x=>x.pick)||{}).pick}});
-  ok(steps>150,'deck steps: '+steps);ok(r.st==='live','went live first');ok(r.opens==='w1,rep,p1,p2,c0,c1,c2,ln0,ln1,ln2,ln3,ln4,ln5,ln6,ln7,w2','activities opened: '+r.opens);
+  ok(steps>150,'deck steps: '+steps);ok(r.st==='live','went live first');ok(r.opens==='w1,rep,p1,p2,c0,c1,c2,c3,ln0,ln1,ln2,ln3,ln4,ln5,ln6,ln7,w2','activities opened: '+r.opens);
   ok(r.sfr,'badge awarded');ok(r.tc&&r.tc.length===3,'top closers: '+JSON.stringify(r.tc));ok(r.pick==='B','client carried: '+r.pick);
   await shot(p,'lx-deck-end');await p.done()},
 /* the Join card on Home: hidden before the schedule, shown in the window, shown early when the lecturer turns it on, gone after the end */
