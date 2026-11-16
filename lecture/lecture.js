@@ -121,9 +121,18 @@ function lxFeed(c){const F=LX.L.clients[c].feed;modal('Social feed',`<p class="l
   <div class="lxfg">${F.pics.map((p,i)=>`<button class="lxfp" data-p="${i}" aria-label="${esc(F.caps[i])}"><img src="${p}" alt="" loading="eager"></button>`).join('')}</div><p class="lxfc" id="lxfc">Tap a post to read it.</p></div>`);
   $$('.lxfp').forEach(b=>b.onclick=()=>{$$('.lxfp').forEach(x=>x.classList.toggle('on',x===b));$('#lxfc').textContent='“'+F.caps[+b.dataset.p]+'”'})}
 
+/* ---------- the Join card on Home (from L.joinFrom, while live, or when the lecturer shows it) ---------- */
+function lxJoinOn(L,d){if(d&&d.st==='ended'&&!d.show)return false;if(lxLive(d)||(d&&d.show))return true;const t=Date.now();return t>=Date.parse(L.joinFrom)&&t<Date.parse(L.joinTo)}
+function lxHomeCard(){const m=document.getElementById('main');if(!m||!lxIsStudent())return;const h=location.hash.replace(/^#\/?/,'');let c=document.getElementById('lxhome');
+  const id=LX.gid||'ch13',L=LX_LECS[id],on=(h===''||h==='/')&&m.querySelector('h1.sr')&&lxJoinOn(L,LX.gdoc);
+  if(!on){if(c)c.remove();return}if(c&&c._live===lxLive(LX.gdoc))return;if(!c){c=document.createElement('a');c.id='lxhome';c.className='lxhome';c.href='#/lecture/'+id;m.prepend(c)}
+  c._live=lxLive(LX.gdoc);c.innerHTML=`<span class="lxlive${c._live?'':' off'}">${c._live?'● LIVE NOW':'TODAY 4:00 PM'}</span><b>🎤 Join the live lecture</b><small>${esc(L.title)} · tap to join and get ready</small><i aria-hidden="true">›</i>`}
+new MutationObserver(()=>{try{lxHomeCard()}catch(e){}}).observe(document.getElementById('app'),{childList:true});
+setInterval(()=>{try{lxHomeCard()}catch(e){}},30000);
+
 /* ---------- a banner on every page while a lecture is live ---------- */
 function lxGlobal(){if(LX.gstop||!lxIsStudent()||!cloudOn())return;const id='ch13';LX.gid=id;
-  LX.gstop=CLOUD.watchOne(lxPath(id),d=>{let b=document.getElementById('lxbar');const on=lxLive(d)&&location.hash.indexOf('#/lecture/')!==0;
+  LX.gstop=CLOUD.watchOne(lxPath(id),d=>{LX.gdoc=d;lxHomeCard();let b=document.getElementById('lxbar');const on=lxLive(d)&&location.hash.indexOf('#/lecture/')!==0;
     if(!on){if(b)b.remove();return}if(!b){b=document.createElement('a');b.id='lxbar';b.className='lxbar';b.href='#/lecture/'+id;document.body.append(b)}
     b.innerHTML='<span>● LIVE</span> Lecture now: '+esc(LX_LECS[id].title)+' <b>Join ›</b>'},()=>{},true)}
 onHook('signout',()=>{if(LX.gstop){LX.gstop();LX.gstop=null}const b=document.getElementById('lxbar');if(b)b.remove()});
@@ -132,10 +141,13 @@ setInterval(()=>{try{if(!LX.gstop&&typeof ME!=='undefined'&&ME&&cloudOn())lxGlob
 
 /* ---------- lecturer card ---------- */
 LF_META.lxc=['🎤 Live lecture','Run Chapter 13 from the Arena'];
-lcard('lxc',el=>{el.hidden=false;const id='ch13',L=LX_LECS[id];el.innerHTML=`<h2 style="margin:0 0 6px">🎤 Live lecture</h2><p class="muted" style="margin:0 0 10px">${esc(L.short)}. The deck runs the phone activities. Open it on the projector laptop.</p>
-  <p id="lxcs" class="muted">Checking…</p><div class="row"><a class="btn" href="#/lecture/${id}/deck">▶ Open the deck</a><a class="btn ghost" href="#/lecture/${id}/notes" target="_blank" rel="noopener">Presenter view</a><button class="btn ghost" id="lxend">■ End lecture</button><button class="btn ghost" id="lxrst">↺ Clear answers (after a dry run)</button></div>`;
+lcard('lxc',el=>{el.hidden=false;const id='ch13',L=LX_LECS[id];el.innerHTML=`<h2 style="margin:0 0 6px">🎤 Live lecture</h2><p class="muted" style="margin:0 0 10px">${esc(L.short)}. The deck runs the phone activities. Open it on the projector laptop. Students see a Join button on Home from ${new Date(Date.parse(L.joinFrom)).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit',timeZone:'Indian/Maldives'})}.</p>
+  <p id="lxcs" class="muted">Checking…</p><div class="row"><a class="btn" href="#/lecture/${id}/deck">▶ Open the deck</a><a class="btn ghost" href="#/lecture/${id}/notes" target="_blank" rel="noopener">Presenter view</a><button class="btn ghost" id="lxshow">📣 Show the Join button now</button><button class="btn ghost" id="lxend">■ End lecture</button><button class="btn ghost" id="lxrst">↺ Clear answers (after a dry run)</button></div>`;
   const st=$('#lxcs');CLOUD.get(lxPath(id)).then(d=>{st.textContent=!d?'Not started yet. Starting the deck’s first slide makes it live for 3 hours.':lxLive(d)?'● Live now.':'Ended.'}).catch(()=>{st.textContent='Publish the newest rules (they include the live lecture block), then reload.'});
-  $('#lxend').onclick=async()=>{if(!confirm('End the live lecture? Phones stop taking answers.'))return;await CLOUD.put(lxPath(id),{st:'ended',cur:null,ph:'closed'},true);st.textContent='Ended.'};
+  $('#lxshow').onclick=async()=>{const d=await CLOUD.get(lxPath(id)).catch(()=>null),on=!(d&&d.show);await CLOUD.put(lxPath(id),on?{show:true,st:(d&&d.st==='live')?'live':'ready'}:{show:false},true);
+    $('#lxshow').textContent=on?'🙈 Hide the Join button':'📣 Show the Join button now';st.textContent=on?'The Join button is on every student’s Home.':'The Join button follows the schedule again.'};
+  CLOUD.get(lxPath(id)).then(d=>{if(d&&d.show)$('#lxshow').textContent='🙈 Hide the Join button'}).catch(()=>{});
+  $('#lxend').onclick=async()=>{if(!confirm('End the live lecture? Phones stop taking answers.'))return;await CLOUD.put(lxPath(id),{st:'ended',cur:null,ph:'closed',show:false},true);st.textContent='Ended.'};
   $('#lxrst').onclick=async()=>{if(!confirm('Delete every answer saved for this lecture and reset it? Do this only after a dry run. XP already earned stays.'))return;
     const ds=await CLOUD.docs(lxPath(id)+'/a');for(const d of ds)await CLOUD.del(lxPath(id)+'/a/'+d.id);await CLOUD.put(lxPath(id),{st:'ended',cur:null,ph:'closed',r:0,pick:null,sfr:false,tc:[],pod:[]});st.textContent='Cleared '+ds.length+' answer(s). Ready for the real lecture.'}});
 
@@ -358,7 +370,7 @@ function lxKey(e){if(!LXD.el||e.target.closest&&e.target.closest('input,textarea
   else if(['1','2','3'].includes(k)){const sl=lxSl(),p=lxPlan(sl)[LXD.s];
     if(sl.k==='call'&&p.t==='close'){LXD.over['c'+p.d]=+k-1;LXD.won[p.d]=+k-1;lxApply()}
     else if((sl.k==='qualify'||sl.k==='prospects')&&k!=='3'){LXD.over.pick=k==='1'?'A':'B';lxSet({pick:LXD.over.pick});lxApply()}}
-  else if(k==='e'||k==='E'){if(confirm('End the live lecture now? Phones stop taking answers.'))lxSet({st:'ended',cur:null,ph:'closed'})}}
+  else if(k==='e'||k==='E'){if(confirm('End the live lecture now? Phones stop taking answers.'))lxSet({st:'ended',cur:null,ph:'closed',show:false})}}
 function lxAction(x){if(x==='next')lxGo(1)}
 
 /* ---------- presenter notes (strip on the deck with N, or the window with P) ---------- */

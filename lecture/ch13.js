@@ -7,6 +7,9 @@
 const LX_CH13={
  id:'ch13',topic:13,title:'Personal Selling and Sales Promotion',short:'Chapter 13 · Personal Selling and Sales Promotion',
  url:'abdullamuizfuad.github.io/mkt101-cases/#/lecture/ch13',qr:'lecture/ch13/qr.svg',minutes:90,
+ /* the Join card on every student's Home: shown from joinFrom to joinTo (GMT+5), whenever the lecture is live, or when the lecturer taps
+    "Show the Join button now" on the Lecturer tab; hidden once the lecture has ended */
+ joinFrom:'2026-11-17T15:30:00+05:00',joinTo:'2026-11-17T18:00:00+05:00',
  foot:'Teaching case based on public information about Soneva Fushi. Not endorsed by Soneva.',
 
  /* ---------- the three prospects (teaching scenario) ---------- */

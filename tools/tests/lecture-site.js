@@ -44,6 +44,13 @@ async lxdeck(){const p=await page({sid:LECT,w:1600,h:900});await p.go('#/lecture
   ok(steps>150,'deck steps: '+steps);ok(r.st==='live','went live first');ok(r.opens==='w1,rep,p1,p2,c0,c1,c2,ln0,ln1,ln2,ln3,ln4,ln5,ln6,ln7,w2','activities opened: '+r.opens);
   ok(r.sfr,'badge awarded');ok(r.tc&&r.tc.length===3,'top closers: '+JSON.stringify(r.tc));ok(r.pick==='B','client carried: '+r.pick);
   await shot(p,'lx-deck-end');await p.done()},
+/* the Join card on Home: hidden before the schedule, shown in the window, shown early when the lecturer turns it on, gone after the end */
+async lxhome(){const p=await page({sid:STUDENT});await p.evaluate(mockStudent);
+  const at=async(t,doc)=>p.evaluate(([t,doc])=>{const real=Date.now;Date.now=()=>Date.parse(t);LX.gid='ch13';LX.gdoc=doc;const m=$('#lxhome');if(m)m.remove();lxHomeCard();Date.now=real;return !!document.getElementById('lxhome')},[t,doc]);
+  await p.go('#/');ok(!(await at('2026-11-17T15:00:00+05:00',null)),'card before 3:30');ok(await at('2026-11-17T15:31:00+05:00',null),'no card at 3:31');
+  ok(await at('2026-11-17T09:00:00+05:00',{show:true,st:'ready'}),'no card when shown early');ok(!(await at('2026-11-17T16:40:00+05:00',{st:'ended',show:false})),'card after the end');
+  await at('2026-11-17T15:31:00+05:00',null);await p.click('#lxhome');await p.waitForTimeout(200);
+  ok((await p.evaluate(()=>location.hash))==='#/lecture/ch13','card link: '+await p.evaluate(()=>location.hash));await p.done()},
 /* the deck works with no cloud at all (show of hands): no writes, no errors */
 async lxoffline(){const p=await page({sid:LECT,w:1280,h:720});await p.go('#/lecture/ch13/deck');
   const n=await p.evaluate(async()=>{window.confirm=()=>true;let n=0;while(n<300&&!(LXD.i===LXD.L.slides.length-1&&LXD.s===lxPlan(lxSl()).length-1)){LXD.skip=true;LXD.busy=false;lxGo(1);n++;await new Promise(r=>setTimeout(r,3))}return n});
