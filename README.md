@@ -23,6 +23,10 @@ Writes: only on a status change, a section change (at most every 30 s) and a hea
 
 If the live-session rules aren't published in the Firebase project yet, the card says so and explains how to publish them (Firestore → Rules → select all → paste the full rules file from `tools/build-rules.py` → Publish); it shows "Checking…" until Firestore answers, and screen time keeps working.
 
+## Live lectures (lecturer)
+
+The lecturer runs a lecture from the Arena: the deck on the projector (`#/lecture/ch13/deck`) opens activities on the students' phones (`#/lecture/ch13`): word clouds, a team-design vote, prospect research and votes, a live sales call with AI voices, the Term Snap lightning round, and two badges (Sales Force Representative, Top Closer). Answers earn XP like other practice. Course-level code in `lecture/`; needs the `lec` rules block. See `docs/LIVE-LECTURE.md`.
+
 ## Question coverage (lecturer)
 
 A **Question coverage** card on the Lecturer tab (cloud) lists every question in the banks, grouped by topic (MCQs, short answers, long answers) and case, with how many students attempted each one and how often, the % correct for MCQs, and for written questions how many planned, wrote, typed and were marked, plus the average automatic band. Unattempted questions are highlighted, each group shows "Not attempted: N of M", and there are filters (section, only not attempted, least attempted first, search) and a CSV. It reads what progress already records (MCQs once per question per day answered fresh; written work from plan/timed/typed/check keys and typed answers); restarted questions drop out. Code: `coverage.js` (identical in MKT101 and MKT301).

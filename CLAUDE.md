@@ -62,4 +62,5 @@ The lecturer can also mark or change any mark by hand on the Lecturer tab (Marki
 - **Data changes are additive.** Never remove or rewrite existing progress fields; migrations must be idempotent. Back up Firestore (`node tools/backup/export.mjs`, written outside the repo) before every push to main.
 - XP always goes through `award()` / `countOnce()` with stable keys so Restart and anti-farming keep working.
 - Screen time, break reminders and live sessions live in `engine/presence.js`. Its XP keys are `stgoal:<day>`, `stblock:<day>:<n>` and `sessfocus:<sessionId>`. Never weaken the idle rule (2 minutes) or the 6-block daily cap. Live sessions need the `sessions` rules blocks from `tools/build-rules.py`.
+- Live lectures (`lecture/`, `docs/LIVE-LECTURE.md`) are MKT101 course code, not engine. XP keys start `lec:`; progress lives in `U.lec`. Prospects, calls, search results and the feed are teaching scenarios: keep them labelled, and never reuse the tutorial case's people or offers.
 - Tests: `node tools/tests/run.js` (site) and `RULES=<path to firestore.rules> node tools/tests/firebase-run.js` (cloud, against the Firebase emulators).
