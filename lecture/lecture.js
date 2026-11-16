@@ -26,7 +26,7 @@ const lxNick=()=>String((U&&U.nick)||defaultNick(ME.name)||'Player').slice(0,24)
 const lxSeed=(s,arr)=>{const r=seeded(s);return arr.map((x,i)=>[x,r(),i]).sort((a,b)=>a[1]-b[1]).map(x=>x[2])};
 /* Term Snap points: 500 for a right answer, up to 500 more for speed, +100 for each extra answer in a row */
 function lxSnapScore(a,n,ms){let s=0,row=0,t=0;for(let r=0;r<n;r++){const x=a&&a['s'+r];if(x&&x.c===0){row++;s+=500+Math.round(500*Math.max(0,1-(x.ms|0)/ms))+(row-1)*100;t+=x.ms|0}else row=0}return {s,t}}
-function lxWords(list,k){const c={};list.forEach(d=>{const w=d.a&&d.a[k];if(typeof w!=='string')return;const x=w.toLowerCase().replace(/[^a-zÀ-ɏ' -]/g,'').trim().slice(0,20);if(!x||LX_BLOCK.test(x))return;c[x]=(c[x]|0)+1});
+function lxWords(list,k){const c={};list.forEach(d=>{const w=d.a&&d.a[k];if(typeof w!=='string')return;const x=w.toLowerCase().replace(/[^a-z\u00c0-\u024f' -]/g,'').trim().slice(0,20);if(!x||LX_BLOCK.test(x))return;c[x]=(c[x]|0)+1});
   return Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,40)}
 function lxCount(list,k,n,f){const c=new Array(n).fill(0);list.forEach(d=>{const v=d.a&&d.a[k];const i=f?f(v):v;if(Number.isInteger(i)&&i>=0&&i<n)c[i]++});return c}
 const lxPick=(p1,p2)=>{const v=(p2&&p2.reduce((a,b)=>a+b,0))?p2:p1;if(!v||!(v[0]+v[1]+v[2]))return 'B';if(v[2]>=v[0]&&v[2]>=v[1])return v[1]>=v[0]?'B':'A';return v[1]>=v[0]?'B':'A'};
