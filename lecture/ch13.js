@@ -57,6 +57,7 @@ const LX_CH13={
   c0:{kind:'call',d:0,title:'The approach',xp:5},
   c1:{kind:'call',d:1,title:'Handling objections',xp:5},
   c2:{kind:'call',d:2,title:'Closing',xp:5},
+  c3:{kind:'call',d:0,script:'A2',title:'Don’t let go',xp:5},
   ln:{kind:'snap',title:'Term Snap',xp:3,ms:12000},
   w2:{kind:'words',title:'One more time',q:'Now, in one word: what does a salesperson do?',ph:'One word',xp:5}
  },
@@ -90,9 +91,22 @@ const LX_CH13={
       {t:'Push them to book now, before the villa is gone',tr:-2,say:[['rep','Book now, before the villa is gone!'],['B','Please don’t rush us.']]},
       {t:'Offer a private proposal and a short call with all of them',tr:2,good:1,say:[['rep','Of course. Shall I send a private proposal to you and your family office, and arrange a short call with all of you this week?'],['B','Yes. That is how we like to work.']]},
       {t:'Wait for them to get in touch',tr:-1,say:[['rep','I’ll wait for you to contact us.'],['B','Alright.']]}]}],
-   outro:[['rep','Thank you. I’ll send the proposal by private email tonight. And after your stay, I’ll call to make sure everything was perfect.']]}
+   outro:[['rep','Thank you. I’ll send the proposal by private email tonight. And after your stay, I’ll call to make sure everything was perfect.']]},
+  /* the second call: we keep Client A in the pipeline. Soneva-style offer: no corporate discounts, no party groups; a sustainability
+     retreat (the lecturer's description of how Soneva hosts groups; teaching scenario) */
+  A2:{client:'A',title:'Two weeks later: don’t let go of Client A',steps:[4,5,6],
+   intro:[['rep','Hello Mr Tan, it’s Maya from Soneva Fushi. Thank you for taking my call again.'],['A','Maya, I’ll be honest. Another resort offered our whole team a big group discount and a party night. Can you match that?']],
+   d:[{step:'Presentation and objections',q:'Mr Tan says no to the retreat. What should Maya do?',setup:[['rep','We don’t offer corporate discounts, and we don’t host party groups. What we offer is a sustainability retreat. Your team learns how a resort runs sustainable operations, joins some of our internal trainings, and takes real change back to Orbis Tech. That is how we try to be a force for good.'],['A','It’s a good idea. But the board won’t approve a full team retreat this year.']],opts:[
+      {t:'Give a 20% corporate discount after all',tr:-2,say:[['rep','Fine. I can give you twenty percent off.'],['A','So your values have a price? Now I’m not sure about you.']]},
+      {t:'Offer a learning visit for the executives: C-suite, directors and senior managers',tr:2,good:1,say:[['rep','I understand. Instead of the whole team, what about a learning visit for your leaders: the C-suite, directors and senior managers? They see our best practices first-hand, and they lead the change at Orbis Tech.'],['A','Now that, the board could support. Let’s plan it for early next year.'],['rep','Wonderful. I’ll send a proposal for the executive visit and hold the dates for you.']]},
+      {t:'Thank him and close the file',tr:-1,say:[['rep','No problem. Thank you for your time.'],['A','Goodbye, then.']]}]}],
+   outro:[],sum:{good:'Client A kept: an executive learning visit, early next year. Skip the approach and the objection, and we would have lost them.',bad:'Client A lost. A discount or a quick goodbye let a good prospect go.'}},
+  /* a courtesy call: Client C does not qualify, so the request goes to the right team */
+  C:{client:'C',title:'A courtesy call to Client C',steps:[7],
+   intro:[['rep','Hello Zee, this is Maya from Soneva Fushi. Thank you for your interest in a stay with us.'],['C','Hi Maya! So, when can I come?'],['rep','We don’t offer free stays in return for posts. But I have passed your request to our Marketing Director, Uyoon. If her team is interested in working together, she will contact you directly.'],['C','Oh. Okay. Thanks for letting me know.'],['rep','Thank you, Zee. Have a lovely day.']],
+   d:[],outro:[],sum:{good:'Polite, honest, and sent to the right team. A no today keeps the door open.'}}
  },
- voices:{rep:'Maya, Soneva sales executive',A:'Mr Tan, Orbis Tech',B:'T., the bride'},
+ voices:{rep:'Maya, Soneva sales executive',A:'Mr Tan, Orbis Tech',B:'T., the bride',C:'Zee, travel creator'},
 
  /* ---------- Term Snap: the definition is on the projector, the four terms are on the phones (shuffled per student) ---------- */
  snap:[
@@ -179,8 +193,11 @@ const LX_CH13={
    b:['Handling objections: find the real worry and answer it','Closing: ask for the order, or agree a clear next step','Follow-up: check satisfaction and keep the relationship'],
    caseBy:{A:'Expect: “Another resort is cheaper.”',B:'Expect: “How will you protect our privacy?”'},
    n:'Now they become the rep. Next is the live sales call.'},
-  {k:'call',m:48,act:'c0',n:'Press Next to play each part. Votes open on phones at each decision. The trust meter shows the result.'},
-  {k:'grid',m:56,lo:'13.3',t:'Value selling, not price cutting',
+  {k:'call',m:48,act:'c0',acts:['c0','c1','c2'],n:'Press Next to play each part. Votes open on phones at each decision. The trust meter shows the result.'},
+  {k:'call',m:55,script:'A2',acts:['c3'],n:'Two weeks later. We kept Client A in the pipeline. Soneva does not discount: it offers a sustainability retreat. One vote: how to handle the no.'},
+  {k:'call',m:58,script:'C',n:'A short courtesy call. Client C does not qualify, so Maya passes the request to Marketing. Shout-out to Uyoon!'},
+  {k:'pipeline',m:59,lo:'13.3',t:'Three prospects, three outcomes',n:'Nobody was dropped without a reason. The steps kept every door open that should stay open.'},
+  {k:'grid',m:60,lo:'13.3',t:'Value selling, not price cutting',
    b:[{h:'Price cutting',p:'Easy today. Weak brand, lower profit tomorrow'},{h:'Value selling',p:'Listen, understand needs, deliver superior value'},{h:'A fair return',p:'Good for the customer AND the company'},{h:'The challenge',p:'Turn reps into advocates for value, not for discounts'}],
    case:'Look at the trust meter: every discount move lost trust.',
    n:'Link back to the call results. Value selling is the key idea of 13.3.'},
@@ -224,6 +241,15 @@ const LX_CH13={
 
  /* ---------- the staircase (seller's view) and the funnel (customer's view). Funnel: AIDA, general marketing, not the textbook ---------- */
  stairs:[['Prospect and qualify','Find buyers'],['Pre-approach','Research first'],['Approach','Open well'],['Present','Show the solution'],['Objections','Answer the worry'],['Closing','Agree the next step'],['Follow-up','Stay in touch']],
+ /* pop-up on each step of the staircase (hover, click, or keys 1-7) */
+ stepInfo:[
+  {h:'Prospecting and qualifying',d:'Finding potential customers, then checking which ones are worth the time.',how:['Sources: referrals, past customers, suppliers, trade shows, social media','Qualify: can they pay, how much business, special needs, location, growth potential'],at:'Three enquiries arrived. Research showed which one is a real buyer.'},
+  {h:'Preapproach',d:'Learning as much as possible about the prospect before the first contact.',how:['What do they need? Who is involved in buying? How do they like to buy?','Set call goals: qualify, gather information, or make a sale','Choose the best way and time to make contact'],at:'News, company reports and feeds told us who Client B really is.'},
+  {h:'Approach',d:'Meeting and greeting the buyer, and getting the relationship off to a good start.',how:['Good first impression and a warm, relevant opening','Ask key questions to learn the customer’s needs','Listen and show real attention'],at:'Ask what they want to feel, before talking about villas or prices.'},
+  {h:'Presentation and demonstration',d:'Telling the value story: showing how the offer solves the customer’s problem.',how:['A customer-solution approach, not a list of features','Listen and solve problems','Use tools: video calls, tailored proposals, virtual tours'],at:'A private plan for Client B. A sustainability retreat for Client A.'},
+  {h:'Handling objections',d:'Finding, clarifying and overcoming the customer’s reasons for not buying.',how:['Stay positive and look for hidden objections','Ask the buyer to explain the worry','Turn each objection into a reason to buy'],at:'“Someone always posts a photo.” “Another resort is cheaper.” Answer the real worry.'},
+  {h:'Closing',d:'Asking the customer for the order, or agreeing a clear next step.',how:['Watch for closing signals: comments, questions, actions','Review what you agreed, offer to help with the order','A special reason to act now can help, but never at the cost of the brand'],at:'A private proposal, a call with the family office. No discounts.'},
+  {h:'Follow-up',d:'Checking after the sale that the customer is satisfied, so they come back.',how:['Confirm the details: dates, terms, arrangements','Check in after the stay or delivery','Build repeat business and referrals'],at:'A call after the stay, then a note on their anniversary.'}],
  funnel:[['Awareness','Step 1'],['Interest','Steps 2 and 3'],['Consideration','Steps 4 and 5'],['Action','Step 6'],['Loyalty','Step 7']],
 
  /* ---------- the worked exemplar (filled in for the chosen client) ---------- */

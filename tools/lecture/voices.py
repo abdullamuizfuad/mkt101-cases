@@ -10,15 +10,18 @@ import json, os, re, subprocess, sys, tempfile
 import soundfile as sf
 from kokoro_onnx import Kokoro
 
-VOICE = {'rep': 'bf_emma', 'A': 'am_michael', 'B': 'af_heart'}
+VOICE = {'rep': 'bf_emma', 'A': 'am_michael', 'B': 'af_heart', 'C': 'af_nova'}
+# names spoken from a fixed phonetic spelling (Uyoon = oo-YOON)
+NAMES = {'Uyoon': 'ʊjˈuːn'}
 FU = 'fˈuːʃiː'
 
 def phon(k, text, lang):
     son = 'sˌoʊnˈeɪvɑː' if lang == 'en-us' else 'sˌəʊnˈeɪvɑː'
     out = ''
-    for p in re.split(r'(Soneva Fushi|Soneva)', text):
+    for p in re.split(r'(Soneva Fushi|Soneva|' + '|'.join(NAMES) + r')', text):
         if p == 'Soneva Fushi': out += ' ' + son + ' ' + FU + ' '
         elif p == 'Soneva': out += ' ' + son + ' '
+        elif p in NAMES: out += ' ' + NAMES[p] + ' '
         elif p: out += k.tokenizer.phonemize(p.replace('’', "'"), lang)
     out = re.sub(r' +', ' ', out)
     return re.sub(r' ([.,?!])', r'\1', out).strip()
