@@ -1,12 +1,14 @@
 /* Cloud tests for live lectures (lecture/lecture.js) against the emulators: the lec rules, the deck and the phones in step,
    55 students answering at once, the badge, and the end of the lecture. Required by firebase.js. */
-module.exports=({page,ok,signIn,tourOff,ensure,fsDoc,fsPut,waitFor,A,B,L,PIN,PINB,PINL,RULES})=>({
+module.exports=({page,ok,signIn,tourOff,ensure,fsDoc,fsPut,waitFor,waitDoc,A,B,L,PIN,PINB,PINL,RULES})=>({
 async liveLecture(){if(!/match \/lec\//.test(RULES?require('fs').readFileSync(RULES,'utf8'):''))return;
   const al=/permission|PERMISSION|insufficient|400|403|Failed to load resource|identitytoolkit/;
   const l=await page({w:1280,h:800,allow:al});await ensure(l,L,PINL);await signIn(l,L,PINL);await tourOff(l);
   await l.evaluate(()=>{location.hash='#/lecture/ch13/deck'});await l.waitForTimeout(600);
   await l.evaluate(()=>{window.confirm=()=>true;LXD.i=0;LXD.s=0;lxEnter()});await l.keyboard.press('ArrowRight');
-  await waitFor(l,()=>LXD.live===true);const d0=await fsDoc('lec','ch13');ok(d0&&d0.st.stringValue==='live','lecture not live: '+JSON.stringify(d0&&d0.st));
+  await waitFor(l,()=>LXD.live===true);
+  /* the deck's own listener sees the write before the server has it (latency compensation), so wait for the server copy */
+  const d0=await waitDoc('lec','ch13',d=>d.st&&d.st.stringValue==='live');ok(d0&&d0.st.stringValue==='live','lecture not live: '+JSON.stringify(d0&&d0.st));
   /* a student joins on the phone */
   const a=await page({allow:al});await ensure(a,A,PIN);await signIn(a,A,PIN);await tourOff(a);await a.evaluate(()=>{location.hash='#/lecture/ch13'});
   await waitFor(a,()=>!!document.querySelector('.lxeyes'));await waitFor(l,()=>LXD.ans.some(x=>x.id==='S081441'&&x.a.j));
