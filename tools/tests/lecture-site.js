@@ -16,20 +16,21 @@ async lxcontent(){const p=await page({sid:STUDENT});const r=await p.evaluate(()=
     return bad});ok(!r.length,r.join('; '));
   const fs=require('fs'),path=require('path'),root=path.resolve(__dirname,'../..');
   const keys=await p.evaluate(()=>{const o=[];for(const [c,s] of Object.entries(LX_CH13.call)){const a=(k,arr)=>arr.forEach((x,i)=>o.push(k+'-'+i));a(c+'-intro',s.intro);s.d.forEach((d,j)=>{a(c+'-d'+j+'-s',d.setup);d.opts.forEach((x,k)=>a(c+'-d'+j+'-o'+k,x.say))});a(c+'-outro',s.outro)}return o});
-  const miss=keys.filter(k=>!fs.existsSync(path.join(root,'lecture/ch13/audio',k+'.mp3')));ok(!miss.length,'voice clips missing: '+miss.join(' '));await p.done()},
+  const miss=keys.filter(k=>!fs.existsSync(path.join(root,'lecture/ch13/audio',k+'.mp3')));ok(!miss.length,'voice clips missing: '+miss.join(' '));
+  const pics=await p.evaluate(()=>Object.values(LX_CH13.clients).flatMap(c=>c.feed.pics));const nof=pics.filter(x=>!fs.existsSync(path.join(root,x)));ok(pics.length===27&&!nof.length,'feed images: '+pics.length+' missing '+nof.join(' '));await p.done()},
 /* a student's phone: waiting, a word, the team design, research and a prospect vote, a call vote, Term Snap, then the badge; XP, mastery and answers saved */
 async lxphone(){const p=await page({sid:STUDENT,w:360});await p.evaluate(()=>{window.__noCeleb=1});await p.evaluate(mockStudent);await p.go('#/lecture/ch13');
   await p.evaluate(()=>window.__set({st:'idle'}));await p.waitForTimeout(150);ok(await p.isVisible('text=Get ready'),'waiting screen');
   const set=async d=>{await p.evaluate(d=>window.__set(Object.assign({st:'live',ends:Date.now()+3600e3,r:0},d)),d);await p.waitForTimeout(150)};
   await set({cur:'w1',ph:'open'});await p.fill('#lxw','help');await p.click('#lxf button');await p.waitForTimeout(100);
   await set({cur:'rep',ph:'open'});await p.click('.lxopt[data-i="2"]');await p.click('#lxgo');await p.waitForTimeout(100);
-  await set({cur:'p2',ph:'open'});await p.click('[data-f="B"]');ok(await p.locator('.lxfp').count()===9,'feed has 9 posts');await p.click('.modal .x');await p.click('[data-s="A"]');ok(await p.isVisible('text=Simulated search'),'search panel');await p.click('.modal .x');
+  await set({cur:'p2',ph:'open'});for(const c of ['A','B','C']){await p.click(`[data-f="${c}"]`);ok(await p.locator('.lxfp').count()===9,'feed '+c+' has 9 posts');await p.click('.modal .x')}await p.click('[data-s="A"]');ok(await p.isVisible('text=Simulated search'),'search panel');await p.click('.modal .x');
   await p.click('[data-v="1"]');await p.waitForTimeout(100);
   await set({cur:'c1',ph:'open',pick:'B'});await p.click('.lxopt[data-i="1"]');await p.waitForTimeout(100);await set({cur:'c1',ph:'closed',pick:'B'});
   await set({cur:'ln',ph:'open',r:0,pick:'B'});await p.click('.lxtile:has-text("Sales promotion")');await p.waitForTimeout(100);ok(await p.locator('.lxtile:disabled').count()===4,'tiles lock after one tap');
   await set({cur:'ln',ph:'closed',r:0,pick:'B'});await set({cur:'ln',ph:'closed',r:0,pick:'B',sfr:true,tc:['S081441']});await p.waitForTimeout(200);
-  const r=await p.evaluate(()=>({log:Object.keys(U.log).filter(k=>k.startsWith('lec:')).sort().join(),b:['salesrep','topcloser'].filter(b=>U.badges[b]).join(),mt:(U.mt||{})[13],last:window.__w[window.__w.length-1]}));
-  ok(r.log==='lec:ch13:c1,lec:ch13:c1:v,lec:ch13:p2,lec:ch13:rep,lec:ch13:s0,lec:ch13:sfr,lec:ch13:tc,lec:ch13:w1','xp keys: '+r.log);ok(r.b==='salesrep,topcloser','badges: '+r.b);
+  const r=await p.evaluate(()=>({log:Object.keys(U.log).filter(k=>k.startsWith('lec:')).sort().join(),b:['salesrep','keeneye','topcloser'].filter(b=>U.badges[b]).join(),mt:(U.mt||{})[13],last:window.__w[window.__w.length-1]}));
+  ok(r.log==='lec:ch13:c1,lec:ch13:c1:v,lec:ch13:ke,lec:ch13:p2,lec:ch13:rep,lec:ch13:s0,lec:ch13:sfr,lec:ch13:tc,lec:ch13:w1','xp keys: '+r.log);ok(r.b==='salesrep,keeneye,topcloser','badges: '+r.b);
   ok(r.mt&&r.mt[0]===1&&r.mt[1]===1,'Term Snap counted toward Topic 13 mastery: '+JSON.stringify(r.mt));
   ok(r.last[0]==='lec/ch13/a/'+'S081441'&&r.last[1].a.w1==='help'&&r.last[1].a.rep.s===2&&r.last[1].a.s0.c===0&&r.last[1].n,'answers doc: '+JSON.stringify(r.last));
   ok(!(await p.locator('[data-lect]').count()),'lecturer-only element on the student lecture page');await shot(p,'lx-phone');await p.done()},
