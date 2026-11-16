@@ -392,6 +392,24 @@ __EMAILS__
         allow delete: if isLecturer();
       }
     }
+
+    // Live lectures (lecture/lecture.js). Only the lecturer runs the lecture document: state, the open activity, the chosen client,
+    // the podium and who gets badges. Everyone on the class list can read it. Each student writes ONE answers document, only while
+    // the lecture is live: a = {activity id: answer}, n = the name shown on the podium. Only that student and the lecturer read it.
+    function lecDoc(id) { return get(/databases/$(database)/documents/lec/$(id)).data; }
+    match /lec/{id} {
+      allow read: if onRoster();
+      allow write: if isLecturer();
+      match /a/{sid} {
+        allow read: if isOwner(sid) || isLecturer();
+        allow create, update: if isOwner(sid) && sid != 'S000001'
+          && lecDoc(id).st == 'live' && request.time < lecDoc(id).ends
+          && request.resource.data.keys().hasOnly(['a', 'n', 't'])
+          && request.resource.data.a is map && request.resource.data.a.size() <= 60
+          && str(request.resource.data.n, 40) && request.resource.data.t == request.time;
+        allow delete: if isLecturer();
+      }
+    }
   }
 }
 """
