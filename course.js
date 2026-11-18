@@ -215,12 +215,58 @@ function boardPane(c){
     <div class="bar"><i style="width:${done/c.boardroom.length*100}%;background:var(--teal)"></i></div><p class="muted" style="font-size:.8rem;margin:6px 0 0">${done}/${c.boardroom.length} judged</p></div>
     <div class="subnav">${topics.map(t=>`<button data-tp="${esc(t)}" class="${t===cur?'on':''}">${esc(t)}</button>`).join('')}</div>
     ${c.boardroom.map((a,i)=>a.topic!==cur?'':argCard(c,a,i,COLORS[who.indexOf(a.who)%COLORS.length])).join('')}
-    <div class="card"><h3>Now build your own position</h3><p class="muted" style="margin:0">On paper, write 3–4 sentences on "${esc(cur)}": pick the strongest point, challenge the weakest one with theory, and add one idea nobody in the room suggested.</p></div>`;
+    ${bposHTML(c,cur)}`;
+    bposBind(c,cur,draw);
     document.querySelectorAll('[data-tp]').forEach(b=>b.onclick=()=>{cur=b.dataset.tp;LS.set('bt_'+c.id,cur);draw()});
     document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{const [i,v]=b.dataset.v.split('|');const a=c.boardroom[+i],k=c.id+':'+i;if(U.verd[k])return;
       U.verd[k]=v;count('verdicts');const right=v===a.v;ansLog('v:'+k,right?1:0,v);if(right){count('verdictsRight');if(a.v==='weak')count('weakSpotted')}
       award('verdict:'+k,right?10:3,right?'Good call':'Verdict recorded');caseCheck(c);draw()})};
   draw()}
+/* ---------- Boardroom: build your own position (case-extend.js BPOS) ----------
+   Unlocks when every argument on the topic is judged. Three parts: the strongest point (chips from the arguments the student judged
+   Strong), a challenge to the weakest (chips from those judged Weak, plus theory chips), and an idea of their own (no chips).
+   Typed or spoken (paste blocked, as everywhere), or written on paper. A typed position goes to the marking queue (U.ans, question id from
+   BPOS, so Claude marks it) and gives 10 XP once (bpos:<case>:<id>); one on paper gives 5. Filler (repeated letters, random words) can't be sent.
+   Progress (additive): U.bpos[<id>] = {at, key?, mode, t?}. */
+const BP_PARTS=[['s','Your strongest point','Which argument is strongest, and why? Use theory.'],['w','Challenge the weakest','Which argument is weakest? Explain why it fails, using theory.'],['o','Your own idea','One idea nobody in the room suggested, and why it would work.']];
+function bpReal(t){const w=String(t||'').trim().split(/\s+/).filter(Boolean);if(w.length<8)return false;
+  if(/(.)\1{3,}/i.test(t))return false;const u=new Set(w.map(x=>x.toLowerCase().replace(/[^a-z']/g,''))).size;if(u/w.length<0.5)return false;
+  const odd=w.filter(x=>{const y=x.toLowerCase().replace(/[^a-z]/g,'');return y.length>3&&(!/[aeiouy]/.test(y)||y.length>18)}).length;return odd/w.length<0.2}
+function bposHTML(c,cur){const B=c.bpos&&c.bpos[cur];
+  if(!B)return `<div class="card"><h3>Now build your own position</h3><p class="muted" style="margin:0">On paper, write 3–4 sentences on "${esc(cur)}": pick the strongest point, challenge the weakest one with theory, and add one idea nobody in the room suggested.</p></div>`;
+  const idx=c.boardroom.map((a,i)=>i).filter(i=>c.boardroom[i].topic===cur),left=idx.filter(i=>!U.verd[c.id+':'+i]).length;U.bpos=U.bpos||{};const done=U.bpos[B.id];
+  if(left)return `<div class="card bpos"><h3>🧭 Now build your own position</h3><p class="muted" style="margin:0">Judge ${left===idx.length?'every argument':'the last '+left+' argument'+(left===1?'':'s')} above first. Your judgements become the starting points for your position.</p></div>`;
+  if(done)return `<div class="card bpos"><h3>🧭 Your position on “${esc(cur)}”</h3>${done.mode==='paper'?'<p>✍️ Written on paper.</p>':`<div class="ppans" style="white-space:pre-wrap">${esc(done.t||'')}</div><p class="muted" style="font-size:.85rem;margin:8px 0 0">✓ Sent for marking. Your band and feedback appear here and in your messages once it is marked.</p>`}${bposMark(done)}</div>`;
+  const st=bposDraft(B.id),j=v=>idx.filter(i=>U.verd[c.id+':'+i]===v),chip=(i)=>{const a=c.boardroom[i],say=a.say.replace(/[“”"]/g,'');return `<button type="button" class="chip" data-bpa="${i}">${esc(a.who)}: ${esc(say.length>70?say.slice(0,68)+'…':say)}</button>`};
+  const parts={s:j('strong').map(chip).join(''),w:j('weak').concat(j('mixed')).map(chip).join('')+B.ideas.map((x,k)=>`<button type="button" class="chip gold" data-bpt="${k}">📘 ${esc(x.t.split(':')[0])}</button>`).join(''),o:''};
+  return `<div class="card bpos" id="bpos"><h3>🧭 Now build your own position on “${esc(cur)}”</h3><p class="muted" style="margin:0 0 10px">Three short parts, in your own words. Tap a chip to start a sentence, then finish it yourself. 📘 chips add a theory idea.</p>
+  <div class="row" role="group" aria-label="How you answer" style="margin-bottom:8px"><button class="btn ghost sm${st.mode!=='paper'?' on':''}" data-bpm="typed">⌨️ Type or speak</button><button class="btn ghost sm${st.mode==='paper'?' on':''}" data-bpm="paper">✍️ On paper</button></div>
+  ${st.mode==='paper'?`<p>Write 3–4 sentences on paper: the strongest point, a challenge to the weakest with theory, and one idea of your own.</p><label class="row ppchk"><input type="checkbox" id="bpchk"> I wrote my position on paper</label>`
+   :BP_PARTS.map(([k,h,p],n)=>`<div class="bppart" id="bpp-${k}"><b>${n+1}. ${h}</b><p class="muted" style="font-size:.85rem;margin:2px 0 6px">${p}</p>${parts[k]?`<div class="chips" style="margin-bottom:6px">${parts[k]}</div>`:''}
+     <textarea id="ta-bp${k}" rows="3" data-bpk="${k}" placeholder="${k==='o'?'Your own idea…':'Tap a chip or start typing…'}" aria-label="${h}">${esc(st.a[k]||'')}</textarea>
+     <div class="row" style="justify-content:space-between;margin-top:4px"><span class="muted" style="font-size:.8rem" id="bpw-${k}"></span><span id="wc-bp${k}" hidden></span>${SR?`<button class="btn ghost sm" data-a="mic" aria-pressed="false">🎤 Speak</button>`:''}</div><p class="muted" id="fn-bp${k}" style="font-size:.82rem;margin:2px 0 0"></p></div>`).join('')}
+  <div class="row" style="margin-top:10px"><button class="btn gold" id="bpsend">${st.mode==='paper'?'Done':'Send my position for marking'}</button><span class="muted" id="bpmsg" style="font-size:.85rem"></span></div></div>`}
+function bposMark(d){const r=d&&d.key&&U.rev&&U.rev[d.key];return r?`<div class="fb ok" style="margin-top:10px"><b>Band ${r.band}/6</b> · +${r.xp} XP<br>${esc(r.fb)}</div>`:''}
+function bposDraft(id){U.bpd=U.bpd||{};return U.bpd[id]||(U.bpd[id]={mode:'typed',a:{},fl:{}})}
+function bposBind(c,cur,draw){const B=c.bpos&&c.bpos[cur],box=$('#bpos');if(!B||!box)return;const st=bposDraft(B.id);let lastTa='w';
+  box.querySelectorAll('[data-bpm]').forEach(b=>b.onclick=()=>{if(st.mode===b.dataset.bpm)return;stopMic&&stopMic();st.mode=b.dataset.bpm;save();draw();$('#bpos')&&$('#bpos').scrollIntoView({block:'center'})});
+  const ok=k=>bpReal(st.a[k]);
+  const upd=()=>BP_PARTS.forEach(([k])=>{const e=$('#bpw-'+k);if(!e)return;const n=words(st.a[k]||'');e.textContent=!n?'At least one full sentence (8+ words)':ok(k)?'✓ '+n+' words':n<8?n+' words: write at least 8':'⚠️ This needs real sentences';e.style.color=ok(k)?'var(--green)':''});
+  BP_PARTS.forEach(([k])=>{const ta=$('#ta-bp'+k);if(!ta)return;const s2={txt:st.a[k]||'',fl:st.fl[k]=st.fl[k]||{}};typingBox({id:'bp'+k},s2,ta,$('#bpp-'+k));
+    ta.addEventListener('input',()=>{st.a[k]=ta.value;upd()});ta.addEventListener('focus',()=>{if(k!=='o')lastTa=k})});upd();
+  const put=(k,txt)=>{const ta=$('#ta-bp'+k);if(!ta)return;const v=ta.value,p=ta.selectionStart!=null&&document.activeElement===ta?ta.selectionStart:v.length;
+    ta.value=v.slice(0,p)+(p&&!/\s$/.test(v.slice(0,p))?' ':'')+txt+v.slice(p);st.a[k]=ta.value;ta.focus();const q=p+txt.length+1;try{ta.setSelectionRange(q,q)}catch(e){}save();upd()};
+  box.querySelectorAll('[data-bpa]').forEach(b=>b.onclick=()=>{const a=c.boardroom[+b.dataset.bpa],v=U.verd[c.id+':'+b.dataset.bpa],say=a.say.replace(/[“”"]/g,'').replace(/\.$/,'');
+    if(v==='strong')put('s',`The strongest argument is the ${a.who}'s: "${say}". This works because`);else put('w',`The weakest argument is the ${a.who}'s idea to "${say}". This fails because`)});
+  box.querySelectorAll('[data-bpt]').forEach(b=>b.onclick=()=>put(lastTa,B.ideas[+b.dataset.bpt].t.split(':')[0].toLowerCase()));
+  $('#bpsend').onclick=()=>{U.bpos=U.bpos||{};
+    if(st.mode==='paper'){if(!$('#bpchk').checked){$('#bpmsg').textContent='Tick the box once you have written it.';return}U.bpos[B.id]={at:isoNow(),mode:'paper'};award('bpos:'+c.id+':'+B.id,5,'Position written');save();draw();return}
+    const bad=BP_PARTS.filter(([k])=>!ok(k));if(bad.length){$('#bpmsg').textContent='Finish part '+bad.map(([k])=>BP_PARTS.findIndex(p=>p[0]===k)+1).join(' and ')+' with real sentences (8+ words each).';return}
+    stopMic&&stopMic();const t=BP_PARTS.map(([k,h])=>h+': '+String(st.a[k]).trim()).join('\n\n'),low=t.toLowerCase();
+    const f=B.ideas.map((x,j)=>x.t.split(':')[0].toLowerCase().split(/[^a-z]+/).filter(w=>w.length>4).some(w=>low.includes(w))?j:-1).filter(j=>j>=0);
+    const fl={};['paste','bigKept','big'].forEach(n=>fl[n]=BP_PARTS.reduce((m,[k])=>m+((st.fl[k]||{})[n]|0),0));fl.ev=BP_PARTS.flatMap(([k])=>(st.fl[k]||{}).ev||[]).slice(-5);
+    const key=B.id+'_'+Date.now().toString(36);U.ans=U.ans||{};U.ans[key]={q:B.id,sec:'P',t:t.slice(0,6000),at:isoNow(),b:Math.min(6,1+f.length),f,s:[],w:words(t),x:0,fl};
+    U.bpos[B.id]={at:isoNow(),mode:'typed',key,t:t.slice(0,6000)};award('bpos:'+c.id+':'+B.id,10,'Position sent for marking');save();toast('🧭','Position sent','Your lecturer will mark it');draw()}}
 function qCard(q,i,o={}){
   const secs=o.secs||600,mins=Math.round(secs/60),re=()=>qCard(q,i,o);
   const el=$('#q-'+q.id),st=U.plansSaved[q.id]||(U.plansSaved[q.id]={step:0,sel:[],checked:false,ticks:[]});
@@ -551,7 +597,7 @@ const expertTopics=()=>TOPICS.map(t=>[t,tName(t)]);
 function expertProg(u,t){const m=mastery(u,t);return {att:m.att,acc:m.acc,ok:m.mcq}}
 function expertEssayUI(host,q,done){host.innerHTML=`<div class="card qcard" id="q-${q.id}"></div>`;qCard(q,0,{short:1,secs:600,last:true,next:done})}
 /* Expert essays join the question index, so marking, review and reports know them */
-function qIndexMore(I){if(typeof EXPERT==='undefined')return;Object.values(EXPERT.sets).forEach(S=>{const q=S.essay;if(q)I[q.id]={q,area:'t'+q.t,label:'Expert set · Topic '+q.t+': '+q.topic}})}
+function qIndexMore(I){CASEL.forEach(c=>Object.entries(c.bpos||{}).forEach(([tp,B])=>{I[B.id]={q:{id:B.id,t:B.t,q:'Boardroom, '+tp+': build your own position (strongest point, challenge the weakest, your own idea)',chips:B.ideas.concat(B.no)},area:'c:'+c.id,label:c.short+': Boardroom position, '+tp}}));if(typeof EXPERT==='undefined')return;Object.values(EXPERT.sets).forEach(S=>{const q=S.essay;if(q)I[q.id]={q,area:'t'+q.t,label:'Expert set · Topic '+q.t+': '+q.topic}})}
 const caseName=c=>c.short,caseNames=c=>[c.short,c.org,'Soneva','STO','Lena','Malé','Hulhumalé'];
 const isB=o=>!!o.short,bArea=q=>'t'+q.t,bQLabel=q=>'Topic '+q.t+': '+q.topic,bLabel=k=>tName(+k.slice(1));
 onHook('beforeMe',migrateSession);onHook('afterLoad',migrateProgress);

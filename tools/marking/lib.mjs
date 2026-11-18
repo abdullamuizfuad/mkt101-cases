@@ -50,6 +50,9 @@ export async function patchReview(token,sid,entries){const mask=Object.keys(entr
 export function bank(){const ctx={};vm.createContext(ctx);
   const D=vm.runInContext(['cases-data.js','case-extend.js','bank-s.js'].map(f=>readFileSync(path.join(ROOT,f),'utf8')).join('\n')+';({CASEL,BANK_S})',ctx);
   const Q={};D.CASEL.forEach(c=>c.questions.forEach(q=>Q[q.id]={q,area:c.short+' (case): '+q.skill,context:c.title+': '+c.subtitle}));
+  /* Boardroom "build your own position" (case-extend.js BPOS): three parts, typed by the student */
+  D.CASEL.forEach(c=>Object.entries(c.bpos||{}).forEach(([topic,B])=>{const args=c.boardroom.filter(a=>a.topic===topic).map(a=>a.who+' ('+a.v+'): '+a.say).join(' | ');
+    Q[B.id]={q:{id:B.id,q:'Boardroom, '+topic+': build your own position in three parts: (1) the strongest argument and why, using theory; (2) challenge the weakest argument with theory; (3) one idea nobody in the room suggested. The arguments were: '+args,chips:B.ideas.concat(B.no)},area:'Topic '+B.t+': '+c.short+' Boardroom, '+topic,context:c.title+': '+c.subtitle}}));
   D.BANK_S.forEach(q=>Q[q.id]={q,area:'Topic '+q.t+': '+q.topic,context:'Short-answer practice'});
   /* Expert set essays (bank-expert.js): harder, so mark for evaluation and a justified recommendation */
   if(existsSync(path.join(ROOT,'bank-expert.js'))){const X=vm.runInContext(readFileSync(path.join(ROOT,'bank-expert.js'),'utf8')+';EXPERT',ctx);

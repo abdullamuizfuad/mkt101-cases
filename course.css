@@ -300,3 +300,6 @@ details.chk p{color:var(--ink)}
   body{background:#fff;color:#000}
   .exhibit{break-inside:avoid}
 }
+/* Boardroom: build your own position */
+.bpos .chips{display:flex;flex-wrap:wrap;gap:6px}.bpos .chip{font-size:.84rem;padding:7px 10px;text-align:left}
+.bpos .chip.gold{border-color:var(--gold)}.bppart{margin-top:14px}.bpos textarea{width:100%;box-sizing:border-box}
