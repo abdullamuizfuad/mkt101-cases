@@ -18,3 +18,7 @@ tools/push/sent.json
 # Claude question drafts before upload
 tools/qgen/drafts.json
 tools/marking/marked-log.json
+
+# Discussion prep working files (student answers)
+tools/discuss/*.json
+tools/discuss/*.md
