@@ -511,6 +511,7 @@ Object.assign(T,require('./cheer-site.js')({page,ok,STUDENT,LECT,shot}));
 Object.assign(T,require('./activity-site.js')({page,ok,STUDENT,LECT,shot}));
 Object.assign(T,require('./guest-site.js')({page,ok,STUDENT,LECT,shot}));
 Object.assign(T,require('./rts-site.js')({page,ok,STUDENT,LECT,shot}));
+Object.assign(T,require('./discuss-site.js')({page,ok,STUDENT,LECT,shot}));
 Object.assign(T,require('./bpos-site.js')({page,ok,STUDENT,LECT,shot}));
 Object.assign(T,require('./lecture-site.js')({page,ok,STUDENT,LECT,shot}));
 (async()=>{const server=spawn('python3',['-m','http.server',String(PORT)],{cwd:ROOT,stdio:'ignore'});await new Promise(r=>setTimeout(r,800));
