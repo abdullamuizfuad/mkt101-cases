@@ -46,6 +46,11 @@ async lxdeck(){const p=await page({sid:LECT,w:1600,h:900});await p.go('#/lecture
   ok(r.sfr,'badge awarded');ok(r.tc&&r.tc.length===3,'top closers: '+JSON.stringify(r.tc));ok(r.pick==='B','client carried: '+r.pick);
   await shot(p,'lx-deck-end');await p.done()},
 /* the Join card on Home: hidden before the schedule, shown in the window, shown early when the lecturer turns it on, gone after the end */
+async lxattend(){const p=await page({sid:LECT});
+  const r=await p.evaluate(async()=>{CLOUD.ok=true;ME.cloud=true;window.cloudOn=()=>true;
+    CLOUD.docs=async c=>c==='users'?[{id:'S081441',name:'Aminath A'},{id:'S085542',name:'Bilal B'},{id:'S089999',name:'Zara Z'}]:/\/a$/.test(c)?[{id:'S081441',a:{x:1,y:2},n:'Ami',t:Date.now()},{id:'S085542',a:{x:1},n:'Bil',t:Date.now()}]:[];
+    document.body.insertAdjacentHTML('beforeend','<div id="lxatt"></div>');await lxAttend('ch13');const el=document.getElementById('lxatt');return {txt:el.textContent,rows:el.querySelectorAll('tr').length,csv:!!document.getElementById('lxcsv')}});
+  ok(/2<\/b>|2 students took part/.test(r.txt)||/2 students took part/.test(r.txt),'count: '+r.txt.slice(0,120));ok(r.rows===3&&r.csv,'table: '+JSON.stringify(r));ok(/Did not take part \(1\)/.test(r.txt)&&/Aminath A/.test(r.txt),'names and absentees: '+r.txt.slice(0,300));await p.done()},
 async lxhome(){const p=await page({sid:STUDENT});await p.evaluate(mockStudent);
   const at=async(t,doc)=>p.evaluate(([t,doc])=>{const real=Date.now;Date.now=()=>Date.parse(t);LX.gid='ch13';LX.gdoc=doc;const m=$('#lxhome');if(m)m.remove();lxHomeCard();Date.now=real;return !!document.getElementById('lxhome')},[t,doc]);
   await p.go('#/');ok(!(await at('2026-11-17T15:00:00+05:00',null)),'card before 3:30');ok(await at('2026-11-17T15:31:00+05:00',null),'no card at 3:31');

@@ -144,7 +144,8 @@ setInterval(()=>{try{if(!LX.gstop&&typeof ME!=='undefined'&&ME&&cloudOn())lxGlob
 /* ---------- lecturer card ---------- */
 LF_META.lxc=['🎤 Live lecture','Run Chapter 13 from the Arena'];
 lcard('lxc',el=>{el.hidden=false;const id='ch13',L=LX_LECS[id];el.innerHTML=`<h2 style="margin:0 0 6px">🎤 Live lecture</h2><p class="muted" style="margin:0 0 10px">${esc(L.short)}. The deck runs the phone activities. Open it on the projector laptop. Students see a Join button on Home from ${new Date(Date.parse(L.joinFrom)).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit',timeZone:'Indian/Maldives'})}.</p>
-  <p id="lxcs" class="muted">Checking…</p><div class="row"><a class="btn" href="#/lecture/${id}/deck">▶ Open the deck</a><a class="btn ghost" href="#/lecture/${id}/notes" target="_blank" rel="noopener">Presenter view</a><button class="btn ghost" id="lxshow">📣 Show the Join button now</button><button class="btn ghost" id="lxend">■ End lecture</button><button class="btn ghost" id="lxrst">↺ Clear answers (after a dry run)</button></div>`;
+  <p id="lxcs" class="muted">Checking…</p><div class="row"><a class="btn" href="#/lecture/${id}/deck">▶ Open the deck</a><a class="btn ghost" href="#/lecture/${id}/notes" target="_blank" rel="noopener">Presenter view</a><button class="btn ghost" id="lxshow">📣 Show the Join button now</button><button class="btn ghost" id="lxend">■ End lecture</button><button class="btn ghost" id="lxrst">↺ Clear answers (after a dry run)</button></div><div id="lxatt" style="margin-top:14px"></div>`;
+  lxAttend(id);
   const st=$('#lxcs');CLOUD.get(lxPath(id)).then(d=>{st.textContent=!d?'Not started yet. Starting the deck’s first slide makes it live for 3 hours.':lxLive(d)?'● Live now.':'Ended.'}).catch(()=>{st.textContent='Publish the newest rules (they include the live lecture block), then reload.'});
   $('#lxshow').onclick=async()=>{const d=await CLOUD.get(lxPath(id)).catch(()=>null),on=!(d&&d.show);await CLOUD.put(lxPath(id),on?{show:true,st:(d&&d.st==='live')?'live':'ready'}:{show:false},true);
     $('#lxshow').textContent=on?'🙈 Hide the Join button':'📣 Show the Join button now';st.textContent=on?'The Join button is on every student’s Home.':'The Join button follows the schedule again.'};
@@ -152,6 +153,21 @@ lcard('lxc',el=>{el.hidden=false;const id='ch13',L=LX_LECS[id];el.innerHTML=`<h2
   $('#lxend').onclick=async()=>{if(!confirm('End the live lecture? Phones stop taking answers.'))return;await CLOUD.put(lxPath(id),{st:'ended',cur:null,ph:'closed',show:false},true);st.textContent='Ended.'};
   $('#lxrst').onclick=async()=>{if(!confirm('Delete every answer saved for this lecture and reset it? Do this only after a dry run. XP already earned stays.'))return;
     const ds=await CLOUD.docs(lxPath(id)+'/a');for(const d of ds)await CLOUD.del(lxPath(id)+'/a/'+d.id);await CLOUD.put(lxPath(id),{st:'ended',cur:null,ph:'closed',r:0,pick:null,sfr:false,tc:[],pod:[]});st.textContent='Cleared '+ds.length+' answer(s). Ready for the real lecture.'}});
+
+/* Attendance for the lecture (Lecturer card): everyone with an answers document (lec/<id>/a/<SID>), with names from users,
+   how many activities they answered and when they were last active; the rest of the class under "Did not take part"; CSV. */
+async function lxAttend(id){const el=$('#lxatt');if(!el)return;el.innerHTML='<p class="muted">Loading attendance…</p>';
+  try{const [ans,us]=await Promise.all([CLOUD.docs(lxPath(id)+'/a'),CLOUD.docs('users')]);const nm={};us.forEach(u=>nm[u.id]=u.name||'');
+    const ms=v=>v==null?0:typeof v==='number'?v:v.toDate?v.toDate().getTime():Date.parse(v)||0;
+    const rows=ans.filter(d=>d.id!==LECTURER&&d.id!=='S000000').map(d=>({sid:d.id,name:nm[d.id]||d.n||d.id,n:Object.keys(d.a||{}).length,t:ms(d.t)})).sort((a,b)=>a.name.localeCompare(b.name));
+    const ids=new Set(rows.map(r=>r.sid)),absent=us.filter(u=>u.id!==LECTURER&&u.id!=='S000000'&&!ids.has(u.id)).map(u=>u.name||u.id).sort();
+    const tm=t=>t?new Date(t).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit',timeZone:'Indian/Maldives'}):'–';
+    el.innerHTML=`<h3 style="margin:0 0 6px">👥 Attendance: ${esc(LX_LECS[id].short||id)}</h3><p class="muted" style="font-size:.85rem;margin:0 0 8px"><b>${rows.length}</b> student${rows.length===1?'':'s'} took part (answered at least one activity on their phone). Students who only watched without answering are not recorded.</p>
+    ${rows.length?`<div class="tablewrap"><table><tr><th>#</th><th>Student</th><th>ID</th><th>Activities answered</th><th>Last answer</th></tr>${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.name)}</td><td>${esc(r.sid)}</td><td>${r.n}</td><td>${tm(r.t)}</td></tr>`).join('')}</table></div>
+    <button class="btn ghost sm" id="lxcsv" style="margin-top:8px">⬇ Download attendance (CSV)</button>`:'<p class="muted">Nobody has answered yet.</p>'}
+    ${absent.length?`<details style="margin-top:8px"><summary class="click muted">Did not take part (${absent.length})</summary><p style="font-size:.88rem">${absent.map(esc).join(', ')}</p></details>`:''}`;
+    const b=$('#lxcsv');if(b)b.onclick=()=>csvDownload([['Name','ID','Activities answered','Last answer (Maldives time)']].concat(rows.map(r=>[r.name,r.sid,r.n,tm(r.t)])),'mkt101-lecture-'+id+'-attendance.csv')}
+  catch(e){el.innerHTML='<p class="muted">Attendance needs the newest rules (they include the live lecture block): publish them, then reload.</p>'}}
 
 /* =====================================================================================================================
    The projector deck (lecturer only)
