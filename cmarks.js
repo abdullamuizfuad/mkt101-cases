@@ -11,6 +11,13 @@ function cmSet(key,v){if(!v||typeof v!=='object'||typeof ME==='undefined'||!ME)r
 function cmRec(){if(typeof ME==='undefined'||!ME||ME.sid===LECTURER&&!VIEWAS||ME.sid==='S000000')return null;if(VIEWAS)return U&&U._cm||null;
   if(!CM){try{CM=JSON.parse(localStorage.getItem(cmLS())||'null')}catch(e){}}return CM}
 function homeTopHTML(){const r=cmRec();return r?cmHTML(r):''}
+/* the highest grade still in reach (the grade mapping's final-minimum %): gold HD, silver DN, bronze CR. The final mark needed
+   is (cut-off − total so far) ÷ final weight × 100, and never below the pass target (the other pass rules still apply). */
+const CM_TIERS=[['HD',84.445,'g','🏆','For an HD','🎉','★★★','85'],['DN',74.445,'s','🥈','For a Distinction','','★★','75'],['CR',64.445,'b','🥉','For a Credit','','★','65']];
+function cmTierHTML(r,tot){const fin=50;
+  for(const [g,cut,cls,ico,lbl,extra,st,pct] of CM_TIERS){const need=Math.max(r.pass||0,(cut-tot)/fin*100);
+    if(need<=100)return `<div class="cmg h t${cls}"><small>${ico} ${lbl}${extra?' '+extra:''}<span class="stars" aria-hidden="true">${st}</span></small><div><b>${cmR(Math.ceil(need*10)/10)}<span> / 100</span></b></div><p>on the final exam (${pct}% overall)</p></div>`}
+  return `<div class="cmg h tn"><small>🌱 You've got this 💪</small><div><b>Every mark counts</b></div><p>Each mark on the final lifts your grade. Aim high!</p></div>`}
 const cmF=x=>x==null?'–':Number(x).toFixed(2);
 const cmR=x=>x==null?'–':String(Math.round(x*10)/10);
 function cmCss(){if(document.getElementById('cmcss'))return;const st=document.createElement('style');st.id='cmcss';st.textContent=
@@ -32,6 +39,11 @@ function cmCss(){if(document.getElementById('cmcss'))return;const st=document.cr
  '.cmg .stars{color:#f59e0b;text-shadow:0 0 6px rgba(250,204,21,.6);font-size:.7rem;letter-spacing:1px;margin-left:2px}.gflag{color:#16a34a}'+
  ':root[data-theme="dark"] .cmg.p,:root[data-theme="dark"] .gflag{color:#4ade80}:root[data-theme="dark"] .cmg.h{color:#fcd34d}:root[data-theme="dark"] .cmk.p{color:#4ade80;border-color:#4ade80}:root[data-theme="dark"] .cmk.h{color:#fcd34d;border-color:#fcd34d}'+
  '@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cmg.p,:root:not([data-theme="light"]) .gflag{color:#4ade80}:root:not([data-theme="light"]) .cmg.h{color:#fcd34d}:root:not([data-theme="light"]) .cmk.p{color:#4ade80;border-color:#4ade80}:root:not([data-theme="light"]) .cmk.h{color:#fcd34d;border-color:#fcd34d}}'+
+ '.cmg.h.ts{background:linear-gradient(135deg,rgba(203,213,225,.45),rgba(148,163,184,.22));border-color:rgba(100,116,139,.6);color:#475569}.cmg.h.ts .stars{color:#94a3b8;text-shadow:0 0 6px rgba(203,213,225,.8)}'+
+ '.cmg.h.tb{background:linear-gradient(135deg,rgba(217,151,98,.3),rgba(180,98,40,.16));border-color:rgba(180,98,40,.6);color:#9a4f1c}.cmg.h.tb .stars{color:#c2773a;text-shadow:0 0 6px rgba(217,151,98,.6)}'+
+ '.cmg.h.tn{background:linear-gradient(135deg,rgba(56,189,248,.16),rgba(34,197,94,.12));border-color:rgba(14,165,233,.45);color:inherit}.cmg.h.tn b{font-size:.92rem}'+
+ ':root[data-theme="dark"] .cmg.h.ts{color:#e2e8f0}:root[data-theme="dark"] .cmg.h.tb{color:#f0b27a}'+
+ '@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cmg.h.ts{color:#e2e8f0}:root:not([data-theme="light"]) .cmg.h.tb{color:#f0b27a}}'+
  '.cmfoot{font-size:.68rem;color:var(--muted);margin:6px 0 0}';document.head.appendChild(st)}
 function cmHTML(r){cmCss();const abs=r.st!=='Present',col=f=>`hsl(${Math.round(48+Math.max(0,Math.min(1,f))*82)},70%,45%)`;
   const mini=(t,v,mx,raw,rawMx,ok,why)=>ok?`<div class="cmm"><small>${t}</small><b>${cmF(v)}<span> /${mx}%</span></b><div class="bar"><i style="width:${Math.max(0,Math.min(100,v/mx*100))}%;background:${col(v/mx)}"></i></div><div class="raw">Raw ${cmR(raw)}/${rawMx}</div></div>`
@@ -48,7 +60,7 @@ function cmHTML(r){cmCss();const abs=r.st!=='Present',col=f=>`hsl(${Math.round(4
    ${mini('Report',r.rp,20,r.rp!=null?r.rp/20*70:null,70,!r.nog,['No mark yet','No group yet'])}
    ${mini('Presentation',r.pr,10,r.pr!=null?r.pr/10*50:null,50,!r.nog,['No mark yet','No group yet'])}</div>
   <div class="cm2"><div class="cmg p"><small>🎯 To pass <span class="gflag" aria-hidden="true">⚑</span> 😊</small><div><b>${cmR(r.pass)}<span> / 100</span></b></div><p>on the final exam${abs?' (midterm counted as 0 until a resit)':''}</p></div>
-   <div class="cmg h${hd==null?' nr':''}"><small>🏆 For an HD 🎉<span class="stars" aria-hidden="true">★★★</span></small>${hd==null?'<div><b>Out of reach this term</b></div><p>A strong final still raises your grade.</p>':`<div><b>${cmR(hd)}<span> / 100</span></b></div><p>on the final exam (85% overall)</p>`}</div></div>
+   ${cmTierHTML(r,tot)}</div>
   <p class="cmfoot">ⓘ Provisional until confirmed by the Business School.</p></div></div>`}
 /* collapsed by default; the choice is remembered on this device */
 const cmOpen=()=>{try{return localStorage.getItem('mkt101_cm_open')==='1'}catch(e){return false}};
