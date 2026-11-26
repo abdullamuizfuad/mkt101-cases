@@ -22,3 +22,7 @@ tools/marking/marked-log.json
 # Discussion prep working files (student answers)
 tools/discuss/*.json
 tools/discuss/*.md
+
+# My Marks: never commit the marks workbook or the PIN list
+*marks*.csv
+*pins*.csv
